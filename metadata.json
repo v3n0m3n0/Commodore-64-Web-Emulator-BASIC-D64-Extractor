@@ -1,0 +1,6 @@
+{
+  "name": "Commodore 64 Web Emulator & BASIC D64 Extractor",
+  "description": "Cycle-accurate Commodore 64 web emulator, D64/T64/TAP/CRT multi-archive extractor, live BASIC V2 detokenizer, 6502 debugger, and Gemini AI Copilot.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

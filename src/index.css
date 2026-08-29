@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #0d1117;
+    color: #e6edf3;
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    overflow-x: hidden;
+  }
+}
+
+/* Retro CRT Monitor Shader Effects */
+:fullscreen, :-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  background-color: #03060a !important;
+}
+
+.crt-screen-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 0 35px rgba(66, 133, 244, 0.25), inset 0 0 40px rgba(0, 0, 0, 0.85);
+}
+
+.crt-scanlines::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.45) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04));
+  z-index: 10;
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+}
+
+.crt-glow {
+  filter: drop-shadow(0 0 6px rgba(118, 171, 255, 0.45));
+}
+
+.crt-curvature {
+  border-radius: 12px;
+  transform: perspective(1000px) rotateX(1.5deg);
+}
+
+/* Custom retro scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #090d13;
+}
+::-webkit-scrollbar-thumb {
+  background: #21262d;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #30363d;
+}
+
+.c64-font {
+  font-family: 'Press Start 2P', monospace;
+}

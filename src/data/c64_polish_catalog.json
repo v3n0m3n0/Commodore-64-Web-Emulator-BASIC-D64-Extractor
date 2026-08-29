@@ -1,0 +1,1048 @@
+{
+  "title": "Polskie Gry Commodore 64 (Standalone Offline)",
+  "total": 58,
+  "generated": "2026-08-26T17:20:13.304Z",
+  "games": [
+    {
+      "id": "agent-uop",
+      "name": "Agent UOP.t64",
+      "title": "Agent UOP",
+      "cleanTitle": "Agent UOP",
+      "ext": "t64",
+      "size": 49951,
+      "romUrl": "roms/polish/Agent UOP.t64",
+      "coverUrl": "images/polish/Agent_UOP.svg",
+      "meta": {
+        "genre": "Przygodowa / Komedia",
+        "author": "Piotr R.",
+        "year": "1993",
+        "desc": "Zabawna gra przygodowa w realiach Polski lat 90. Wciel się w agenta UOP.",
+        "publisher": "ASF"
+      },
+      "desc": "Znakomita gra szpiegowska, w której agent Urzędu Ochrony Państwa rozpracowuje międzynarodową siatkę przestępczą i zabezpiecza tajne dokumenty.",
+      "screenshotUrl": "images/polish/agent_uop_snap.png"
+    },
+    {
+      "id": "arktyczne-polowanie",
+      "name": "Arktyczne Polowanie.PRG",
+      "title": "Arktyczne Polowanie",
+      "cleanTitle": "Arktyczne Polowanie",
+      "ext": "prg",
+      "size": 31127,
+      "romUrl": "roms/polish/Arktyczne Polowanie.PRG",
+      "coverUrl": "images/polish/Arktyczne_Polowanie.svg",
+      "meta": {
+        "genre": "Zręcznościowa",
+        "author": "Krzysztof P.",
+        "year": "1990",
+        "desc": "Polowanie na arktyczne zwierzęta w zimowych krajobrazach."
+      },
+      "screenshotUrl": "images/polish/arktyczne_polowanie_snap.png",
+      "desc": "Z – komputerowa strategiczna gra czasu rzeczywistego, stworzona w 1996 roku przez Bitmap Brothers. Fabuła gry opisuje międzyplanetarną wojnę dwóch armii robotów. Druga część, Z: Steel Soldiers, została wydana w 2001 roku.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Z_(gra_komputerowa)"
+    },
+    {
+      "id": "atak-sapera",
+      "name": "Atak Sapera.d64",
+      "title": "Atak Sapera",
+      "cleanTitle": "Atak Sapera",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Atak Sapera.d64",
+      "coverUrl": "images/polish/Atak_Sapera.svg",
+      "meta": {
+        "genre": "Logiczna / Saper",
+        "author": "Piotr K.",
+        "year": "1992",
+        "desc": "Rozbudowana wersja Sapera z dynamicznymi misjami rozminowywania.",
+        "publisher": "Mirage Interactive"
+      },
+      "desc": "Zaawansowana polska wariacja na temat klasycznego Sapera z rozbudowanymi planszami taktycznymi i dynamicznymi minami.",
+      "screenshotUrl": "images/polish/atak_sapera_snap.png"
+    },
+    {
+      "id": "black-knight",
+      "name": "Black Knight.d64",
+      "title": "Black Knight",
+      "cleanTitle": "Black Knight",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Black Knight.d64",
+      "coverUrl": "images/polish/Black_Knight.svg",
+      "meta": {
+        "genre": "Rycerska / Akcja",
+        "author": "Dark Arts PL",
+        "year": "1992",
+        "desc": "Pojedynki rycerskie na zamku, walka mieczem i turnieje."
+      },
+      "screenshotUrl": "images/polish/black_knight_snap.png",
+      "desc": "Gra o tron – amerykański serial fantasy stworzony przez Davida Benioffa i D.B. Weissa dla HBO, będący adaptacją cyklu powieści Pieśń lodu i ognia, autorstwa amerykańskiego pisarza George’a R.R. Martina. Amerykańska premiera pierwszego sezonu w HBO miała miejsce 17 kwietnia 2011 roku, w Polsce serial zadebiutował dzień później.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Gra_o_tron_(serial_telewizyjny)"
+    },
+    {
+      "id": "burmistrz",
+      "name": "Burmistrz.d64",
+      "title": "Burmistrz",
+      "cleanTitle": "Burmistrz",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Burmistrz.d64",
+      "coverUrl": "images/polish/Burmistrz.svg",
+      "meta": {
+        "genre": "Strategia Ekonomiczna",
+        "author": "TimSoft",
+        "year": "1992",
+        "desc": "Zarządzaj polskim miastem, buduj infrastrukturę i dbaj o finanse mieszkańców.",
+        "publisher": "ASF"
+      },
+      "desc": "Polska strategia ekonomiczna, w której gracz wciela się w burmistrza miasta, zarządzając budżetem, infrastrukturą i dbając o zadowolenie mieszkańców.",
+      "screenshotUrl": "images/polish/burmistrz_snap.png"
+    },
+    {
+      "id": "burmistrz-3",
+      "name": "Burmistrz 3.t64",
+      "title": "Burmistrz 3",
+      "cleanTitle": "Burmistrz 3",
+      "ext": "t64",
+      "size": 24929,
+      "romUrl": "roms/polish/Burmistrz 3.t64",
+      "coverUrl": "images/polish/Burmistrz_3.svg",
+      "meta": {
+        "genre": "Strategia Ekonomiczna",
+        "author": "TimSoft",
+        "year": "1993",
+        "desc": "Trzecia odsłona popularnej symulacji zarządzania miastem na C64.",
+        "publisher": "ASF"
+      },
+      "desc": "Polska strategia ekonomiczna, w której gracz wciela się w burmistrza miasta, zarządzając budżetem, infrastrukturą i dbając o zadowolenie mieszkańców."
+    },
+    {
+      "id": "chwat",
+      "name": "Chwat.d64",
+      "title": "Chwat",
+      "cleanTitle": "Chwat",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Chwat.d64",
+      "coverUrl": "images/polish/Chwat.svg",
+      "meta": {
+        "genre": "Zręcznościowa",
+        "author": "PolSoft",
+        "year": "1991",
+        "desc": "Dynamiczna platformówka z polskim bohaterem ratującym wioskę."
+      },
+      "screenshotUrl": "images/polish/chwat_snap.png",
+      "desc": "TimSoft – polski dystrybutor gier komputerowych i programów edukacyjnych przeznaczonych dla komputerów Commodore 64, Commodore 128 i Amiga i PC. Firma założona została przez Tomasza Golika, który po epizodzie handlu oprogramowaniem na giełdach komputerowych, podjął się wydawania oprogramowania edukacyjnego i gier. W przypadku wydań na komputery 8-bitowe, współpracował z twórcami wywodzącymi się z demosceny, z polskimi grupami produkującymi gry, takimi jak Inflexion Development, czy Agony Design. Założyciel firmy najczęściej nie prowadził procesu produkcji gry, podpisując umowę z twórcą za gotowy produkt i wypłacając gotówkę do ręki.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Timsoft"
+    },
+    {
+      "id": "deadly-messengers",
+      "name": "Deadly Messengers.d64",
+      "title": "Deadly Messengers",
+      "cleanTitle": "Deadly Messengers",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Deadly Messengers.d64",
+      "coverUrl": "images/polish/Deadly_Messengers.svg",
+      "meta": {
+        "genre": "Akcja / Strzelanina",
+        "author": "Cyber Team",
+        "year": "1992",
+        "desc": "Mroczna strzelanina w postapokaliptycznym klimacie science-fiction."
+      },
+      "screenshotUrl": "images/polish/deadly_messengers_snap.png"
+    },
+    {
+      "id": "detektyw",
+      "name": "Detektyw.d64",
+      "title": "Detektyw",
+      "cleanTitle": "Detektyw",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Detektyw.d64",
+      "coverUrl": "images/polish/Detektyw.svg",
+      "meta": {
+        "genre": "Kryminalna / Śledztwo",
+        "author": "Krzysztof R.",
+        "year": "1991",
+        "desc": "Rozwiązuj tajemnicze morderstwa, zbieraj dowody i przesłuchuj podejrzanych."
+      },
+      "desc": "Pokémon, w Japonii Pocket Monsters  – japońska franczyza rozwijana od 1996 roku, na którą składają się produkcje, w których pojawiają się fikcyjne istoty, zwane pokémonami. Najpopularniejszymi dziełami z franczyzy są główna seria gier i serial anime Pokémon. Oprócz tego istnieją też inne gry i seriale o Pokémonach, a także gra karciana Pokémon Trading Card Game, mangi na podstawie gier i serialu, ponad 20 pełnometrażowych filmów anime na podstawie serialu i aktorski film pełnometrażowy.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Pok%C3%A9mon"
+    },
+    {
+      "id": "diamenty",
+      "name": "Diamenty.d64",
+      "title": "Diamenty",
+      "cleanTitle": "Diamenty",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Diamenty.d64",
+      "coverUrl": "images/polish/Diamenty.svg",
+      "meta": {
+        "genre": "Logiczna / Boulder",
+        "author": "Adam B.",
+        "year": "1990",
+        "desc": "Zbieraj klejnoty w jaskiniach uważając na spadające głazy i pułapki."
+      },
+      "screenshotUrl": "images/polish/diamenty_snap.png",
+      "desc": "Mafia – czeska komputerowa przygodowa gra akcji stworzona przez Illusion Softworks, wydana w 2002 roku przez Gathering of Developers na platformę Microsoft Windows. W roku 2004 ukazały się porty na konsole PlayStation 2 i Xbox. Fabuła gry osadzona jest w latach 30. XX wieku w fikcyjnej metropolii Lost Heaven i przedstawia historię Tommy’ego Angela – taksówkarza, który rozpoczyna pracę dla mafijnej rodziny Salierich.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Mafia_(gra_komputerowa)"
+    },
+    {
+      "id": "droga-morska-do-indii",
+      "name": "Droga morska do Indii.t64",
+      "title": "Droga morska do Indii",
+      "cleanTitle": "Droga morska do Indii",
+      "ext": "t64",
+      "size": 16240,
+      "romUrl": "roms/polish/Droga morska do Indii.t64",
+      "coverUrl": "images/polish/Droga_morska_do_Indii.svg",
+      "meta": {
+        "genre": "Strategia Handlowa",
+        "author": "MarkSoft",
+        "year": "1991",
+        "desc": "Wielka wyprawa żaglowcami dookoła Afryki, handel przyprawami i sztormy."
+      },
+      "screenshotUrl": "images/polish/droga_morska_do_indii_snap.png",
+      "desc": "Powrót Obra Dinn – gra logiczna stworzona przez Lucasa Pope’a. Była to jego druga gra komercyjna, po wydanej w 2013 roku grze Papers, Please, i została wydana na macOS oraz Microsoft Windows w październiku 2018 roku. Rok później wypuszczona została wersja na platformy Nintendo Switch, PlayStation 4 i Xbox One.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Powr%C3%B3t_Obra_Dinn"
+    },
+    {
+      "id": "ekonomia-feudalna",
+      "name": "Ekonomia Feudalna.d64",
+      "title": "Ekonomia Feudalna",
+      "cleanTitle": "Ekonomia Feudalna",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Ekonomia Feudalna.d64",
+      "coverUrl": "images/polish/Ekonomia_Feudalna.svg",
+      "meta": {
+        "genre": "Strategia Ekonomiczna",
+        "author": "Piotr W.",
+        "year": "1991",
+        "desc": "Symulator średniowiecznego feudała: chłopi, zamki, wojny i podatki."
+      },
+      "desc": "Total War – seria gier strategicznych tworzona przez brytyjską firmę Creative Assembly. Seria jest kombinacją strategii czasu rzeczywistego oraz strategii turowych.\nPierwsza gra z serii to Shogun: Total War wydana 13 czerwca 2000 roku. Najnowszą grą z serii jest Total War: Pharaoh, wydana 11 października 2023 roku.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Total_War_(seria)"
+    },
+    {
+      "id": "familiada",
+      "name": "Familiada.d64",
+      "title": "Familiada",
+      "cleanTitle": "Familiada",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Familiada.d64",
+      "coverUrl": "images/polish/Familiada.svg",
+      "meta": {
+        "genre": "Teleturniej",
+        "author": "TV Games PL",
+        "year": "1994",
+        "desc": "Polska gra komputerowa oparta na kultowym teleturnieju telewizyjnym."
+      },
+      "screenshotUrl": "images/polish/familiada_snap.png",
+      "desc": "Familiada – polski teleturniej oparty na formacie Family Feud emitowany od 1994 roku na antenie TVP2. Jego prowadzącym jest Karol Strasburger. Udział w programie biorą dwie rywalizujące ze sobą drużyny, które odpowiadają na pytania, starając się odgadnąć najczęstsze wskazania ankietowanych.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Familiada"
+    },
+    {
+      "id": "fortuna-kolem-sie-toczy",
+      "name": "Fortuna kolem sie toczy.d64",
+      "title": "Fortuna kolem sie toczy",
+      "cleanTitle": "Fortuna kolem sie toczy",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Fortuna kolem sie toczy.d64",
+      "coverUrl": "images/polish/Fortuna_kolem_sie_toczy.svg",
+      "meta": {
+        "genre": "Klasyczna Gra C64",
+        "author": "Polski Gamedev",
+        "year": "1993",
+        "desc": "Polska gra na mikrokomputer Commodore 64 z archiwum C64Power.",
+        "publisher": "Marex"
+      },
+      "desc": "Polski teleturniej słowny wzorowany na \"Kole Fortuny\". Gracze kręcą kołem, obstawiają litery i odgadują hasła z wielu zróżnicowanych kategorii."
+    },
+    {
+      "id": "hammurabi",
+      "name": "Hammurabi.d64",
+      "title": "Hammurabi",
+      "cleanTitle": "Hammurabi",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Hammurabi.d64",
+      "coverUrl": "images/polish/Hammurabi.svg",
+      "meta": {
+        "genre": "Symulacja Rządzenia",
+        "author": "Klasyk",
+        "year": "1988",
+        "desc": "Zarządzaj starożytnym Babilonem: uprawy pszenicy, ziemia i podatki."
+      },
+      "screenshotUrl": "images/polish/hammurabi_snap.png",
+      "desc": "Civilization lub Sid Meier's Civilization – strategiczna gra turowa stworzona przez Sida Meiera dla firmy MicroProse w 1991 roku.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Civilization"
+    },
+    {
+      "id": "hans-kloss",
+      "name": "Hans Kloss.d64",
+      "title": "Hans Kloss",
+      "cleanTitle": "Hans Kloss",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Hans Kloss.d64",
+      "coverUrl": "images/polish/Hans_Kloss.svg",
+      "meta": {
+        "genre": "Szpiegowska / Akcja",
+        "author": "ASF / Janusz Pelc",
+        "year": "1992",
+        "desc": "Kultowa gra akcji o przygodach kapitana Klossa w tajnej niemieckiej bazie.",
+        "publisher": "LK Avalon"
+      },
+      "desc": "Kultowa gra szpiegowska na motywach serialu \"Stawka większa niż życie\". Jako agent J-23 infiltrujemy tajną nazistowską bazę w Wolfsschanze, by wykraść plany rakiet V1 i V2.",
+      "screenshotUrl": "images/polish/hans_kloss_snap.png"
+    },
+    {
+      "id": "hobbit-czyli-w-te-i-wewte",
+      "name": "Hobbit czyli w te i wewte.d64",
+      "title": "Hobbit czyli w te i wewte",
+      "cleanTitle": "Hobbit czyli w te i wewte",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Hobbit czyli w te i wewte.d64",
+      "coverUrl": "images/polish/Hobbit_czyli_w_te_i_wewte.svg",
+      "meta": {
+        "genre": "Przygodowa Tekstowa",
+        "author": "Polski Fandom",
+        "year": "1990",
+        "desc": "Polska tekstowa adaptacja słynnej powieści J.R.R. Tolkiena."
+      },
+      "desc": "Branża gier komputerowych w Polsce – ogół produkcji i dystrybucji gier komputerowych na terenie Polski, rozumianej w latach 1958–1989 jako terytorium Polskiej Rzeczypospolitej Ludowej, a od 1989 roku – jako terytorium III Rzeczypospolitej.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Bran%C5%BCa_gier_komputerowych_w_Polsce"
+    },
+    {
+      "id": "kaktus",
+      "name": "Kaktus.prg",
+      "title": "Kaktus",
+      "cleanTitle": "Kaktus",
+      "ext": "prg",
+      "size": 7693,
+      "romUrl": "roms/polish/Kaktus.prg",
+      "coverUrl": "images/polish/kaktus_boxart.png",
+      "meta": {
+        "genre": "Zręcznościowa",
+        "author": "Marek K.",
+        "year": "1991",
+        "desc": "Zabawna gra zręcznościowa z przeszkodami na Dzikim Zachodzie."
+      },
+      "cover": "images/polish/kaktus_boxart.png",
+      "desc": "Komputerowa gra przygodowa – gatunek gier komputerowych, w których gracz odgrywa rolę protagonisty w opowieści, której postęp wyznacza eksploracja świata przedstawionego i rozwiązywanie zagadek. Nacisk położony przez gatunek na fabułę powoduje, że należące do niego gry mogą silnie czerpać z mediów takich, jak literatura i film. Gry przygodowe wykorzystują konwencję różnorodnych gatunków literackich, są również przeważnie zaprojektowane na potrzeby jednego gracza ze względu na trudność w przeniesieniu postaci i fabuły na mechanikę gier wieloosobowych.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Komputerowa_gra_przygodowa"
+    },
+    {
+      "id": "klatwa",
+      "name": "Klatwa.d64",
+      "title": "Klatwa",
+      "cleanTitle": "Klatwa",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Klatwa.d64",
+      "coverUrl": "images/polish/Klatwa.svg",
+      "meta": {
+        "genre": "Przygodowa RPG",
+        "author": "L.K. Avalon / Roland Pantoła",
+        "year": "1990",
+        "desc": "Mroczna gra przygodowa w świecie słowiańskich mitów i czarnoksiężników.",
+        "publisher": "LK Avalon"
+      },
+      "desc": "Mroczna i klimatyczna gra przygodowa osadzona w świecie słowiańskich mitów i czarów. Bohater wyrusza do przeklętej krainy, by zdjąć wieczną klątwę z dawnego królestwa."
+    },
+    {
+      "id": "klemens",
+      "name": "Klemens.d64",
+      "title": "Klemens",
+      "cleanTitle": "Klemens",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Klemens.d64",
+      "coverUrl": "images/polish/Klemens.svg",
+      "meta": {
+        "genre": "Platformowa",
+        "author": "Soft Land",
+        "year": "1992",
+        "desc": "Przygody sympatycznego stworka Klemensa w kolorowych światach."
+      },
+      "desc": "Gra z Cieniem – polski serial telewizyjny w reżyserii Kingi Dębskiej, emitowany na antenie TVP1 od 15 września do 8 grudnia 2024.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Gra_z_Cieniem"
+    },
+    {
+      "id": "klepkomania",
+      "name": "Klepkomania.t64",
+      "title": "Klepkomania",
+      "cleanTitle": "Klepkomania",
+      "ext": "t64",
+      "size": 33862,
+      "romUrl": "roms/polish/Klepkomania.t64",
+      "coverUrl": "images/polish/Klepkomania.svg",
+      "meta": {
+        "genre": "Logiczna",
+        "author": "Puzzle PL",
+        "year": "1993",
+        "desc": "Układaj pasujące klocki i czyść planszę w rytm dynamicznej muzyki."
+      }
+    },
+    {
+      "id": "kolony-4-4",
+      "name": "Kolony 4.4.d64",
+      "title": "Kolony 4.4",
+      "cleanTitle": "Kolony 4.4",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Kolony 4.4.d64",
+      "coverUrl": "images/polish/Kolony_4_4.svg",
+      "meta": {
+        "genre": "Kosmiczna Kolonizacja",
+        "author": "Sci-Fi PL",
+        "year": "1993",
+        "desc": "Rozbudowana wersja symulatora kolonizacji z zaawansowaną ekonomią."
+      },
+      "desc": "Mirage Media, wcześniej Mirage Software, Mirage Interactive, System 64 – polski producent i wydawca gier oraz programów komputerowych istniejący w latach 1988–2000.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Mirage_Media"
+    },
+    {
+      "id": "kolormania",
+      "name": "Kolormania.t64",
+      "title": "Kolormania",
+      "cleanTitle": "Kolormania",
+      "ext": "t64",
+      "size": 32919,
+      "romUrl": "roms/polish/Kolormania.t64",
+      "coverUrl": "images/polish/Kolormania.svg",
+      "meta": {
+        "genre": "Logiczna Kolorowa",
+        "author": "Color Soft",
+        "year": "1992",
+        "desc": "Dopasowuj kolory i rozwiązuj zagadki logiczne na czas."
+      }
+    },
+    {
+      "id": "later-preview",
+      "name": "Later Preview.t64",
+      "title": "Later Preview",
+      "cleanTitle": "Later Preview",
+      "ext": "t64",
+      "size": 15824,
+      "romUrl": "roms/polish/Later Preview.t64",
+      "coverUrl": "images/polish/Later_Preview.svg",
+      "meta": {
+        "genre": "Demo / Prezentacja",
+        "author": "Future PL",
+        "year": "1993",
+        "desc": "Prezentacja nowatorskich efektów graficznych i muzyki na C64."
+      },
+      "desc": "Asura's Wrath – fabularna gra akcji wyprodukowana przez CyberConnect2 i wydana 21 lutego 2012 roku przez Capcom na konsole PlayStation 3 i Xbox 360.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Asura%E2%80%99s_Wrath"
+    },
+    {
+      "id": "lingos",
+      "name": "Lingos.PRG",
+      "title": "Lingos",
+      "cleanTitle": "Lingos",
+      "ext": "prg",
+      "size": 40675,
+      "romUrl": "roms/polish/Lingos.PRG",
+      "coverUrl": "images/polish/Lingos.svg",
+      "meta": {
+        "genre": "Logiczna / Językowa",
+        "author": "Lex Soft",
+        "year": "1991",
+        "desc": "Odgaduj 5-literowe słowa w stylu kultowego Lingo."
+      }
+    },
+    {
+      "id": "machina-prawdy",
+      "name": "Machina Prawdy.t64",
+      "title": "Machina Prawdy",
+      "cleanTitle": "Machina Prawdy",
+      "ext": "t64",
+      "size": 8551,
+      "romUrl": "roms/polish/Machina Prawdy.t64",
+      "coverUrl": "images/polish/Machina_Prawdy.svg",
+      "meta": {
+        "genre": "Psychologiczna / Quiz",
+        "author": "MindSoft",
+        "year": "1992",
+        "desc": "Testy osobowości i prawdy z humorystycznymi odpowiedziami."
+      },
+      "desc": "Detroit: Become Human – komputerowa gra przygodowa stworzona w 2018 roku przez Quantic Dream i wydana przez Sony Interactive Entertainment. Ukazała się na konsoli PlayStation 4 w maju 2018 roku. Quantic Dream wydało port na system Windows na licencji Sony w grudniu 2019 roku. Fabuła śledzi losy trzech androidów: Kary, która ucieka właścicielowi, by odkryć swoją nowo nabytą świadomość i chronić małą dziewczynkę; Connora, którego zadaniem jest tropienie świadomych androidów; oraz Markusa, który początkowo jest opiekunem starszego mężczyzny, lecz z czasem poświęca się uwalnianiu innych androidów z niewoli. Wybory gracza wpływają na przebieg i zakończenie opowieści.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Detroit%3A_Become_Human"
+    },
+    {
+      "id": "madrax",
+      "name": "Madrax.d64",
+      "title": "Madrax",
+      "cleanTitle": "Madrax",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Madrax.d64",
+      "coverUrl": "images/polish/Madrax.svg",
+      "meta": {
+        "genre": "Sci-Fi / Akcja",
+        "author": "Matrix Team",
+        "year": "1992",
+        "desc": "Futurystyczny pojazd bojowy na obcej planecie pełnej robotów."
+      }
+    },
+    {
+      "id": "mapa-europy",
+      "name": "Mapa Europy.d64",
+      "title": "Mapa Europy",
+      "cleanTitle": "Mapa Europy",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Mapa Europy.d64",
+      "coverUrl": "images/polish/Mapa_Europy.svg",
+      "meta": {
+        "genre": "Edukacyjna / Geografia",
+        "author": "EduSoft PL",
+        "year": "1991",
+        "desc": "Sprawdź swoją wiedzę o stolicach, granicach i państwach Europy."
+      },
+      "desc": "Europa Universalis II – komputerowa strategiczna gra czasu rzeczywistego osadzona w realiach epoki nowożytnej, wyprodukowana przez szwedzkie przedsiębiorstwo Paradox Entertainment i wydana w 2001 roku przez Strategy First. Jest to kontynuacja gry Europa Universalis z 1999 roku i druga część serii Europa Universalis. Jej akcja toczy się w latach 1419–1820, a gracz wciela się w niej w rolę przywódcy wybranego przez siebie państwa z tego okresu.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Europa_Universalis_II"
+    },
+    {
+      "id": "moon-patrol",
+      "name": "Moon Patrol.d64",
+      "title": "Moon Patrol",
+      "cleanTitle": "Moon Patrol",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Moon Patrol.d64",
+      "coverUrl": "images/polish/moon_patrol_boxart.png",
+      "meta": {
+        "genre": "Zręcznościowa Kosmiczna",
+        "author": "Moon Team",
+        "year": "1990",
+        "desc": "Księżycowy łazik przeskakujący kratery i strzelający do UFO."
+      },
+      "cover": "images/polish/moon_patrol_boxart.png",
+      "desc": "Moon Patrol – komputerowa gra zręcznościowa stworzona przez firmę Irem i wydana w 1982 roku. Gracz kieruje czołgiem księżycowym wyposażonym w dwa działka i generator pola antygrawitacji pozwalający przeskakiwać przeszkody, a jego celem jest patrolowanie księżyca i niszczenie napotkanych po drodze przeciwników. Gra ukazała się na wielu platformach sprzętowych: automaty arcade, Atari, Commodore, PC.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Moon_Patrol"
+    },
+    {
+      "id": "najemnik",
+      "name": "Najemnik.d64",
+      "title": "Najemnik",
+      "cleanTitle": "Najemnik",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Najemnik.d64",
+      "coverUrl": "images/polish/Najemnik.svg",
+      "meta": {
+        "genre": "Akcja / Labirynt",
+        "author": "Mirage / Tomasz Pazdan",
+        "year": "1993",
+        "desc": "Eksploracja wrogiego kompleksu wojskowego jako uzbrojony najemnik.",
+        "publisher": "Mirage Interactive"
+      },
+      "desc": "Taktyczna gra akcji o elitarnym najemniku wykonującym niebezpieczne zlecenia na wrogim terytorium."
+    },
+    {
+      "id": "najemnik-powrot",
+      "name": "Najemnik - Powrot.d64",
+      "title": "Najemnik - Powrot",
+      "cleanTitle": "Najemnik - Powrot",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Najemnik - Powrot.d64",
+      "coverUrl": "images/polish/Najemnik___Powrot.svg",
+      "meta": {
+        "genre": "Akcja / Labirynt",
+        "author": "Mirage",
+        "year": "1992",
+        "desc": "Kontynuacja hitu Najemnik z nowymi poziomami i ulepszoną grafiką.",
+        "publisher": "Mirage Interactive"
+      },
+      "desc": "Taktyczna gra akcji o elitarnym najemniku wykonującym niebezpieczne zlecenia na wrogim terytorium."
+    },
+    {
+      "id": "namiestnik",
+      "name": "Namiestnik.d64",
+      "title": "Namiestnik",
+      "cleanTitle": "Namiestnik",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Namiestnik.d64",
+      "coverUrl": "images/polish/Namiestnik.svg",
+      "meta": {
+        "genre": "Strategia Historyczna",
+        "author": "History PL",
+        "year": "1992",
+        "desc": "Rządź prowincją Rzeczypospolitej w czasach sarmackich."
+      },
+      "desc": "Gra o tron – amerykański serial fantasy stworzony przez Davida Benioffa i D.B. Weissa dla HBO, będący adaptacją cyklu powieści Pieśń lodu i ognia, autorstwa amerykańskiego pisarza George’a R.R. Martina. Amerykańska premiera pierwszego sezonu w HBO miała miejsce 17 kwietnia 2011 roku, w Polsce serial zadebiutował dzień później.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Gra_o_tron_(serial_telewizyjny)"
+    },
+    {
+      "id": "oel-pompowacze",
+      "name": "Oel Pompowacze.d64",
+      "title": "Oel Pompowacze",
+      "cleanTitle": "Oel Pompowacze",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Oel Pompowacze.d64",
+      "coverUrl": "images/polish/Oel_Pompowacze.svg",
+      "meta": {
+        "genre": "Symulacja Naftowa",
+        "author": "Oil Corp",
+        "year": "1991",
+        "desc": "Wierć szyby naftowe w poszukiwaniu czarnego złota i sprzedawaj ropę."
+      }
+    },
+    {
+      "id": "operacja-proboszcz",
+      "name": "Operacja Proboszcz.t64",
+      "title": "Operacja Proboszcz",
+      "cleanTitle": "Operacja Proboszcz",
+      "ext": "t64",
+      "size": 22065,
+      "romUrl": "roms/polish/Operacja Proboszcz.t64",
+      "coverUrl": "images/polish/Operacja_Proboszcz.svg",
+      "meta": {
+        "genre": "Komediowa Przygodowa",
+        "author": "Satyr Soft",
+        "year": "1993",
+        "desc": "Zabawna gra przygodowa osadzona w małej polskiej parafii."
+      }
+    },
+    {
+      "id": "ortografia",
+      "name": "Ortografia.d64",
+      "title": "Ortografia",
+      "cleanTitle": "Ortografia",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Ortografia.d64",
+      "coverUrl": "images/polish/Ortografia.svg",
+      "meta": {
+        "genre": "Edukacyjna / Językowa",
+        "author": "Szkoła Soft",
+        "year": "1991",
+        "desc": "Nauka zasad pisowni języka polskiego w formie wciągających gier."
+      },
+      "desc": "CD Projekt SA – polska spółka akcyjna zajmująca się produkcją i dystrybucją gier komputerowych za pośrednictwem swoich jednostek zależnych. Podmiot dominujący grupy kapitałowej CD Projekt.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/CD_Projekt"
+    },
+    {
+      "id": "ortotris",
+      "name": "Ortotris.t64",
+      "title": "Ortotris",
+      "cleanTitle": "Ortotris",
+      "ext": "t64",
+      "size": 28551,
+      "romUrl": "roms/polish/Ortotris.t64",
+      "coverUrl": "images/polish/Ortotris.svg",
+      "meta": {
+        "genre": "Logiczna / Słowna",
+        "author": "Word Games",
+        "year": "1993",
+        "desc": "Połączenie Tetrisa z układaniem poprawnych ortograficznie wyrazów."
+      },
+      "desc": "TimSoft – polski dystrybutor gier komputerowych i programów edukacyjnych przeznaczonych dla komputerów Commodore 64, Commodore 128 i Amiga i PC. Firma założona została przez Tomasza Golika, który po epizodzie handlu oprogramowaniem na giełdach komputerowych, podjął się wydawania oprogramowania edukacyjnego i gier. W przypadku wydań na komputery 8-bitowe, współpracował z twórcami wywodzącymi się z demosceny, z polskimi grupami produkującymi gry, takimi jak Inflexion Development, czy Agony Design. Założyciel firmy najczęściej nie prowadził procesu produkcji gry, podpisując umowę z twórcą za gotowy produkt i wypłacając gotówkę do ręki.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Timsoft"
+    },
+    {
+      "id": "playfull-professor",
+      "name": "Playfull Professor.d64",
+      "title": "Playfull Professor",
+      "cleanTitle": "Playfull Professor",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Playfull Professor.d64",
+      "coverUrl": "images/polish/Playfull_Professor.svg",
+      "meta": {
+        "genre": "Quiz Naukowy",
+        "author": "Prof Soft",
+        "year": "1992",
+        "desc": "Pojedynek na wiedzę naukową ze zwariowanym profesorem."
+      }
+    },
+    {
+      "id": "poker",
+      "name": "Poker.d64",
+      "title": "Poker",
+      "cleanTitle": "Poker",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Poker.d64",
+      "coverUrl": "images/polish/poker_boxart.png",
+      "meta": {
+        "genre": "Karciana",
+        "author": "Casino Soft",
+        "year": "1990",
+        "desc": "Klasyczny 5-kartowy poker dobierany przeciwko komputerowi."
+      },
+      "cover": "images/polish/poker_boxart.png",
+      "screenshotUrl": "images/polish/poker_snap.png",
+      "desc": "Poker – gra karciana rozgrywana najczęściej 1 talią składającą się z 52 kart, której celem jest wygranie pieniędzy od pozostałych uczestników dzięki skompletowaniu najlepszego układu lub za pomocą tzw. blefu. Nie ma ograniczenia liczby graczy przy jednym stole, ale ze względów praktycznych nie gra się w więcej niż dziesięć osób. W pokera można grać również talią 24-kartową lub 32-kartową.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Poker"
+    },
+    {
+      "id": "poker-po-polsku",
+      "name": "Poker po polsku.d64",
+      "title": "Poker po polsku",
+      "cleanTitle": "Poker po polsku",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Poker po polsku.d64",
+      "coverUrl": "images/polish/Poker_po_polsku.svg",
+      "meta": {
+        "genre": "Karciana / Poker",
+        "author": "Casino PL",
+        "year": "1991",
+        "desc": "Texas & Draw Poker z polskim interfejsem i wirtualnymi żetonami."
+      },
+      "desc": "Bobmark International – polskie przedsiębiorstwo założone w czerwcu 1991 roku przez Dariusza Wojdygę, Marka Jutkiewicza, Jerzego Sulicha, Jacka Bobera i Petera Horlycka. W latach 90. jedna z największych spółek w polskiej branży gier komputerowych.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Bobmark_International"
+    },
+    {
+      "id": "prawo-boylea",
+      "name": "Prawo Boylea.d64",
+      "title": "Prawo Boylea",
+      "cleanTitle": "Prawo Boylea",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Prawo Boylea.d64",
+      "coverUrl": "images/polish/Prawo_Boylea.svg",
+      "meta": {
+        "genre": "Fizyczna / Edukacyjna",
+        "author": "Lab Soft",
+        "year": "1990",
+        "desc": "Interaktywne doświadczenia z ciśnieniem gazów i termodynamiką."
+      }
+    },
+    {
+      "id": "robbo",
+      "name": "Robbo.d64",
+      "title": "Robbo",
+      "cleanTitle": "Robbo",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Robbo.d64",
+      "coverUrl": "images/polish/Robbo.svg",
+      "meta": {
+        "genre": "Logiczna / Zręcznościowa",
+        "author": "L.K. Avalon / Janusz Pelc",
+        "year": "1989",
+        "desc": "Absolutny klasyk polskiego gamedevu. Zbieraj śrubki i uciekaj ze stacji kosmicznej.",
+        "publisher": "LK Avalon"
+      },
+      "desc": "Absolutny klasyk i jedna z najsłynniejszych polskich gier w historii. Wcielamy się w sympatycznego robocika Robbo, który przemierza wrogie planety, zbierając śrubki i klucze do kapsuły ratunkowej."
+    },
+    {
+      "id": "samowolka",
+      "name": "Samowolka.d64",
+      "title": "Samowolka",
+      "cleanTitle": "Samowolka",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Samowolka.d64",
+      "coverUrl": "images/polish/Samowolka.svg",
+      "meta": {
+        "genre": "Przygodowa Wojenna",
+        "author": "Wojsko Soft",
+        "year": "1992",
+        "desc": "Ucieknij z jednostki wojskowej na tytułową samowolkę i nie daj się złapać WSW.",
+        "publisher": "TimSoft"
+      },
+      "desc": "Zabawna gra o ucieczce żołnierza z jednostki wojskowej na samowolkę, pełna humoru i zręcznościowych wyzwań."
+    },
+    {
+      "id": "saper",
+      "name": "Saper.d64",
+      "title": "Saper",
+      "cleanTitle": "Saper",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Saper.d64",
+      "coverUrl": "images/polish/Saper.svg",
+      "meta": {
+        "genre": "Logiczna",
+        "author": "Tomasz G.",
+        "year": "1993",
+        "desc": "Klasyczna gra logiczna w polskim wydaniu na mikrokomputer C64.",
+        "publisher": "Mirage Interactive"
+      },
+      "desc": "Zaawansowana polska wariacja na temat klasycznego Sapera z rozbudowanymi planszami taktycznymi i dynamicznymi minami.",
+      "screenshotUrl": "images/polish/saper_snap.png"
+    },
+    {
+      "id": "saper-2",
+      "name": "Saper 2.d64",
+      "title": "Saper 2",
+      "cleanTitle": "Saper 2",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Saper 2.d64",
+      "coverUrl": "images/polish/Saper_2.svg",
+      "meta": {
+        "genre": "Logiczna",
+        "author": "Tomasz G.",
+        "year": "1992",
+        "desc": "Ulepszona wersja Sapera z różnymi rozmiarami pól minowych."
+      },
+      "desc": "Gra z Cieniem – polski serial telewizyjny w reżyserii Kingi Dębskiej, emitowany na antenie TVP1 od 15 września do 8 grudnia 2024.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Gra_z_Cieniem"
+    },
+    {
+      "id": "slaterman",
+      "name": "Slaterman.t64",
+      "title": "Slaterman",
+      "cleanTitle": "Slaterman",
+      "ext": "t64",
+      "size": 51012,
+      "romUrl": "roms/polish/Slaterman.t64",
+      "coverUrl": "images/polish/Slaterman.svg",
+      "meta": {
+        "genre": "Platformowa Akcja",
+        "author": "Action PL",
+        "year": "1992",
+        "desc": "Dynamiczna platformówka z przeszkodami i walką z bossami.",
+        "publisher": "Mirage Interactive"
+      },
+      "desc": "Dynamiczna polska gra akcji z unikalną grafiką i ścieżką dźwiękową SID, wydana w schyłkowym, najbardziej zaawansowanym okresie Commodore 64."
+    },
+    {
+      "id": "slownik-angielsko-polski",
+      "name": "Slownik Angielsko-Polski.d64",
+      "title": "Slownik Angielsko-Polski",
+      "cleanTitle": "Slownik Angielsko-Polski",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Slownik Angielsko-Polski.d64",
+      "coverUrl": "images/polish/Slownik_Angielsko_Polski.svg",
+      "meta": {
+        "genre": "Narzędzie Edukacyjne",
+        "author": "Lexicon Soft",
+        "year": "1991",
+        "desc": "Baza tysięcy słówek angielskich z polskimi tłumaczeniami na C64."
+      },
+      "desc": "Kompatybilność – cecha oprogramowania oraz sprzętu, która umożliwia prawidłową współpracę systemów komputerowych, w szczególności wymianę danych.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Kompatybilno%C5%9B%C4%87_(informatyka)"
+    },
+    {
+      "id": "spekulant-europejski",
+      "name": "Spekulant Europejski.d64",
+      "title": "Spekulant Europejski",
+      "cleanTitle": "Spekulant Europejski",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Spekulant Europejski.d64",
+      "coverUrl": "images/polish/Spekulant_Europejski.svg",
+      "meta": {
+        "genre": "Handlowa / Giełda",
+        "author": "Euro Trade",
+        "year": "1992",
+        "desc": "Handel towarami na rynkach zachodnich po otwarciu granic w Europie."
+      }
+    },
+    {
+      "id": "splitter",
+      "name": "Splitter.d64",
+      "title": "Splitter",
+      "cleanTitle": "Splitter",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Splitter.d64",
+      "coverUrl": "images/polish/Splitter.svg",
+      "meta": {
+        "genre": "Zręcznościowa",
+        "author": "Laser Team",
+        "year": "1991",
+        "desc": "Rozszczepiaj cząstki i unikaj zderzeń w geometrycznym labiryncie."
+      }
+    },
+    {
+      "id": "squash",
+      "name": "Squash.d64",
+      "title": "Squash",
+      "cleanTitle": "Squash",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Squash.d64",
+      "coverUrl": "images/polish/squash_boxart.png",
+      "meta": {
+        "genre": "Sportowa",
+        "author": "Sport Soft",
+        "year": "1990",
+        "desc": "Szybki pojedynek w squasha na korcie z odbijaniem piłki od ścian."
+      },
+      "cover": "images/polish/squash_boxart.png",
+      "screenshotUrl": "images/polish/squash_snap.png",
+      "desc": "Squash – dyscyplina sportowa polegająca na odbijaniu rakietą piłki o ścianę w sposób, który w maksymalnym stopniu utrudni ponowne odbicie piłki przez przeciwnika.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Squash"
+    },
+    {
+      "id": "szlak-miecza",
+      "name": "Szlak Miecza.d64",
+      "title": "Szlak Miecza",
+      "cleanTitle": "Szlak Miecza",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Szlak Miecza.d64",
+      "coverUrl": "images/polish/Szlak_Miecza.svg",
+      "meta": {
+        "genre": "Fantasy RPG",
+        "author": "Sword Soft",
+        "year": "1992",
+        "desc": "Wędruj przez krainę Magii i Miecza, zdobywaj artefakty i pokonaj smoka."
+      },
+      "desc": "Wiedźmin – komputerowa gra fabularna w konwencji fantasy, wyprodukowana przez CD Projekt Red i wydana przez Atari. Jej premiera odbyła się 26 października 2007 roku na platformie Microsoft Windows, natomiast w kwietniu 2012 roku ukazała się jej wersja na komputery z systemem macOS.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Wied%C5%BAmin_(gra_komputerowa)"
+    },
+    {
+      "id": "trener",
+      "name": "Trener.d64",
+      "title": "Trener",
+      "cleanTitle": "Trener",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Trener.d64",
+      "coverUrl": "images/polish/Trener.svg",
+      "meta": {
+        "genre": "Manager Sportowy",
+        "author": "Krzysztof B.",
+        "year": "1991",
+        "desc": "Zarządzaj kadrą sportową, ustalaj taktykę i trenuj mistrzów."
+      },
+      "desc": "Dispatch – komputerowa gra przygodowa z elementami strategicznymi wyprodukowana i wydana przez amerykańskie studio AdHoc Studio. Akcja gry osadzona jest we współczesnym Los Angeles, a jej fabuła utrzymana jest w konwencji superbohaterskiej komedii. Gracz wciela się w postać Roberta Robertsona – pozbawionego mocy herosa znanego jako Mecha Man, który po utracie swojego pancerza podejmuje pracę jako dyspozytor. Jego zadaniem jest zarządzanie grupą niesubordynowanych byłych złoczyńców, znanych jako Z-Team, oraz nawigowanie między relacjami biurowymi a walką z przestępczością.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Dispatch_(gra_komputerowa)"
+    },
+    {
+      "id": "triada",
+      "name": "Triada.d64",
+      "title": "Triada",
+      "cleanTitle": "Triada",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Triada.d64",
+      "coverUrl": "images/polish/Triada.svg",
+      "meta": {
+        "genre": "Klasyczna Gra C64",
+        "author": "Polski Gamedev",
+        "year": "1991",
+        "desc": "Polska gra na mikrokomputer Commodore 64 z archiwum C64Power."
+      },
+      "screenshotUrl": "images/polish/triada_snap.png",
+      "desc": "Triada – chińskie organizacje podziemne, które powstały w XVII wieku w celu obalenia mandżurskiej dynastii Qing. W XIX wieku rozpoczęły działalność przestępczą. Obecnie są synonimem chińskich organizacji przestępczych – tak jak mafia we Włoszech czy yakuza w Japonii.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Triada"
+    },
+    {
+      "id": "twierdza",
+      "name": "Twierdza.d64",
+      "title": "Twierdza",
+      "cleanTitle": "Twierdza",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Twierdza.d64",
+      "coverUrl": "images/polish/Twierdza.svg",
+      "meta": {
+        "genre": "Strategia Obronna",
+        "author": "Castle PL",
+        "year": "1991",
+        "desc": "Broń średniowiecznego zamku przed falami najeźdźców i machinami oblężniczymi."
+      },
+      "desc": "Twierdza – gra stworzona przez firmę Firefly Studios, połączenie symulatora budowy średniowiecznych zamczysk i strategii ekonomicznej polegającej na zarządzaniu miastem.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Twierdza_(gra_komputerowa)"
+    },
+    {
+      "id": "war-for-the-crown-2-successors-of-the-throne",
+      "name": "War for the Crown 2 - Successors of the Throne.d64",
+      "title": "War for the Crown 2 - Successors of the Throne",
+      "cleanTitle": "War for the Crown 2 - Successors of the Throne",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/War for the Crown 2 - Successors of the Throne.d64",
+      "coverUrl": "images/polish/war_for_the_crown_2_successors_of_the_throne_boxart.png",
+      "meta": {
+        "genre": "Strategia Rycerska",
+        "author": "Crown Team",
+        "year": "1993",
+        "desc": "Wielka wojna o koronę królestwa, dowodzenie armią i dyplomacja."
+      },
+      "cover": "images/polish/war_for_the_crown_2_successors_of_the_throne_boxart.png"
+    },
+    {
+      "id": "wladca",
+      "name": "Wladca.d64",
+      "title": "Wladca",
+      "cleanTitle": "Wladca",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Wladca.d64",
+      "coverUrl": "images/polish/Wladca.svg",
+      "meta": {
+        "genre": "Strategia Królewska",
+        "author": "King Soft",
+        "year": "1991",
+        "desc": "Wciel się w króla, dbaj o skarb państwa, wojsko i sojusze międzynarodowe."
+      },
+      "desc": "Shire – region ze stworzonej przez J.R.R. Tolkiena mitologii Śródziemia zamieszkany przez hobbitów. Leżał w Eriadorze, w granicach Arnoru. Jego nazwa w westronie to Sûza.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/Shire_(%C5%9Ar%C3%B3dziemie)"
+    },
+    {
+      "id": "wladcy-ciemnosci",
+      "name": "Wladcy ciemnosci.d64",
+      "title": "Wladcy ciemnosci",
+      "cleanTitle": "Wladcy ciemnosci",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "roms/polish/Wladcy ciemnosci.d64",
+      "coverUrl": "images/polish/Wladcy_ciemnosci.svg",
+      "meta": {
+        "genre": "Tekstowa Przygodowa",
+        "author": "ASF",
+        "year": "1992",
+        "desc": "Niezwykle klimatyczna tekstowa gra RPG fantasy w języku polskim.",
+        "publisher": "LK Avalon"
+      },
+      "desc": "Bezpośrednia kontynuacja legendarnej \"Klątwy\". Gracz eksploruje labirynty podziemi, rozwiązuje skomplikowane zagadki i stawia czoła potężnym siłom mroku."
+    },
+    {
+      "id": "zamczysko",
+      "name": "Zamczysko.t64",
+      "title": "Zamczysko",
+      "cleanTitle": "Zamczysko",
+      "ext": "t64",
+      "size": 21260,
+      "romUrl": "roms/polish/Zamczysko.t64",
+      "coverUrl": "images/polish/Zamczysko.svg",
+      "meta": {
+        "genre": "Tajemnicza Przygoda",
+        "author": "Ghost Team",
+        "year": "1992",
+        "desc": "Eksploracja opuszczonego nawiedzonego zamczyska pełnego pułapek.",
+        "publisher": "ASF"
+      },
+      "desc": "Klimatyczna polska gra eksploracyjna w mrocznym zamczysku pełnym ukrytych przejść, skarbów i pradawnych tajemnic."
+    },
+    {
+      "id": "zombi",
+      "name": "Zombi.T64",
+      "title": "Zombi",
+      "cleanTitle": "Zombi",
+      "ext": "t64",
+      "size": 39492,
+      "romUrl": "roms/polish/Zombi.T64",
+      "coverUrl": "images/polish/Zombi.svg",
+      "meta": {
+        "genre": "Horror / Akcja",
+        "author": "Nightmare PL",
+        "year": "1992",
+        "desc": "Przetrwaj inwazję nieumarłych w opuszczonym szpitalu miejskim."
+      },
+      "desc": "ZombiU – pierwszoosobowa gra komputerowa z gatunku survival horror z 2012 roku, opracowana przez francuskie studio Ubisoft Montpellier i wydana przez Ubisoft. Została wydana na Wii U w listopadzie 2012 roku. W grze gracz przejmuje kontrolę nad człowiekiem, który przeżył apokalipsę zombie w 2012 roku. Produkcja, wyposażona w system permanentnej śmierci, wykorzystuje GamePad konsoli Wii U do skanowania otoczenia oraz zarządzania ekwipunkiem ocalałego. Gra została wydana ponownie pod nazwą Zombi na platformy PlayStation 4, Windows i Xbox One w sierpniu 2015 roku. Port wyprodukowany przez studio Straight Right wprowadza nową broń białą i usuwa tryb wieloosobowy.",
+      "wikiUrl": "https://pl.wikipedia.org/wiki/ZombiU"
+    }
+  ]
+}
