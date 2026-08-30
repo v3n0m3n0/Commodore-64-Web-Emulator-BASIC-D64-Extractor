@@ -1,0 +1,13 @@
+WAZNA INFORMACJA DO GRY
+
+* WLADCY CIEMNOSCI *
+
+gre nalezy uruchamiac najlepiej pod emulatorem CCS64
+
+UWAGA: przy ladowaniu gry nie uzywac PRZYSPIESZENIA
+W EMULATORZE (np. w ccs64 do 300%). Dopiero, gdy
+fioletowy pasek zacznie sie zmniejszac - mozna wlaczyc
+przyspieszenie. inaczej gra sie nie uruchomi. pod
+koniec paska rowniez radze wylaczyc przyspieszenie.
+
+http://c64power.com

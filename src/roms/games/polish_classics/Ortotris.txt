@@ -1,0 +1,21 @@
+   KOLUMNY 1 - 2 - 3
+
+  -  1  -  2  -  3 
+A - HAO - IDK - BRK
+B - GWM - QER - TYL
+C - PXD - DIA - STA
+D - YCZ - TBR - KEY
+E - ASW - EHZ - NGB
+F - PGV - TBJ - GRI
+G - TER - OFM - SID
+H - MBL - CGO - NRE
+I - LEX - JHV - DCY
+J - RCS - NZJ - PUR
+K - FBI - LYD - VLB
+L - TIM - OJG - VIC
+M - HKV - VZV - YEL
+N - AGP - MAT - NOP
+O - MLD - VGA - OFF
+P - OWE - CIA - NAL
+
+KODY PODAJEMY PRZED SAMA GRA (PRAKTYKA)
