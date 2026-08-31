@@ -40,24 +40,55 @@ export class C64PRG {
       return { address: prg.loadAddress, isSys: false };
     }
 
-    // Scan first 40 bytes of payload for token 0x9E (SYS)
+    // Scan first 128 bytes of payload for token 0x9E (SYS)
     const payload = prg.data;
-    for (let i = 0; i < Math.min(payload.length, 40); i++) {
+    const scanLimit = Math.min(payload.length, 128);
+
+    for (let i = 0; i < scanLimit; i++) {
       if (payload[i] === 0x9e) { // SYS token ($9E)
-        let numStr = "";
+        let exprStr = "";
         let j = i + 1;
         // Skip spaces, tabs, colons, or parentheses
         while (j < payload.length && (payload[j] === 0x20 || payload[j] === 0x28 || payload[j] === 0x3a)) {
           j++;
         }
-        while (j < payload.length && payload[j] >= 0x30 && payload[j] <= 0x39) {
-          numStr += String.fromCharCode(payload[j]);
+        // Collect digits, plus signs, hex prefix ($)
+        while (
+          j < payload.length &&
+          ((payload[j] >= 0x30 && payload[j] <= 0x39) ||
+            payload[j] === 0x2b || // '+'
+            payload[j] === 0x24 || // '$'
+            (payload[j] >= 0x41 && payload[j] <= 0x46) || // 'A'-'F'
+            (payload[j] >= 0x61 && payload[j] <= 0x66))   // 'a'-'f'
+        ) {
+          exprStr += String.fromCharCode(payload[j]);
           j++;
         }
-        if (numStr.length > 0) {
-          const sysAddr = parseInt(numStr, 10);
-          if (!isNaN(sysAddr) && sysAddr >= 0x0200 && sysAddr <= 0xffff) {
-            return { address: sysAddr, isSys: true };
+
+        if (exprStr.length > 0) {
+          try {
+            let sysAddr = 0;
+            if (exprStr.includes("+")) {
+              const parts = exprStr.split("+");
+              for (const part of parts) {
+                const clean = part.trim();
+                if (clean.startsWith("$")) {
+                  sysAddr += parseInt(clean.substring(1), 16);
+                } else {
+                  sysAddr += parseInt(clean, 10);
+                }
+              }
+            } else if (exprStr.startsWith("$")) {
+              sysAddr = parseInt(exprStr.substring(1), 16);
+            } else {
+              sysAddr = parseInt(exprStr, 10);
+            }
+
+            if (!isNaN(sysAddr) && sysAddr >= 0x0200 && sysAddr <= 0xffff) {
+              return { address: sysAddr, isSys: true };
+            }
+          } catch {
+            // Ignore parse errors and continue scan
           }
         }
       }

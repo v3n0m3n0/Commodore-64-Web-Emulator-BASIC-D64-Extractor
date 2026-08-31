@@ -6,6 +6,7 @@
  */
 
 import { C64ROMs } from "./c64_roms";
+import { CartridgeImage } from "./c64_crt";
 
 export interface MemoryDevice {
   read(addr: number): number;
@@ -44,8 +45,9 @@ export class C64Memory {
   public cartRomBanks: Uint8Array[] = [];
   public cartBank: number = 0;
   public cartControl: number = 0;
-  public gameLine: boolean = true;
-  public exromLine: boolean = true;
+  public gameActive: boolean = false;   // Active low line (true when active / grounded)
+  public exromActive: boolean = false;  // Active low line (true when active / grounded)
+  public cartImage: CartridgeImage | null = null;
 
   constructor() {
     this.loadSystemRoms();
@@ -181,13 +183,29 @@ export class C64Memory {
     this.ram[addr + 1] = (val >> 8) & 0xff;
   }
 
-  // Attach Cartridge ROM data
-  public attachCartridge(type: number, banks: Uint8Array[], game = false, exrom = false) {
+  // Attach Cartridge ROM data (supports CartridgeImage or raw banks)
+  public attachCartridge(
+    typeOrImage: number | CartridgeImage,
+    banks: Uint8Array[] = [],
+    game = false,
+    exrom = false
+  ) {
     this.cartridgeAttached = true;
-    this.cartridgeType = type;
-    this.cartRomBanks = banks;
-    this.gameLine = game;
-    this.exromLine = exrom;
+
+    if (typeof typeOrImage === "number") {
+      this.cartImage = null;
+      this.cartridgeType = typeOrImage;
+      this.cartRomBanks = banks;
+      this.gameActive = game;
+      this.exromActive = exrom;
+    } else {
+      this.cartImage = typeOrImage;
+      this.cartridgeType = typeOrImage.cartridgeType;
+      this.cartRomBanks = typeOrImage.banks;
+      this.exromActive = typeOrImage.exromLine;
+      this.gameActive = typeOrImage.gameLine;
+    }
+
     this.cartBank = 0;
     this.cartControl = 0;
     this.updateCartridgePointers();
@@ -195,31 +213,63 @@ export class C64Memory {
 
   public detachCartridge() {
     this.cartridgeAttached = false;
+    this.cartImage = null;
     this.cartRomBanks = [];
     this.cartRomLo = null;
     this.cartRomHi = null;
-    this.gameLine = true;
-    this.exromLine = true;
+    this.gameActive = false;
+    this.exromActive = false;
+    this.cartBank = 0;
+    this.cartControl = 0;
   }
 
   public updateCartridgePointers() {
-    if (!this.cartridgeAttached || this.cartRomBanks.length === 0) {
+    if (!this.cartridgeAttached) {
       this.cartRomLo = null;
       this.cartRomHi = null;
       return;
     }
 
-    if (this.cartridgeType === 0) {
-      this.cartRomLo = this.cartRomBanks[0] || null;
-      this.cartRomHi = this.cartRomBanks[1] || null;
-    } else if (this.cartridgeType === 5) {
-      const bankIdx = this.cartBank % this.cartRomBanks.length;
-      this.cartRomLo = this.cartRomBanks[bankIdx] || null;
-      this.cartRomHi = null;
-    } else if (this.cartridgeType === 32) {
-      const bankIdx = (this.cartBank & 0x3f) * 2;
-      this.cartRomLo = this.cartRomBanks[bankIdx] || null;
-      this.cartRomHi = this.cartRomBanks[bankIdx + 1] || null;
+    if (this.cartImage) {
+      if (this.cartridgeType === 0 || this.cartridgeType === 4) {
+        // Generic (8K / 16K / Ultimax) or Simons' BASIC
+        this.cartRomLo = this.cartImage.romL.get(0) || this.cartRomBanks[0] || null;
+        this.cartRomHi = this.cartImage.romH.get(0) || this.cartRomBanks[1] || null;
+      } else if (this.cartridgeType === 5) {
+        // Ocean Bank-Switched
+        const maxBanks = Math.max(1, this.cartImage.romL.size || this.cartRomBanks.length);
+        const bankIdx = this.cartBank % maxBanks;
+        this.cartRomLo = this.cartImage.romL.get(bankIdx) || this.cartRomBanks[bankIdx] || null;
+        this.cartRomHi = null;
+      } else if (this.cartridgeType === 19) {
+        // Magic Desk
+        const maxBanks = Math.max(1, this.cartImage.romL.size || this.cartRomBanks.length);
+        const bankIdx = (this.cartBank & 0x3f) % maxBanks;
+        this.cartRomLo = this.cartImage.romL.get(bankIdx) || this.cartRomBanks[bankIdx] || null;
+        this.cartRomHi = null;
+      } else if (this.cartridgeType === 32) {
+        // EasyFlash
+        const b = this.cartBank & 0x3f;
+        this.cartRomLo = this.cartImage.romL.get(b) || this.cartRomBanks[b * 2] || null;
+        this.cartRomHi = this.cartImage.romH.get(b) || this.cartRomBanks[b * 2 + 1] || null;
+      } else {
+        // Default generic lookup
+        this.cartRomLo = this.cartImage.romL.get(this.cartBank) || this.cartRomBanks[0] || null;
+        this.cartRomHi = this.cartImage.romH.get(this.cartBank) || this.cartRomBanks[1] || null;
+      }
+    } else {
+      if (this.cartridgeType === 0) {
+        this.cartRomLo = this.cartRomBanks[0] || null;
+        this.cartRomHi = this.cartRomBanks[1] || null;
+      } else if (this.cartridgeType === 5 || this.cartridgeType === 19) {
+        const bankIdx = this.cartBank % Math.max(1, this.cartRomBanks.length);
+        this.cartRomLo = this.cartRomBanks[bankIdx] || null;
+        this.cartRomHi = null;
+      } else if (this.cartridgeType === 32) {
+        const bankIdx = (this.cartBank & 0x3f) * 2;
+        this.cartRomLo = this.cartRomBanks[bankIdx] || null;
+        this.cartRomHi = this.cartRomBanks[bankIdx + 1] || null;
+      }
     }
   }
 
@@ -233,18 +283,24 @@ export class C64Memory {
     const loram = this._loram;
     const hiram = this._hiram;
     const charen = this._charen;
+    const isUltimax = this.cartridgeAttached && !this.exromActive && this.gameActive;
 
     // Cartridge ROM at $8000 - $9FFF (ROML)
     if (addr >= 0x8000 && addr <= 0x9fff) {
-      if (this.cartridgeAttached && !this.exromLine && this.cartRomLo) {
-        return this.cartRomLo[addr - 0x8000];
+      if (this.cartridgeAttached && this.cartRomLo) {
+        if (isUltimax || (this.exromActive && (hiram || !loram))) {
+          return this.cartRomLo[addr - 0x8000];
+        }
       }
       return this.ram[addr];
     }
 
     // $A000 - $BFFF: BASIC ROM, Cartridge ROM (ROMH), or RAM
     if (addr >= 0xa000 && addr <= 0xbfff) {
-      if (this.cartridgeAttached && !this.gameLine && !this.exromLine && this.cartRomHi) {
+      if (isUltimax) {
+        return this.ram[addr]; // Unmapped in Ultimax
+      }
+      if (this.cartridgeAttached && this.exromActive && this.gameActive && this.cartRomHi && loram && hiram) {
         return this.cartRomHi[addr - 0xa000];
       }
       if (loram && hiram) {
@@ -255,11 +311,11 @@ export class C64Memory {
 
     // $D000 - $DFFF: I/O Area, Character ROM, or RAM
     if (addr >= 0xd000 && addr <= 0xdfff) {
-      if ((loram || hiram) && !charen) {
+      if (!isUltimax && (loram || hiram) && !charen) {
         // Character ROM visible to CPU
         return this.charRom[addr - 0xd000];
       }
-      if (loram || hiram) {
+      if (isUltimax || loram || hiram) {
         // I/O Space
         if (addr >= 0xd000 && addr <= 0xd3ff) {
           return this.vic ? this.vic.read(addr & 0x3f) : 0xff;
@@ -276,8 +332,8 @@ export class C64Memory {
         if (addr >= 0xdd00 && addr <= 0xddff) {
           return this.cia2 ? this.cia2.read(addr & 0x0f) : 0xff;
         }
-        if (addr >= 0xde00 && addr <= 0xdeff && this.cartridgeAttached) {
-          if (this.cartridgeType === 5) return this.cartBank;
+        if (addr >= 0xde00 && addr <= 0xdfff && this.cartridgeAttached) {
+          if (this.cartridgeType === 5 || this.cartridgeType === 19) return this.cartBank;
           if (this.cartridgeType === 32) {
             if (addr === 0xde00) return this.cartBank;
             if (addr === 0xde02) return this.cartControl;
@@ -288,8 +344,12 @@ export class C64Memory {
       return this.ram[addr];
     }
 
-    // $E000 - $FFFF: KERNAL ROM or RAM
+    // $E000 - $FFFF: KERNAL ROM, Cartridge ROMH (Ultimax), or RAM
     if (addr >= 0xe000 && addr <= 0xffff) {
+      if (isUltimax && this.cartRomHi) {
+        // In Ultimax mode, Cartridge ROMH replaces KERNAL unconditionally!
+        return this.cartRomHi[addr - 0xe000];
+      }
       if (hiram) {
         return this.kernalRom[addr - 0xe000];
       }
@@ -321,9 +381,10 @@ export class C64Memory {
     const loram = this._loram;
     const hiram = this._hiram;
     const charen = this._charen;
+    const isUltimax = this.cartridgeAttached && !this.exromActive && this.gameActive;
 
     // I/O Space Writes ($D000 - $DFFF)
-    if (addr >= 0xd000 && addr <= 0xdfff && (loram || hiram) && charen) {
+    if (addr >= 0xd000 && addr <= 0xdfff && (isUltimax || ((loram || hiram) && charen))) {
       if (addr >= 0xd000 && addr <= 0xd3ff) {
         if (this.vic) this.vic.write(addr & 0x3f, val);
       } else if (addr >= 0xd400 && addr <= 0xd7ff) {
@@ -339,14 +400,18 @@ export class C64Memory {
           if (this.cartridgeType === 5) {
             this.cartBank = val;
             this.updateCartridgePointers();
+          } else if (this.cartridgeType === 19) {
+            this.cartBank = val & 0x3f;
+            this.exromActive = (val & 0x80) === 0; // bit 7 disables cartridge
+            this.updateCartridgePointers();
           } else if (this.cartridgeType === 32) {
             if (addr === 0xde00) {
               this.cartBank = val;
               this.updateCartridgePointers();
             } else if (addr === 0xde02) {
               this.cartControl = val;
-              this.gameLine = (val & 0x01) !== 0;
-              this.exromLine = (val & 0x02) !== 0;
+              this.gameActive = (val & 0x01) !== 0;
+              this.exromActive = (val & 0x02) !== 0;
               this.updateCartridgePointers();
             }
           }
@@ -438,9 +503,10 @@ export class C64Memory {
       ptr = nextPtr;
     }
 
-    const endBasic = lastValidEnd > startAddr
-      ? lastValidEnd
-      : (defaultEndAddr || startAddr + 2);
+    const endBasic = Math.max(
+      defaultEndAddr,
+      lastValidEnd > startAddr ? lastValidEnd : startAddr + 2
+    );
 
     // VARTAB ($2D-$2E), ARYTAB ($2F-$30), STREND ($31-$32), EAL ($AE-$AF)
     this.ram[0x2d] = endBasic & 0xff;

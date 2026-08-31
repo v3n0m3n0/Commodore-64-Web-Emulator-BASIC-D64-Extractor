@@ -11,7 +11,7 @@ export interface ExtractedMediaFile {
   extension: string;
   size: number;
   data: Uint8Array;
-  type: "D64" | "T64" | "TAP" | "CRT" | "PRG" | "P00" | "BAS" | "UNKNOWN";
+  type: "D64" | "T64" | "TAP" | "CRT" | "PRG" | "P00" | "BAS" | "SID" | "UNKNOWN";
 }
 
 export class C64ArchiveManager {
@@ -108,15 +108,13 @@ export class C64ArchiveManager {
 
   // Detect media type from extension and binary magic bytes
   public static detectMediaType(ext: string, data: Uint8Array): ExtractedMediaFile["type"] {
-    if (ext === "D64") return "D64";
-    if (ext === "T64") return "T64";
-    if (ext === "TAP") return "TAP";
-    if (ext === "CRT") return "CRT";
-    if (ext === "PRG") return "PRG";
-    if (ext === "P00") return "P00";
-    if (ext === "BAS" || ext === "TXT") return "BAS";
+    // 1. Magic bytes verification first (highest reliability)
+    if (data.length >= 4) {
+      const sig4 = String.fromCharCode(...data.subarray(0, 4));
+      if (sig4 === "PSID" || sig4 === "RSID") return "SID";
+      if (sig4 === "C64 ") return "CRT";
+    }
 
-    // Magic bytes fallback
     if (data.length >= 16) {
       const sig16 = String.fromCharCode(...data.subarray(0, 16));
       if (sig16.startsWith("C64 CARTRIDGE")) return "CRT";
@@ -125,10 +123,27 @@ export class C64ArchiveManager {
       if (sig16.startsWith("C64File")) return "P00";
     }
 
-    if (data.length === 174848 || data.length === 175531 || data.length === 196608) {
+    // 2. Extension check
+    if (ext === "D64") return "D64";
+    if (ext === "T64") return "T64";
+    if (ext === "TAP") return "TAP";
+    if (ext === "CRT") return "CRT";
+    if (ext === "PRG") return "PRG";
+    if (ext === "P00") return "P00";
+    if (ext === "SID") return "SID";
+    if (ext === "BAS" || ext === "TXT") return "BAS";
+
+    // 3. Structural byte-size check for 1541 disk images
+    if (
+      data.length === 174848 || // 35 tracks, standard D64
+      data.length === 175531 || // 35 tracks + error info
+      data.length === 196608 || // 40 tracks
+      data.length === 197376 || // 40 tracks + error info
+      data.length === 205312    // 42 tracks
+    ) {
       return "D64";
     }
 
-    return "PRG";
+    return data.length > 2 ? "PRG" : "UNKNOWN";
   }
 }

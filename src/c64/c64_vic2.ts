@@ -101,6 +101,13 @@ export class C64VIC2 {
     this.currentRaster = this.currentRaster % this.totalRasterLines;
   }
 
+  public clearFrameBuffer(colorIdx?: number) {
+    const col = colorIdx !== undefined
+      ? C64_PALETTE_RGBA[colorIdx & 0x0F]
+      : C64_PALETTE_RGBA[this.regs[0x20] & 0x0F];
+    this.pixels.fill(col);
+  }
+
   reset() {
     this.regs.fill(0);
     this.regs[0x11] = 0x1B;
@@ -115,7 +122,7 @@ export class C64VIC2 {
     this.mainBorder = true;
     this.totalRasterLines = this.standard === 'NTSC' ? 263 : 312;
     this.cyclesPerLine = this.standard === 'NTSC' ? 65 : 63;
-    this.pixels.fill(C64_PALETTE_RGBA[0x0E]);
+    this.clearFrameBuffer(0x0E);
   }
 
   read(reg) {
@@ -192,13 +199,20 @@ export class C64VIC2 {
   /**
    * Start of scanline:
    * 1. Check raster IRQ for currentRaster
-   * 2. Calculate bad line DMA penalty (40 cycles)
+   * 2. Evaluate authentic VIC-II Vertical Border Unit state
+   * 3. Calculate bad line DMA penalty (40 cycles)
    */
   startLine(): number {
     const c64Raster = this.currentRaster;
 
-    // Dynamic Vertical Border Flip-Flop evaluation
-    // Reference: docs/knowledge_base/04_HARDWARE_IO_MAP_VIC_SID_CIA.md & Christian Bauer VIC-II Article
+    // Reset vertical border to closed state at top of frame
+    if (c64Raster === 0) {
+      this.vBorder = true;
+      this.clearFrameBuffer();
+    }
+
+    // Dynamic Vertical Border Flip-Flop evaluation (MOS 6569/6567 hardware standard)
+    // Reference: Christian Bauer "The MOS 6567/6569 video controller (VIC-II)"
     const is25Rows = (this.regs[0x11] & 0x08) !== 0;
     const den = (this.regs[0x11] & 0x10) !== 0;
     const topCompare = is25Rows ? 51 : 55;
@@ -209,6 +223,9 @@ export class C64VIC2 {
     }
     if (c64Raster === bottomCompare) {
       this.vBorder = true;  // Close vertical display area
+    }
+    if (!den && (c64Raster < topCompare || c64Raster >= bottomCompare)) {
+      this.vBorder = true;
     }
 
     // Trigger raster interrupt at beginning of scanline
@@ -252,7 +269,7 @@ export class C64VIC2 {
   }
 
   /**
-   * Fast scanline renderer
+   * Fast scanline renderer with authentic VIC-II border clipping & sprite layering
    */
   renderScanline(c64Raster) {
     const regs = this.regs;
@@ -261,6 +278,8 @@ export class C64VIC2 {
     const palette = C64_PALETTE_RGBA;
 
     const canvasY = c64Raster - 15; // 0..271
+    if (canvasY < 0 || canvasY >= 272) return;
+
     const borderColor = palette[regs[0x20] & 0x0F];
     const rowOffset = canvasY * 384;
 
@@ -273,12 +292,22 @@ export class C64VIC2 {
     // Top / bottom border outside active display area (evaluated by vBorder state machine)
     if (this.vBorder || !screenOn) {
       pixels.fill(borderColor, rowOffset, rowOffset + 384);
-      if (regs[0x15]) this.renderSpritesOnScanline(c64Raster, canvasY);
+      // Upper area GUI sprites (health bars) are placed above active character rows (c64Raster < 248)
+      // Parked inactive sprites at Y=255 ($FF) in bottom border are suppressed
+      if (regs[0x15] && c64Raster < 248) {
+        this.renderSpritesOnScanline(c64Raster, canvasY);
+        const leftBorderWidth = is40Cols ? 32 : 40;
+        const rightBorderStart = is40Cols ? 352 : 344;
+        pixels.fill(borderColor, rowOffset, rowOffset + leftBorderWidth);
+        pixels.fill(borderColor, rowOffset + rightBorderStart, rowOffset + 384);
+      }
       return;
     }
 
     const startX = 32 + xscroll;
-    const displayY = c64Raster - (48 + yscroll); // 0..199
+    const displayY = c64Raster - (48 + yscroll); // 0..199 (25-row) or 0..191 (24-row)
+    const maxRows = is25Rows ? 25 : 24;
+    const maxDisplayY = maxRows * 8;
 
     const bgColor0 = palette[regs[0x21] & 0x0F];
     const bgColor1 = palette[regs[0x22] & 0x0F];
@@ -293,132 +322,140 @@ export class C64VIC2 {
     const charMemBase = ((regs[0x18] >> 1) & 0x07) * 0x0800;
     const bitmapBase = ((regs[0x18] >> 3) & 0x01) * 0x2000;
 
-    const charRow = (displayY >> 3);
-    const charLine = displayY & 7;
-    const rowCharBase = charRow * 40;
-
     const mask = this.scanlineFgMask;
     mask.fill(0);
 
-    for (let col = 0; col < 40; col++) {
-      const pStart = rowOffset + startX + (col << 3);
-      const mStart = startX + (col << 3);
-      if (pStart + 8 > rowOffset + 384) continue;
+    // If displayY is outside the active character matrix (e.g. before first badline during scroll)
+    if (displayY < 0 || displayY >= maxDisplayY) {
+      pixels.fill(bgColor0, rowOffset + 32, rowOffset + 352);
+    } else {
+      pixels.fill(bgColor0, rowOffset + 32, rowOffset + 352);
+      const charRow = (displayY >> 3);
+      const charLine = displayY & 7;
+      const rowCharBase = charRow * 40;
 
-      const charOffset = rowCharBase + col;
-      const charCode = mem.readVic(screenMemBase + charOffset);
-      const charColorIdx = mem.colorRam[charOffset] & 0x0F;
-      const fgColor = palette[charColorIdx];
+      for (let col = 0; col < 40; col++) {
+        const pStart = rowOffset + startX + (col << 3);
+        const mStart = startX + (col << 3);
+        if (pStart + 8 > rowOffset + 384) continue;
 
-      if (!isBitmap) {
-        if (isExtendedColor) {
-          const bgIdx = (charCode >> 6) & 0x03;
-          let cellBg = bgColor0;
-          if (bgIdx === 1) cellBg = bgColor1;
-          else if (bgIdx === 2) cellBg = bgColor2;
-          else if (bgIdx === 3) cellBg = bgColor3;
+        const charOffset = rowCharBase + col;
+        const charCode = mem.readVic(screenMemBase + charOffset);
+        const charColorIdx = mem.colorRam[charOffset] & 0x0F;
+        const fgColor = palette[charColorIdx];
 
-          const fontByte = mem.readVic(charMemBase + ((charCode & 0x3F) << 3) + charLine);
+        if (!isBitmap) {
+          if (isExtendedColor) {
+            const bgIdx = (charCode >> 6) & 0x03;
+            let cellBg = bgColor0;
+            if (bgIdx === 1) cellBg = bgColor1;
+            else if (bgIdx === 2) cellBg = bgColor2;
+            else if (bgIdx === 3) cellBg = bgColor3;
 
-          pixels[pStart]     = (fontByte & 0x80) ? fgColor : cellBg;
-          pixels[pStart + 1] = (fontByte & 0x40) ? fgColor : cellBg;
-          pixels[pStart + 2] = (fontByte & 0x20) ? fgColor : cellBg;
-          pixels[pStart + 3] = (fontByte & 0x10) ? fgColor : cellBg;
-          pixels[pStart + 4] = (fontByte & 0x08) ? fgColor : cellBg;
-          pixels[pStart + 5] = (fontByte & 0x04) ? fgColor : cellBg;
-          pixels[pStart + 6] = (fontByte & 0x02) ? fgColor : cellBg;
-          pixels[pStart + 7] = (fontByte & 0x01) ? fgColor : cellBg;
-        } else if (isMulticolor && (charColorIdx & 0x08)) {
-          const fontByte = mem.readVic(charMemBase + (charCode << 3) + charLine);
-          const mcColor = palette[charColorIdx & 0x07];
+            const fontByte = mem.readVic(charMemBase + ((charCode & 0x3F) << 3) + charLine);
 
-          for (let x = 0; x < 4; x++) {
-            const pair = (fontByte >> (6 - (x << 1))) & 0x03;
-            let c = bgColor0;
-            if (pair === 1) c = bgColor1;
-            else if (pair === 2) c = bgColor2;
-            else if (pair === 3) {
-              c = mcColor;
-              mask[mStart + (x << 1)] = 1;
-              mask[mStart + (x << 1) + 1] = 1;
+            pixels[pStart]     = (fontByte & 0x80) ? fgColor : cellBg;
+            pixels[pStart + 1] = (fontByte & 0x40) ? fgColor : cellBg;
+            pixels[pStart + 2] = (fontByte & 0x20) ? fgColor : cellBg;
+            pixels[pStart + 3] = (fontByte & 0x10) ? fgColor : cellBg;
+            pixels[pStart + 4] = (fontByte & 0x08) ? fgColor : cellBg;
+            pixels[pStart + 5] = (fontByte & 0x04) ? fgColor : cellBg;
+            pixels[pStart + 6] = (fontByte & 0x02) ? fgColor : cellBg;
+            pixels[pStart + 7] = (fontByte & 0x01) ? fgColor : cellBg;
+          } else if (isMulticolor && (charColorIdx & 0x08)) {
+            const fontByte = mem.readVic(charMemBase + (charCode << 3) + charLine);
+            const mcColor = palette[charColorIdx & 0x07];
+
+            for (let x = 0; x < 4; x++) {
+              const pair = (fontByte >> (6 - (x << 1))) & 0x03;
+              let c = bgColor0;
+              if (pair === 1) c = bgColor1;
+              else if (pair === 2) c = bgColor2;
+              else if (pair === 3) {
+                c = mcColor;
+                mask[mStart + (x << 1)] = 1;
+                mask[mStart + (x << 1) + 1] = 1;
+              }
+              const px = pStart + (x << 1);
+              pixels[px] = c;
+              pixels[px + 1] = c;
             }
-            const px = pStart + (x << 1);
-            pixels[px] = c;
-            pixels[px + 1] = c;
+          } else {
+            const fontByte = mem.readVic(charMemBase + (charCode << 3) + charLine);
+
+            pixels[pStart]     = (fontByte & 0x80) ? fgColor : bgColor0;
+            pixels[pStart + 1] = (fontByte & 0x40) ? fgColor : bgColor0;
+            pixels[pStart + 2] = (fontByte & 0x20) ? fgColor : bgColor0;
+            pixels[pStart + 3] = (fontByte & 0x10) ? fgColor : bgColor0;
+            pixels[pStart + 4] = (fontByte & 0x08) ? fgColor : bgColor0;
+            pixels[pStart + 5] = (fontByte & 0x04) ? fgColor : bgColor0;
+            pixels[pStart + 6] = (fontByte & 0x02) ? fgColor : bgColor0;
+            pixels[pStart + 7] = (fontByte & 0x01) ? fgColor : bgColor0;
+
+            if (fontByte) {
+              for (let b = 0; b < 8; b++) {
+                if (fontByte & (0x80 >> b)) mask[mStart + b] = 1;
+              }
+            }
           }
         } else {
-          const fontByte = mem.readVic(charMemBase + (charCode << 3) + charLine);
+          const bmpByte = mem.readVic(bitmapBase + (charRow * 320) + (col << 3) + charLine);
+          const screenColor = charCode;
 
-          pixels[pStart]     = (fontByte & 0x80) ? fgColor : bgColor0;
-          pixels[pStart + 1] = (fontByte & 0x40) ? fgColor : bgColor0;
-          pixels[pStart + 2] = (fontByte & 0x20) ? fgColor : bgColor0;
-          pixels[pStart + 3] = (fontByte & 0x10) ? fgColor : bgColor0;
-          pixels[pStart + 4] = (fontByte & 0x08) ? fgColor : bgColor0;
-          pixels[pStart + 5] = (fontByte & 0x04) ? fgColor : bgColor0;
-          pixels[pStart + 6] = (fontByte & 0x02) ? fgColor : bgColor0;
-          pixels[pStart + 7] = (fontByte & 0x01) ? fgColor : bgColor0;
+          if (isMulticolor) {
+            const c0 = bgColor0;
+            const c1 = palette[(screenColor >> 4) & 0x0F];
+            const c2 = palette[screenColor & 0x0F];
+            const c3 = palette[charColorIdx];
 
-          if (fontByte) {
-            for (let b = 0; b < 8; b++) {
-              if (fontByte & (0x80 >> b)) mask[mStart + b] = 1;
+            for (let x = 0; x < 4; x++) {
+              const pair = (bmpByte >> (6 - (x << 1))) & 0x03;
+              let c = c0;
+              if (pair === 1) c = c1;
+              else if (pair === 2) c = c2;
+              else if (pair === 3) {
+                c = c3;
+                mask[mStart + (x << 1)] = 1;
+                mask[mStart + (x << 1) + 1] = 1;
+              }
+              const px = pStart + (x << 1);
+              pixels[px] = c;
+              pixels[px + 1] = c;
             }
-          }
-        }
-      } else {
-        const bmpByte = mem.readVic(bitmapBase + (charRow * 320) + (col << 3) + charLine);
-        const screenColor = charCode;
+          } else {
+            const c0 = palette[screenColor & 0x0F];
+            const c1 = palette[(screenColor >> 4) & 0x0F];
 
-        if (isMulticolor) {
-          const c0 = bgColor0;
-          const c1 = palette[(screenColor >> 4) & 0x0F];
-          const c2 = palette[screenColor & 0x0F];
-          const c3 = palette[charColorIdx];
+            pixels[pStart]     = (bmpByte & 0x80) ? c1 : c0;
+            pixels[pStart + 1] = (bmpByte & 0x40) ? c1 : c0;
+            pixels[pStart + 2] = (bmpByte & 0x20) ? c1 : c0;
+            pixels[pStart + 3] = (bmpByte & 0x10) ? c1 : c0;
+            pixels[pStart + 4] = (bmpByte & 0x08) ? c1 : c0;
+            pixels[pStart + 5] = (bmpByte & 0x04) ? c1 : c0;
+            pixels[pStart + 6] = (bmpByte & 0x02) ? c1 : c0;
+            pixels[pStart + 7] = (bmpByte & 0x01) ? c1 : c0;
 
-          for (let x = 0; x < 4; x++) {
-            const pair = (bmpByte >> (6 - (x << 1))) & 0x03;
-            let c = c0;
-            if (pair === 1) c = c1;
-            else if (pair === 2) c = c2;
-            else if (pair === 3) {
-              c = c3;
-              mask[mStart + (x << 1)] = 1;
-              mask[mStart + (x << 1) + 1] = 1;
-            }
-            const px = pStart + (x << 1);
-            pixels[px] = c;
-            pixels[px + 1] = c;
-          }
-        } else {
-          const c0 = palette[screenColor & 0x0F];
-          const c1 = palette[(screenColor >> 4) & 0x0F];
-
-          pixels[pStart]     = (bmpByte & 0x80) ? c1 : c0;
-          pixels[pStart + 1] = (bmpByte & 0x40) ? c1 : c0;
-          pixels[pStart + 2] = (bmpByte & 0x20) ? c1 : c0;
-          pixels[pStart + 3] = (bmpByte & 0x10) ? c1 : c0;
-          pixels[pStart + 4] = (bmpByte & 0x08) ? c1 : c0;
-          pixels[pStart + 5] = (bmpByte & 0x04) ? c1 : c0;
-          pixels[pStart + 6] = (bmpByte & 0x02) ? c1 : c0;
-          pixels[pStart + 7] = (bmpByte & 0x01) ? c1 : c0;
-
-          if (bmpByte) {
-            for (let b = 0; b < 8; b++) {
-              if (bmpByte & (0x80 >> b)) mask[mStart + b] = 1;
+            if (bmpByte) {
+              for (let b = 0; b < 8; b++) {
+                if (bmpByte & (0x80 >> b)) mask[mStart + b] = 1;
+              }
             }
           }
         }
       }
     }
 
-    // Hardware left & right border clipping for 40-col / 38-col modes
+    // 1. Render active sprites on scanline (before border clipping)
+    if (regs[0x15]) {
+      this.renderSpritesOnScanline(c64Raster, canvasY);
+    }
+
+    // 2. Hardware left & right border clipping for 40-col / 38-col modes
+    // Must be applied AFTER sprites to ensure sprites are cleanly masked by the side borders
     const leftBorderWidth = is40Cols ? 32 : 40;
     const rightBorderStart = is40Cols ? 352 : 344;
     pixels.fill(borderColor, rowOffset, rowOffset + leftBorderWidth);
     pixels.fill(borderColor, rowOffset + rightBorderStart, rowOffset + 384);
-
-    if (regs[0x15]) {
-      this.renderSpritesOnScanline(c64Raster, canvasY);
-    }
   }
 
   /**

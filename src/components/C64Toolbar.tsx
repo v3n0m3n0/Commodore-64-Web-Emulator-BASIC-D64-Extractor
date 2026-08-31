@@ -21,9 +21,12 @@ import {
   Terminal,
   Activity,
   Bot,
+  Music,
 } from "lucide-react";
 import { VideoStandard } from "../c64/c64_vic2";
 import { SystemTelemetry } from "../c64/c64_system";
+
+export type ActiveTabType = "screen" | "basic" | "sid" | "debugger" | "storage" | "copilot" | "polish";
 
 interface C64ToolbarProps {
   isRunning: boolean;
@@ -32,7 +35,7 @@ interface C64ToolbarProps {
   volume: number;
   videoStandard: VideoStandard;
   telemetry: SystemTelemetry;
-  activeTab: "screen" | "basic" | "debugger" | "storage" | "copilot" | "polish";
+  activeTab: ActiveTabType;
   onTogglePlay: () => void;
   onToggleWarp: () => void;
   onToggleMute: () => void;
@@ -40,7 +43,7 @@ interface C64ToolbarProps {
   onChangeStandard: (std: VideoStandard) => void;
   onReset: (hard: boolean) => void;
   onFileUpload: (files: FileList) => void;
-  onSelectTab: (tab: "screen" | "basic" | "debugger" | "storage" | "copilot" | "polish") => void;
+  onSelectTab: (tab: ActiveTabType) => void;
 }
 
 export const C64Toolbar: React.FC<C64ToolbarProps> = ({
@@ -107,6 +110,19 @@ export const C64Toolbar: React.FC<C64ToolbarProps> = ({
         >
           <FileCode className="w-3.5 h-3.5" />
           BASIC Studio
+        </button>
+
+        <button
+          id="btn-tab-sid"
+          onClick={() => onSelectTab("sid")}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-all ${
+            activeTab === "sid"
+              ? "bg-[#1f6feb] text-white shadow-sm"
+              : "text-[#8b949e] hover:text-white hover:bg-[#21262d]"
+          }`}
+        >
+          <Music className="w-3.5 h-3.5 text-[#58a6ff]" />
+          SID Synth
         </button>
 
         <button

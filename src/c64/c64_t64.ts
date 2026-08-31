@@ -93,4 +93,88 @@ export class C64T64 {
       records,
     };
   }
+
+  /**
+   * Create a standard Commodore 64 .T64 tape container binary
+   */
+  public static createT64(
+    tapeDescription = "C64 TAPE ARCHIVE",
+    records: { fileName: string; data: Uint8Array; startAddress?: number }[] = []
+  ): Uint8Array {
+    const maxEntries = Math.max(30, records.length);
+    const dirOffset = 64;
+    const dataStartOffset = dirOffset + maxEntries * 32;
+
+    // Calculate total size needed
+    let payloadSize = 0;
+    for (const r of records) {
+      let rawLen = r.data.length;
+      if (rawLen >= 2 && r.startAddress === undefined) {
+        // Data already includes 2-byte header
+        rawLen -= 2;
+      }
+      payloadSize += rawLen;
+    }
+
+    const totalLength = dataStartOffset + payloadSize;
+    const output = new Uint8Array(totalLength);
+
+    // Write Header (64 bytes)
+    const sig = "C64 tape image file";
+    for (let i = 0; i < 32; i++) {
+      output[i] = i < sig.length ? sig.charCodeAt(i) : 0x00;
+    }
+
+    output[0x20] = 0x00; // Version
+    output[0x21] = 0x01;
+    output[0x22] = maxEntries & 0xff;
+    output[0x23] = (maxEntries >> 8) & 0xff;
+    output[0x24] = records.length & 0xff;
+    output[0x25] = (records.length >> 8) & 0xff;
+
+    for (let i = 0; i < 24; i++) {
+      output[0x28 + i] = i < tapeDescription.length ? tapeDescription.charCodeAt(i) : 0x20;
+    }
+
+    // Write Directory Entries & Payloads
+    let curPayloadOffset = dataStartOffset;
+
+    for (let i = 0; i < records.length; i++) {
+      const rec = records[i];
+      const entryOff = dirOffset + i * 32;
+
+      let startAddr = rec.startAddress ?? 0x0801;
+      let payload = rec.data;
+
+      if (rec.startAddress === undefined && rec.data.length >= 2) {
+        startAddr = rec.data[0] | (rec.data[1] << 8);
+        payload = rec.data.subarray(2);
+      }
+
+      const endAddr = startAddr + payload.length;
+
+      output[entryOff + 0] = 0x01; // Normal PRG
+      output[entryOff + 1] = 0x82; // PRG file type
+      output[entryOff + 2] = startAddr & 0xff;
+      output[entryOff + 3] = (startAddr >> 8) & 0xff;
+      output[entryOff + 4] = endAddr & 0xff;
+      output[entryOff + 5] = (endAddr >> 8) & 0xff;
+
+      output[entryOff + 8] = curPayloadOffset & 0xff;
+      output[entryOff + 9] = (curPayloadOffset >> 8) & 0xff;
+      output[entryOff + 10] = (curPayloadOffset >> 16) & 0xff;
+      output[entryOff + 11] = (curPayloadOffset >> 24) & 0xff;
+
+      const cleanName = rec.fileName.replace(/\.[^.]+$/, "").toUpperCase();
+      for (let c = 0; c < 16; c++) {
+        output[entryOff + 16 + c] = c < cleanName.length ? cleanName.charCodeAt(c) : 0x20;
+      }
+
+      // Write payload bytes
+      output.set(payload, curPayloadOffset);
+      curPayloadOffset += payload.length;
+    }
+
+    return output;
+  }
 }

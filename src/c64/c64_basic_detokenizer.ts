@@ -85,10 +85,10 @@ export class C64Basic {
     0xcb: "GO",
   };
 
-  // Reverse mapping for compiling plain text back to tokens
-  private static keywordMap: [string, number][] = Object.entries(C64Basic.TOKENS)
+  // Reverse mapping for compiling plain text back to tokens (sorted by length descending for greedy match)
+  private static readonly KEYWORD_MAP: readonly [string, number][] = Object.entries(C64Basic.TOKENS)
     .map(([k, v]) => [v, parseInt(k, 10)] as [string, number])
-    .sort((a, b) => b[0].length - a[0].length); // Longest match first
+    .sort((a, b) => b[0].length - a[0].length);
 
   /**
    * Detokenize a binary BASIC PRG buffer (with or without 2-byte load address header)
@@ -226,7 +226,7 @@ export class C64Basic {
 
         // Try matching keywords ($80-$CB)
         let matched = false;
-        for (const [kw, token] of C64Basic.keywordMap) {
+        for (const [kw, token] of C64Basic.KEYWORD_MAP) {
           if (subUpper.startsWith(kw)) {
             lineTokens.push(token);
             i += kw.length;

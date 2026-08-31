@@ -239,19 +239,20 @@ export class C64Assembler {
       return sub !== null ? (sub >> 8) & 0xff : null;
     }
 
-    // Arithmetic expression with + or - (e.g. LABEL + 2 or $D000 + $20)
-    // Avoid splitting within quotes
-    const addIdx = expr.lastIndexOf("+");
-    const subIdx = expr.lastIndexOf("-");
-    if (addIdx > 0) {
-      const left = this.parseNumber(expr.slice(0, addIdx).trim(), labels);
-      const right = this.parseNumber(expr.slice(addIdx + 1).trim(), labels);
-      if (left !== null && right !== null) return left + right;
-    }
-    if (subIdx > 0) {
-      const left = this.parseNumber(expr.slice(0, subIdx).trim(), labels);
-      const right = this.parseNumber(expr.slice(subIdx + 1).trim(), labels);
-      if (left !== null && right !== null) return left - right;
+    // Binary addition / subtraction outside quotes (e.g. LABEL + 2 or $D000 - $20)
+    // Find the rightmost binary operator (not leading unary + / -)
+    for (let idx = expr.length - 1; idx > 0; idx--) {
+      const char = expr[idx];
+      const prevChar = expr[idx - 1];
+
+      // Ignore signs immediately following operators, e.g. "5 + -2"
+      if ((char === "+" || char === "-") && prevChar !== "+" && prevChar !== "-" && prevChar !== "<" && prevChar !== ">") {
+        const left = this.parseNumber(expr.slice(0, idx).trim(), labels);
+        const right = this.parseNumber(expr.slice(idx + 1).trim(), labels);
+        if (left !== null && right !== null) {
+          return char === "+" ? left + right : left - right;
+        }
+      }
     }
 
     return this.parseSingleTerm(expr, labels);
@@ -622,7 +623,7 @@ export class C64Assembler {
     const stubBasic = `10 SYS ${res.entryAddress || targetAddress}`;
     const stubPrg = C64Basic.tokenize(stubBasic);
 
-    // Combine BASIC stub ($0801) and ML payload into a unified PRG or load ML directly
+    // If payload is located immediately after BASIC stub, concatenate; otherwise return payload with correct load address
     return res.prgBytes;
   }
 }

@@ -4,7 +4,7 @@
  * tokenizing, and downloading Commodore BASIC programs.
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Play,
   Download,
@@ -51,6 +51,14 @@ export const C64BasicStudio: React.FC<C64BasicStudioProps> = ({
   const [copied, setCopied] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
+  // Sync sourceCode with initialCode prop whenever initialCode changes
+  useEffect(() => {
+    if (initialCode !== undefined && initialCode.trim().length > 0) {
+      setSourceCode(initialCode);
+      setErrors([]);
+    }
+  }, [initialCode]);
 
   // Pull current active BASIC program from C64 RAM ($0801)
   const handleDetokenizeRAM = () => {

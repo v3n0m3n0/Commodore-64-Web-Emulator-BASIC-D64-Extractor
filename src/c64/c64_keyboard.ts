@@ -38,22 +38,23 @@ export class C64Keyboard {
   };
 
   // Authentic Commodore 64 8x8 matrix (CIA 1 Port A = Column 0-7, Port B = Row 0-7)
-  private static keyMap: { [code: string]: KeyMatrixPosition } = {
+  // Compliant with VICE emulator standard & Commodore 64 Hardware Matrix
+  public static readonly keyMap: { [code: string]: KeyMatrixPosition } = {
     // Column 0 ($DC00 Bit 0)
     "Delete": { col: 0, row: 0 }, // INST/DEL
     "Backspace": { col: 0, row: 0 }, // Backspace -> INST/DEL
     "Enter": { col: 0, row: 1 }, // RETURN
     "NumpadEnter": { col: 0, row: 1 },
-    "ArrowRight": { col: 0, row: 2 }, // CRSR R/L
-    "F7": { col: 0, row: 3 }, // F7 / F8
+    "ArrowRight": { col: 0, row: 2 }, // CRSR R/L (Right without Shift, Left with Shift)
+    "F7": { col: 0, row: 3 }, // F7 (F8 with Shift)
     "F8": { col: 0, row: 3 },
-    "F1": { col: 0, row: 4 }, // F1 / F2
+    "F1": { col: 0, row: 4 }, // F1 (F2 with Shift)
     "F2": { col: 0, row: 4 },
-    "F3": { col: 0, row: 5 }, // F3 / F4
+    "F3": { col: 0, row: 5 }, // F3 (F4 with Shift)
     "F4": { col: 0, row: 5 },
-    "F5": { col: 0, row: 6 }, // F5 / F6
+    "F5": { col: 0, row: 6 }, // F5 (F6 with Shift)
     "F6": { col: 0, row: 6 },
-    "ArrowDown": { col: 0, row: 7 }, // CRSR U/D
+    "ArrowDown": { col: 0, row: 7 }, // CRSR U/D (Down without Shift, Up with Shift)
 
     // Column 1 ($DC00 Bit 1)
     "Digit3": { col: 1, row: 0 },
@@ -111,33 +112,35 @@ export class C64Keyboard {
     "NumpadSubtract": { col: 5, row: 3 },
     "Period": { col: 5, row: 4 }, // .
     "NumpadDecimal": { col: 5, row: 4 },
-    "Semicolon": { col: 5, row: 5 }, // :
-    "BracketLeft": { col: 5, row: 6 }, // @
+    "Semicolon": { col: 5, row: 5 }, // : (Colon on C64)
+    "BracketLeft": { col: 5, row: 6 }, // @ (At on C64)
     "Comma": { col: 5, row: 7 }, // ,
 
     // Column 6 ($DC00 Bit 6)
-    "BracketRight": { col: 6, row: 0 }, // £
-    "Quote": { col: 6, row: 1 }, // *
+    "BracketRight": { col: 6, row: 0 }, // £ (Pound on C64)
+    "Quote": { col: 6, row: 1 }, // * (Asterisk on C64)
     "NumpadMultiply": { col: 6, row: 1 },
-    "Backslash": { col: 6, row: 2 }, // ;
+    "Backslash": { col: 6, row: 2 }, // ; (Semicolon on C64)
     "Home": { col: 6, row: 3 }, // CLR/HOME
     "ShiftRight": { col: 6, row: 4 }, // Right Shift
     "Equal": { col: 6, row: 5 }, // =
-    "ArrowUp": { col: 6, row: 6 }, // ^ / Arrow Up
+    "ArrowUp": { col: 6, row: 6 }, // ^ / Arrow Up / Pi (Shift)
     "Slash": { col: 6, row: 7 }, // /
     "NumpadDivide": { col: 6, row: 7 },
 
     // Column 7 ($DC00 Bit 7)
     "Digit1": { col: 7, row: 0 },
     "Numpad1": { col: 7, row: 0 },
-    "ArrowLeft": { col: 7, row: 1 }, // <- / Arrow Left
+    "ArrowLeft": { col: 7, row: 1 }, // ← (Left Arrow on C64)
     "ControlLeft": { col: 7, row: 2 }, // CTRL
     "ControlRight": { col: 7, row: 2 },
     "Digit2": { col: 7, row: 3 },
     "Numpad2": { col: 7, row: 3 },
-    "Space": { col: 7, row: 4 }, // SPACE
+    "Space": { col: 7, row: 4 }, // SPACE BAR
     "Tab": { col: 7, row: 5 }, // Commodore Key (C=)
-    "Backquote": { col: 7, row: 5 }, // ` / ~ -> Commodore Key (C=)
+    "AltLeft": { col: 7, row: 5 },
+    "AltRight": { col: 7, row: 5 },
+    "Backquote": { col: 7, row: 5 }, // ` -> Commodore Key (C=)
     "KeyQ": { col: 7, row: 6 },
     "Escape": { col: 7, row: 7 }, // RUN/STOP
   };
@@ -186,6 +189,39 @@ export class C64Keyboard {
     }
   }
 
+  // Press a key with optional modifier combinations (Left Shift, Commodore, or CTRL)
+  public pressChord(
+    col: number,
+    row: number,
+    modifiers: { shift?: boolean; cbm?: boolean; ctrl?: boolean } = {},
+    holdDurationMs: number = 120
+  ) {
+    if (modifiers.shift) {
+      this.pressKey(1, 7); // Left Shift: Col 1, Row 7
+    }
+    if (modifiers.cbm) {
+      this.pressKey(7, 5); // Commodore C=: Col 7, Row 5
+    }
+    if (modifiers.ctrl) {
+      this.pressKey(7, 2); // CTRL: Col 7, Row 2
+    }
+
+    this.pressKey(col, row);
+
+    setTimeout(() => {
+      this.releaseKey(col, row);
+      if (modifiers.shift) {
+        this.releaseKey(1, 7);
+      }
+      if (modifiers.cbm) {
+        this.releaseKey(7, 5);
+      }
+      if (modifiers.ctrl) {
+        this.releaseKey(7, 2);
+      }
+    }, holdDurationMs);
+  }
+
   // Read matrix rows (active-low) for a given selected column pattern
   public readMatrix(colSelect: number): number {
     let result = 0xff;
@@ -204,10 +240,24 @@ export class C64Keyboard {
     }
 
     if (code === "Enter" || code === "NumpadEnter") return 0x0d;
-    if (code === "Backspace" || code === "Delete") return 0x14;
+    if (code === "Backspace" || code === "Delete") return shift ? 0x94 : 0x14; // INST (148) / DEL (20)
     if (code === "Space") return 0x20;
-    if (code === "Home") return 0x13;
+    if (code === "Home") return shift ? 0x93 : 0x13; // CLR (147) / HOME (19)
     if (code === "Escape") return 0x03; // RUN/STOP
+
+    if (code === "ArrowDown") return shift ? 0x91 : 0x11; // CRSR UP (145) / CRSR DOWN (17)
+    if (code === "ArrowUp") return 0x91;
+    if (code === "ArrowRight") return shift ? 0x9d : 0x1d; // CRSR LEFT (157) / CRSR RIGHT (29)
+    if (code === "ArrowLeft") return 0x9d;
+
+    if (code === "F1") return 0x85;
+    if (code === "F2") return 0x89;
+    if (code === "F3") return 0x86;
+    if (code === "F4") return 0x8a;
+    if (code === "F5") return 0x87;
+    if (code === "F6") return 0x8b;
+    if (code === "F7") return 0x88;
+    if (code === "F8") return 0x8c;
 
     if (code.startsWith("Key")) {
       const char = code.replace("Key", "").toUpperCase();
@@ -232,10 +282,13 @@ export class C64Keyboard {
     }
     if (code === "Equal") return shift ? 0x2b : 0x3d; // + / =
     if (code === "Minus") return 0x2d; // -
-    if (code === "Period") return 0x2e; // .
-    if (code === "Comma") return 0x2c; // ,
-    if (code === "Semicolon") return 0x3b; // ;
+    if (code === "Period") return shift ? 0x3e : 0x2e; // > / .
+    if (code === "Comma") return shift ? 0x3c : 0x2c; // < / ,
+    if (code === "Semicolon") return shift ? 0x5b : 0x3a; // [ / :
+    if (code === "Backslash") return shift ? 0x5d : 0x3b; // ] / ;
     if (code === "Quote") return 0x2a; // *
+    if (code === "BracketLeft") return 0x40; // @
+    if (code === "BracketRight") return 0x5c; // £
 
     return null;
   }

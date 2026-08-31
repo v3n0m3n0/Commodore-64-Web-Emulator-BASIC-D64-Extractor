@@ -12,10 +12,12 @@ import { C64VirtualKeyboard } from "./components/C64VirtualKeyboard";
 import { C64StorageExplorer } from "./components/C64StorageExplorer";
 import { C64Debugger } from "./components/C64Debugger";
 import { C64BasicStudio } from "./components/C64BasicStudio";
+import { C64SidStudio } from "./components/C64SidStudio";
 import { C64GeminiCopilot } from "./components/C64GeminiCopilot";
 import { C64PolishGamesCatalog } from "./components/C64PolishGamesCatalog";
 import { C64ArchiveManager, ExtractedMediaFile } from "./c64/c64_archive_manager";
 import { C64ArchiveModal } from "./components/C64ArchiveModal";
+import { ActiveTabType } from "./components/C64Toolbar";
 
 export default function App() {
   // Initialize Master System Orchestrator
@@ -26,7 +28,7 @@ export default function App() {
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(0.8);
   const [videoStandard, setVideoStandard] = useState<VideoStandard>(VideoStandard.PAL);
-  const [activeTab, setActiveTab] = useState<"screen" | "basic" | "debugger" | "storage" | "copilot" | "polish">("screen");
+  const [activeTab, setActiveTab] = useState<ActiveTabType>("screen");
 
   const [telemetry, setTelemetry] = useState<SystemTelemetry>(() => system.getTelemetry());
   const [basicStudioCode, setBasicStudioCode] = useState<string | undefined>(undefined);
@@ -127,19 +129,24 @@ export default function App() {
     if (file.type === "D64") {
       system.mountD64(file.data, true);
       setActiveTab("screen");
+      setIsRunning(true);
     } else if (file.type === "CRT") {
       system.loadCartridge(file.data);
       setActiveTab("screen");
+      setIsRunning(true);
     } else if (file.type === "T64" || file.type === "TAP") {
       system.mountT64(file.data, true);
       setActiveTab("screen");
+      setIsRunning(true);
     } else if (file.type === "PRG" || file.type === "P00") {
       system.loadAndRunPRG(file.data, file.name);
       setActiveTab("screen");
+      setIsRunning(true);
     } else if (file.type === "BAS") {
       const text = new TextDecoder().decode(file.data);
       system.typeText(text);
       setActiveTab("screen");
+      setIsRunning(true);
     }
   };
 
@@ -181,6 +188,17 @@ export default function App() {
           <C64BasicStudio
             system={system}
             initialCode={basicStudioCode}
+            onSwitchToScreen={() => setActiveTab("screen")}
+          />
+        )}
+
+        {activeTab === "sid" && (
+          <C64SidStudio
+            system={system}
+            onOpenBasicStudio={(code) => {
+              setBasicStudioCode(code);
+              setActiveTab("basic");
+            }}
             onSwitchToScreen={() => setActiveTab("screen")}
           />
         )}

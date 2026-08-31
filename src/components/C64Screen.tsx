@@ -98,6 +98,13 @@ export const C64Screen: React.FC<C64ScreenProps> = ({ system, telemetry, onFileU
         return;
       }
 
+      // PageUp triggers authentic C64 RESTORE NMI (VICE emulator standard)
+      if (e.code === "PageUp") {
+        e.preventDefault();
+        system.triggerRestore();
+        return;
+      }
+
       // Prevent page scrolling on Arrow keys / Space in emulator
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(e.code)) {
         e.preventDefault();

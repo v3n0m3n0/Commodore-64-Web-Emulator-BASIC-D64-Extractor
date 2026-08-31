@@ -7,7 +7,7 @@
 export interface BundledSample {
   id: string;
   title: string;
-  category: "Game" | "Music" | "Demo" | "Math" | "Assembly";
+  category: "Demo" | "Music" | "Math" | "Assembly";
   author: string;
   description: string;
   type: "BASIC" | "PRG" | "Assembly";
@@ -27,45 +27,6 @@ export const BUNDLED_SAMPLES: BundledSample[] = [
 20 POKE 53280,0:POKE 53281,0
 30 PRINT CHR$(205.5+RND(1));
 40 GOTO 30`,
-  },
-  {
-    id: "boulder-cave",
-    title: "Boulder Cavern Mini-Game",
-    category: "Game",
-    author: "C64 Retro Studio",
-    description: "Collect diamonds ($), avoid falling boulders (O), and dig through dirt using I/J/K/L or Arrow keys.",
-    type: "BASIC",
-    code: `10 REM BOULDER CAVERN MINI-GAME
-20 PRINT CHR$(147):POKE 53280,0:POKE 53281,0:POKE 646,7
-30 PRINT "   *** BOULDER CAVERN 64 ***"
-40 PRINT " COLLECT DIAMONDS ($) | AVOID (O)"
-50 PRINT " CONTROLS: W/A/S/D + RETURN"
-60 FOR I=1 TO 1000:NEXT I:PRINT CHR$(147)
-70 DIM M$(15,20):PX=10:PY=8:SC=0:DM=0
-80 FOR Y=1 TO 15:FOR X=1 TO 20
-90 R=INT(RND(1)*10):M$(Y,X)="."
-100 IF R=0 THEN M$(Y,X)="O"
-110 IF R=1 THEN M$(Y,X)="$":DM=DM+1
-120 IF X=1 OR X=20 OR Y=1 OR Y=15 THEN M$(Y,X)="#"
-130 NEXT X:NEXT Y:M$(PY,PX)="@"
-140 REM DRAW CAVE
-150 POKE 198,0:PRINT CHR$(19);
-160 FOR Y=1 TO 15:L$="":FOR X=1 TO 20:L$=L$+M$(Y,X):NEXT X:PRINT L$:NEXT Y
-170 PRINT "SCORE:";SC;" DIAMONDS LEFT:";DM
-180 IF DM=0 THEN PRINT "YOU WIN! ALL DIAMONDS COLLECTED!":END
-190 GET K$:IF K$="" GOTO 190
-200 NX=PX:NY=PY
-210 IF K$="W" OR K$="w" THEN NY=PY-1
-220 IF K$="S" OR K$="s" THEN NY=PY+1
-230 IF K$="A" OR K$="a" THEN NX=PX-1
-240 IF K$="D" OR K$="d" THEN NX=PX+1
-250 T$=M$(NY,NX)
-260 IF T$="#" THEN GOTO 190
-270 IF T$="O" THEN PRINT "CRUSHED BY A BOULDER!":POKE 53280,2:END
-280 IF T$="$" THEN SC=SC+100:DM=DM-1:POKE 54296,15:POKE 54273,40:POKE 54276,33
-290 M$(PY,PX)=" "
-300 PX=NX:PY=NY:M$(PY,PX)="@"
-310 GOTO 150`,
   },
   {
     id: "sid-arpeggiator",

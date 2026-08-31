@@ -105,6 +105,11 @@ export class C64System {
   public hardReset(skipBoot = false) {
     this.memory.reset();
     this.memory.loadSystemRoms();
+
+    if (this.mountedCart) {
+      this.memory.attachCartridge(this.mountedCart);
+    }
+
     this.keyboard.reset();
     this.vic.reset();
     this.sid.reset();
@@ -112,10 +117,38 @@ export class C64System {
     this.cia2.reset();
     this.cpu.reset();
 
-    // Verify reset vector points to $FCE2 from KERNAL ROM $FFFC-$FFFD
-    const fffc = this.memory.read(0xfffc);
-    const fffd = this.memory.read(0xfffd);
-    const resetVector = (fffd << 8) | fffc;
+    // Check if Cartridge is attached
+    if (this.memory.cartridgeAttached) {
+      // 1. Ultimax mode: Reset vector is directly from $FFFC-$FFFD in cartridge ROMH
+      if (!this.memory.exromActive && this.memory.gameActive) {
+        const resetVector = this.memory.readWord(0xfffc);
+        this.cpu.pc = resetVector;
+        this.cpu.sp = 0xff;
+        this.cpu.setP(0x24);
+        this.initReadyState();
+        return;
+      }
+
+      // 2. Standard Cartridge: Check for "CBM80" autostart signature at $8004..$8008
+      const isCbm80 =
+        this.memory.read(0x8004) === 0xc3 && // 'C'
+        this.memory.read(0x8005) === 0xc2 && // 'B'
+        this.memory.read(0x8006) === 0xcd && // 'M'
+        this.memory.read(0x8007) === 0x38 && // '8'
+        this.memory.read(0x8008) === 0x30;   // '0'
+
+      if (isCbm80) {
+        const cartColdReset = this.memory.readWord(0x8000);
+        this.initReadyState();
+        this.cpu.pc = cartColdReset;
+        this.cpu.sp = 0xff;
+        this.cpu.setP(0x24);
+        return;
+      }
+    }
+
+    // Standard C64 KERNAL Boot
+    const resetVector = this.memory.readWord(0xfffc) || 0xfce2;
     this.cpu.pc = resetVector;
 
     if (!skipBoot) {
@@ -137,6 +170,7 @@ export class C64System {
   // Warm Reset (RESTORE / CPU Reset Vector)
   public reset() {
     this.cpu.reset();
+    this.vic.clearFrameBuffer();
     this.lastFrameTime = 0;
     this.frameAccumulator = 0;
   }
@@ -187,6 +221,7 @@ export class C64System {
     this.memory.ram[0x34] = 0xa0; // FRETOP HI
     this.memory.ram[0x37] = 0x00; // MEMSIZ LO ($A000)
     this.memory.ram[0x38] = 0xa0; // MEMSIZ HI
+    this.memory.ram[0x0800] = 0x00; // BASIC initial leading zero-byte
 
     // 3. BASIC CHRGET/CHRGOT routine ($0073-$008A)
     const chrget = [
@@ -325,26 +360,67 @@ export class C64System {
 
     this.currentPrg = prg;
 
-    // 1. Cold reset and fast boot to BASIC READY prompt
+    // 1. Cold reset and boot to authentic READY state
     this.hardReset(false);
 
     // 2. Inject PRG bytes into RAM
     const res = this.memory.injectPRG(data);
     if (!res) return false;
 
-    // 3. Determine execution entry point:
-    // If loadAddr != $0801, start CPU directly at load address
-    // If loadAddr == $0801, jump directly to authentic BASIC RUN vector ($A7AE)
+    // 3. Ensure memory location $0800 is 0 (required for BASIC tokenizer & line fetching)
+    this.memory.ram[0x0800] = 0x00;
+
+    // 4. Update BASIC pointers and configure execution entry
     if (res.loadAddr !== 0x0801) {
+      // Machine language program with explicit custom load address (e.g. $C000, $1000, $0200)
       this.cpu.pc = res.loadAddr;
+      // Setup stack with return address to BASIC prompt loop ($A483 - 1 = $A482)
+      this.memory.ram[0x01ff] = 0xa4;
+      this.memory.ram[0x01fe] = 0x82;
+      this.cpu.sp = 0xfd;
+      this.cpu.setP(0x20); // Interrupts enabled
     } else {
-      this.cpu.pc = 0xa7ae;
+      // Standard load address $0801 (BASIC program or SYS machine code launcher)
+      // Check if this is a valid BASIC structure or raw machine code at $0801
+      const isLikelyBasic =
+        prg.data.length >= 4 &&
+        (prg.data[1] >= 0x08 || (prg.data[0] === 0 && prg.data[1] === 0));
+
+      if (isLikelyBasic) {
+        // Relink all BASIC lines and calculate end of program
+        this.memory.relinkBasic(0x0801, res.endAddr);
+
+        // Ensure TXTPTR ($7A/$7B) points to $0800 (the leading zero byte before first line)
+        this.memory.ram[0x7a] = 0x00;
+        this.memory.ram[0x7b] = 0x08;
+
+        // Reset execution state to direct mode
+        this.memory.ram[0x39] = 0xff; // CURLIN LO ($FFFF)
+        this.memory.ram[0x3a] = 0xff; // CURLIN HI
+
+        // Clear keyboard buffer
+        this.memory.ram[0x00c6] = 0x00;
+        this.keyboardQueue = [];
+
+        // Set stack pointer with return address to BASIC prompt loop ($A483 - 1 = $A482)
+        this.memory.ram[0x01ff] = 0xa4;
+        this.memory.ram[0x01fe] = 0x82;
+        this.cpu.sp = 0xfd;
+        this.cpu.setP(0x20); // Interrupts enabled, decimal clear
+
+        // Start CPU at authentic BASIC statement execution entry point (NEWSTT = $A7AE)
+        this.cpu.pc = 0xa7ae;
+      } else {
+        // Raw machine code without BASIC wrapper loaded at $0801
+        this.cpu.pc = 0x0801;
+        this.memory.ram[0x01ff] = 0xa4;
+        this.memory.ram[0x01fe] = 0x82;
+        this.cpu.sp = 0xfd;
+        this.cpu.setP(0x20);
+      }
     }
 
-    // Clear keyboard buffer so leftover keys don't interfere with program input
-    this.memory.ram[0x00c6] = 0;
-
-    // 4. Start continuous emulation loop
+    // 5. Start continuous emulation loop
     if (!this.isRunning) {
       this.start();
     }
@@ -358,7 +434,7 @@ export class C64System {
     if (!cart) return false;
 
     this.mountedCart = cart;
-    this.memory.attachCartridge(cart.cartridgeType, cart.banks, cart.gameLine, cart.exromLine);
+    this.memory.attachCartridge(cart);
     this.hardReset(false);
 
     if (!this.isRunning) {
@@ -383,12 +459,43 @@ export class C64System {
   public autoRunFirstDiskFile(): boolean {
     if (!this.mountedDisk || this.mountedDisk.files.length === 0) return false;
 
-    const firstEntry =
-      this.mountedDisk.files.find((e) => e.fileType === "PRG" && e.data && e.data.length > 0) ||
-      this.mountedDisk.files[0];
+    const isHeaderOrBanner = (name: string) => {
+      const trimmed = name.trim();
+      return (
+        trimmed.startsWith("-") ||
+        trimmed.startsWith("*") ||
+        trimmed.startsWith("=") ||
+        trimmed.startsWith("#") ||
+        trimmed.startsWith("/") ||
+        trimmed.startsWith("\\") ||
+        trimmed.length === 0
+      );
+    };
 
-    if (firstEntry && firstEntry.data && firstEntry.data.length > 0) {
-      return this.loadAndRunPRG(firstEntry.data, firstEntry.fileName);
+    // 1. Try to find first substantial PRG file with data > 2 bytes and blocks > 0, not starting with banner chars
+    let targetEntry = this.mountedDisk.files.find(
+      (e) =>
+        e.fileType === "PRG" &&
+        e.data &&
+        e.data.length > 2 &&
+        e.sizeInBlocks > 0 &&
+        !isHeaderOrBanner(e.fileName)
+    );
+
+    // 2. Fallback to any PRG with payload data > 2 bytes
+    if (!targetEntry) {
+      targetEntry = this.mountedDisk.files.find(
+        (e) => e.fileType === "PRG" && e.data && e.data.length > 2
+      );
+    }
+
+    // 3. Fallback to first file
+    if (!targetEntry) {
+      targetEntry = this.mountedDisk.files[0];
+    }
+
+    if (targetEntry && targetEntry.data && targetEntry.data.length > 0) {
+      return this.loadAndRunPRG(targetEntry.data, targetEntry.fileName);
     }
     return false;
   }
@@ -451,6 +558,11 @@ export class C64System {
       this.cia1.joy2 |= 0x10;
       this.firePulseTimeout = null;
     }, 140);
+  }
+
+  // Authentic RESTORE key press (triggers NMI line on 6510 CPU)
+  public triggerRestore() {
+    this.cpu.triggerNMI();
   }
 
   // Switch between Pure Text/Matrix Mode and Shared Joystick Mode

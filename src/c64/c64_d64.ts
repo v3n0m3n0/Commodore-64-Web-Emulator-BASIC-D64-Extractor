@@ -26,6 +26,24 @@ export interface D64DiskInfo {
   totalBlocks: number;
   freeBlocks: number;
   files: D64DirectoryEntry[];
+  rawImage?: Uint8Array;
+}
+
+export interface BAMSectorDetail {
+  track: number;
+  sector: number;
+  isFree: boolean;
+  isBAMOrDir: boolean;
+  ownerFileName?: string;
+  nextTrack?: number;
+  nextSector?: number;
+}
+
+export interface BAMTrackInfo {
+  track: number;
+  totalSectors: number;
+  freeSectors: number;
+  sectors: BAMSectorDetail[];
 }
 
 export class C64D64 {
@@ -171,7 +189,109 @@ export class C64D64 {
       totalBlocks: 664,
       freeBlocks,
       files,
+      rawImage: image,
     };
+  }
+
+  /**
+   * Decode full 35-track BAM block allocation map and sector owner assignments
+   */
+  public static getBAMDetails(image: Uint8Array): BAMTrackInfo[] {
+    const tracks: BAMTrackInfo[] = [];
+    const bam = this.readSector(image, 18, 0);
+    if (!bam) return [];
+
+    // Map file ownership by traversing file sector chains
+    const sectorOwnerMap = new Map<string, string>();
+    const sectorLinkMap = new Map<string, { nextTrack: number; nextSector: number }>();
+
+    // Parse directory to find files
+    let dirTrack = bam[0x00] || 18;
+    let dirSector = bam[0x01] || 1;
+    const visitedDir = new Set<string>();
+
+    while (dirTrack > 0 && dirTrack <= 35) {
+      const key = `${dirTrack}:${dirSector}`;
+      if (visitedDir.has(key)) break;
+      visitedDir.add(key);
+
+      const sec = this.readSector(image, dirTrack, dirSector);
+      if (!sec) break;
+
+      for (let e = 0; e < 8; e++) {
+        const off = e * 32;
+        const rawType = sec[off + 0x02];
+        if (rawType === 0) continue;
+
+        const fTrack = sec[off + 0x03];
+        const fSector = sec[off + 0x04];
+        const fileName = this.petsciiToString(sec, off + 0x05, 16);
+
+        // Trace file chain
+        let curT = fTrack;
+        let curS = fSector;
+        const visitedChain = new Set<string>();
+
+        while (curT > 0 && curT <= 35) {
+          const sKey = `${curT}:${curS}`;
+          if (visitedChain.has(sKey)) break;
+          visitedChain.add(sKey);
+          sectorOwnerMap.set(sKey, fileName);
+
+          const chainSec = this.readSector(image, curT, curS);
+          if (!chainSec) break;
+
+          const nT = chainSec[0];
+          const nS = chainSec[1];
+          sectorLinkMap.set(sKey, { nextTrack: nT, nextSector: nS });
+          if (nT === 0) break; // EOF
+          curT = nT;
+          curS = nS;
+        }
+      }
+
+      dirTrack = sec[0x00];
+      dirSector = sec[0x01];
+    }
+
+    // Process all 35 tracks
+    for (let t = 1; t <= 35; t++) {
+      const totalSec = this.sectorsPerTrack[t];
+      const bamOff = 4 * t;
+      const freeSecCount = bamOff < bam.length ? bam[bamOff] : 0;
+      const b1 = bam[bamOff + 1] || 0;
+      const b2 = bam[bamOff + 2] || 0;
+      const b3 = bam[bamOff + 3] || 0;
+      const bitmask = b1 | (b2 << 8) | (b3 << 16);
+
+      const sectors: BAMSectorDetail[] = [];
+      for (let s = 0; s < totalSec; s++) {
+        const isBAMOrDir = t === 18;
+        const isFree = (bitmask & (1 << s)) !== 0;
+        const sKey = `${t}:${s}`;
+        const owner = sectorOwnerMap.get(sKey);
+        const links = sectorLinkMap.get(sKey);
+
+        sectors.push({
+          track: t,
+          sector: s,
+          isFree: isBAMOrDir ? (s > 1 && isFree) : isFree,
+          isBAMOrDir,
+          ownerFileName: isBAMOrDir ? (s === 0 ? "BAM HEADER" : `DIRECTORY (S#${s})`) : owner,
+          nextTrack: links?.nextTrack,
+          nextSector: links?.nextSector,
+        });
+      }
+
+      tracks.push({
+        track: t,
+        totalSectors: totalSec,
+        freeSectors: freeSecCount,
+        sectors,
+      });
+    }
+
+    return tracks;
   }
 
   // Follow data sector chain and assemble complete byte stream
@@ -215,5 +335,150 @@ export class C64D64 {
       offset += c.length;
     }
     return result;
+  }
+
+  /**
+   * Create a standard 35-track (174,848 bytes) 1541 .D64 disk image with BAM and PRG files
+   */
+  public static createD64(
+    diskName = "C64 DISK",
+    diskId = "2A",
+    files: { name: string; data: Uint8Array; type?: "PRG" }[] = []
+  ): Uint8Array {
+    const image = new Uint8Array(174848); // 35 tracks standard 1541 disk
+
+    // Initialize BAM on Track 18, Sector 0
+    const bamOffset = this.getSectorOffset(18, 0);
+    image[bamOffset + 0x00] = 18; // First directory track
+    image[bamOffset + 0x01] = 1; // First directory sector
+    image[bamOffset + 0x02] = 0x41; // DOS version 'A'
+    image[bamOffset + 0x03] = 0x00;
+
+    // Set free sectors for each track (1-35)
+    for (let t = 1; t <= 35; t++) {
+      const secCount = this.sectorsPerTrack[t];
+      const entryOff = bamOffset + 4 * t;
+      if (t === 18) {
+        // Track 18 reserved for directory & BAM (sectors 0 and 1 used)
+        image[entryOff] = Math.max(0, secCount - 2);
+        image[entryOff + 1] = 0xfc; // Sectors 0 and 1 allocated
+        image[entryOff + 2] = 0xff;
+        image[entryOff + 3] = 0x07;
+      } else {
+        image[entryOff] = secCount;
+        if (secCount === 21) {
+          image[entryOff + 1] = 0xff;
+          image[entryOff + 2] = 0xff;
+          image[entryOff + 3] = 0x1f;
+        } else if (secCount === 19) {
+          image[entryOff + 1] = 0xff;
+          image[entryOff + 2] = 0xff;
+          image[entryOff + 3] = 0x07;
+        } else if (secCount === 18) {
+          image[entryOff + 1] = 0xff;
+          image[entryOff + 2] = 0xff;
+          image[entryOff + 3] = 0x03;
+        } else {
+          image[entryOff + 1] = 0xff;
+          image[entryOff + 2] = 0xff;
+          image[entryOff + 3] = 0x01;
+        }
+      }
+    }
+
+    // Disk Name at 0x90 (16 bytes padded with 0xA0)
+    for (let i = 0; i < 16; i++) {
+      image[bamOffset + 0x90 + i] = i < diskName.length ? diskName.charCodeAt(i) : 0xa0;
+    }
+    image[bamOffset + 0xa0] = 0xa0;
+    image[bamOffset + 0xa1] = 0xa0;
+
+    // Disk ID at 0xA2
+    image[bamOffset + 0xa2] = diskId.charCodeAt(0) || 0x32;
+    image[bamOffset + 0xa3] = diskId.charCodeAt(1) || 0x41;
+    image[bamOffset + 0xa4] = 0xa0;
+    image[bamOffset + 0xa5] = 0x32; // '2'
+    image[bamOffset + 0xa6] = 0x41; // 'A'
+
+    // Directory sector Track 18 Sector 1
+    const dirOffset = this.getSectorOffset(18, 1);
+    image[dirOffset + 0x00] = 0x00; // Next directory track (0 = last dir sector)
+    image[dirOffset + 0x01] = 0xff; // Next directory sector (0xFF = last)
+
+    let curAllocTrack = 1;
+    let curAllocSector = 0;
+
+    // Write files into directory and data sectors
+    for (let fIdx = 0; fIdx < Math.min(files.length, 8); fIdx++) {
+      const file = files[fIdx];
+      const entryOff = dirOffset + fIdx * 32;
+
+      // File header in directory:
+      image[entryOff + 0x00] = 0x00;
+      image[entryOff + 0x01] = 0x00;
+      image[entryOff + 0x02] = 0x82; // PRG closed (0x80 | 0x02)
+      image[entryOff + 0x03] = curAllocTrack; // First data track
+      image[entryOff + 0x04] = curAllocSector; // First data sector
+
+      // File name (16 bytes padded with 0xA0)
+      const cleanName = file.name.replace(/\.[^.]+$/, "").toUpperCase();
+      for (let i = 0; i < 16; i++) {
+        image[entryOff + 0x05 + i] = i < cleanName.length ? cleanName.charCodeAt(i) : 0xa0;
+      }
+
+      // Write data sectors
+      const fileData = file.data;
+      const totalBlocks = Math.max(1, Math.ceil(fileData.length / 254));
+      image[entryOff + 0x1e] = totalBlocks & 0xff;
+      image[entryOff + 0x1f] = (totalBlocks >> 8) & 0xff;
+
+      let dataPtr = 0;
+      while (dataPtr < fileData.length) {
+        const remaining = fileData.length - dataPtr;
+        const chunkSize = Math.min(254, remaining);
+        const isLast = dataPtr + chunkSize >= fileData.length;
+
+        const secOffset = this.getSectorOffset(curAllocTrack, curAllocSector);
+        if (secOffset < 0) break;
+
+        // Allocate sector in BAM
+        const bamTrackOff = bamOffset + 4 * curAllocTrack;
+        if (image[bamTrackOff] > 0) image[bamTrackOff]--;
+
+        if (isLast) {
+          image[secOffset + 0] = 0x00; // Track 0 = EOF
+          image[secOffset + 1] = chunkSize + 1; // Index of last valid byte + 1
+          image.set(fileData.subarray(dataPtr, dataPtr + chunkSize), secOffset + 2);
+          dataPtr += chunkSize;
+
+          // Advance to next sector for next file
+          curAllocSector++;
+          if (curAllocSector >= this.sectorsPerTrack[curAllocTrack]) {
+            curAllocSector = 0;
+            curAllocTrack++;
+            if (curAllocTrack === 18) curAllocTrack = 19;
+          }
+        } else {
+          // Prepare next sector
+          let nextTrack = curAllocTrack;
+          let nextSec = curAllocSector + 1;
+          if (nextSec >= this.sectorsPerTrack[nextTrack]) {
+            nextSec = 0;
+            nextTrack++;
+            if (nextTrack === 18) nextTrack = 19;
+          }
+
+          image[secOffset + 0] = nextTrack;
+          image[secOffset + 1] = nextSec;
+          image.set(fileData.subarray(dataPtr, dataPtr + chunkSize), secOffset + 2);
+
+          dataPtr += chunkSize;
+          curAllocTrack = nextTrack;
+          curAllocSector = nextSec;
+        }
+      }
+    }
+
+    return image;
   }
 }

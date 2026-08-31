@@ -167,7 +167,8 @@ export class C64CIA {
         }
         return (val & colVal & this.joystick2) & 0xFF;
       }
-      return this.pra;
+      // CIA2 Port A: VIC bank bits 0-1, RS232 bit 2, IEC serial bus bits 3-7 (inputs pulled high)
+      return (this.pra | ~this.ddra) & 0xFF;
     }
 
     if (reg === 0x01) {
@@ -185,7 +186,8 @@ export class C64CIA {
         }
         return (val & rowVal & this.joystick1) & 0xFF;
       }
-      return this.prb;
+      // CIA2 Port B: User port lines (pulled high)
+      return (this.prb | ~this.ddrb) & 0xFF;
     }
 
     if (reg === 0x02) return this.ddra;

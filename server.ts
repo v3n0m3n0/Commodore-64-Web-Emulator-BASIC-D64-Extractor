@@ -58,13 +58,25 @@ app.get("/api/roms", async (req, res) => {
       return res.send(cached.data);
     }
 
-    // List of mirror base URLs
+    // Extract file name if cleanPath includes a directory
+    const fileName = path.basename(cleanPath);
+
+    // List of mirror base URLs across both repositories and direct branches
     const mirrors = [
+      // Primary user repository: Commodore-64-Web-Emulator-BASIC-D64-Extractor
+      `https://raw.githubusercontent.com/v3n0m3n0/Commodore-64-Web-Emulator-BASIC-D64-Extractor/main/src/roms/games/polish_classics/${encodeURI(fileName)}`,
+      `https://cdn.jsdelivr.net/gh/v3n0m3n0/Commodore-64-Web-Emulator-BASIC-D64-Extractor@main/src/roms/games/polish_classics/${encodeURI(fileName)}`,
+      `https://raw.githack.com/v3n0m3n0/Commodore-64-Web-Emulator-BASIC-D64-Extractor/main/src/roms/games/polish_classics/${encodeURI(fileName)}`,
+      `https://fastly.jsdelivr.net/gh/v3n0m3n0/Commodore-64-Web-Emulator-BASIC-D64-Extractor@main/src/roms/games/polish_classics/${encodeURI(fileName)}`,
+      `https://raw.githubusercontent.com/v3n0m3n0/Commodore-64-Web-Emulator-BASIC-D64-Extractor/main/${encodeURI(cleanPath)}`,
+
+      // Secondary mirror repository: Commodore64-Web-Emulator
+      `https://raw.githubusercontent.com/v3n0m3n0/Commodore64-Web-Emulator/main/roms/polish/${encodeURI(fileName)}`,
+      `https://cdn.jsdelivr.net/gh/v3n0m3n0/Commodore64-Web-Emulator@main/roms/polish/${encodeURI(fileName)}`,
       `https://raw.githubusercontent.com/v3n0m3n0/Commodore64-Web-Emulator/main/${encodeURI(cleanPath)}`,
       `https://cdn.jsdelivr.net/gh/v3n0m3n0/Commodore64-Web-Emulator@main/${encodeURI(cleanPath)}`,
       `https://raw.githack.com/v3n0m3n0/Commodore64-Web-Emulator/main/${encodeURI(cleanPath)}`,
       `https://fastly.jsdelivr.net/gh/v3n0m3n0/Commodore64-Web-Emulator@main/${encodeURI(cleanPath)}`,
-      `https://raw.githubusercontent.com/v3n0m3n0/Commodore64-Web-Emulator/main/${cleanPath}`,
     ];
 
     for (const mirrorUrl of mirrors) {
@@ -94,7 +106,7 @@ app.get("/api/roms", async (req, res) => {
     }
 
     return res.status(404).json({
-      error: `Could not fetch ROM '${cleanPath}' from any mirror`,
+      error: `ROM image '${fileName}' not found on any configured mirror. Please check the file name or upload the genuine Commodore 64 image directly.`,
     });
   } catch (err: any) {
     console.error("ROM Proxy Error:", err);
@@ -105,7 +117,8 @@ app.get("/api/roms", async (req, res) => {
 // Gemini Copilot chat / analysis endpoint
 app.post("/api/gemini/copilot", async (req, res) => {
   try {
-    const { prompt, systemInstruction, model = "gemini-3.7-flash", telemetry } = req.body;
+    const { prompt, systemInstruction, model = "gemini-3.7-flash" } = req.body;
+    const telemetry = req.body.telemetry || req.body.systemContext;
 
     const ai = getGeminiClient();
     if (!ai) {

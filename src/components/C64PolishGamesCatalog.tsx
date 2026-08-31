@@ -103,22 +103,36 @@ interface C64PolishGamesCatalogProps {
   onOpenDebugger?: (addr: number) => void;
 }
 
-const RAW_BASE_URL = "https://raw.githubusercontent.com/v3n0m3n0/Commodore64-Web-Emulator/main/";
+const PRIMARY_REPO_BASE =
+  "https://raw.githubusercontent.com/v3n0m3n0/Commodore-64-Web-Emulator-BASIC-D64-Extractor/main/src/roms/games/polish_classics/";
 
 /**
  * Robust multi-tier ROM downloader with proxy & CDN mirrors
  */
 async function fetchRetroRomBytes(romUrl: string, gameName: string): Promise<Uint8Array> {
   const cleanPath = decodeURIComponent(romUrl).replace(/^\/+/, "");
+  const fileName = gameName || cleanPath.split("/").pop() || cleanPath;
+  const encodedFileName = encodeURIComponent(fileName);
   const encodedPath = encodeURI(cleanPath);
 
   const candidateUrls = [
+    // Server proxy with memory caching and multi-mirror fallback
     `/api/roms?path=${encodeURIComponent(cleanPath)}`,
+    `/api/roms?path=src/roms/games/polish_classics/${encodedFileName}`,
+
+    // Direct GitHub repo: Commodore-64-Web-Emulator-BASIC-D64-Extractor
+    `${PRIMARY_REPO_BASE}${encodedFileName}`,
+    `https://cdn.jsdelivr.net/gh/v3n0m3n0/Commodore-64-Web-Emulator-BASIC-D64-Extractor@main/src/roms/games/polish_classics/${encodedFileName}`,
+    `https://raw.githack.com/v3n0m3n0/Commodore-64-Web-Emulator-BASIC-D64-Extractor/main/src/roms/games/polish_classics/${encodedFileName}`,
+    `https://fastly.jsdelivr.net/gh/v3n0m3n0/Commodore-64-Web-Emulator-BASIC-D64-Extractor@main/src/roms/games/polish_classics/${encodedFileName}`,
+
+    // Mirror fallbacks
+    `https://raw.githubusercontent.com/v3n0m3n0/Commodore64-Web-Emulator/main/roms/polish/${encodedFileName}`,
+    `https://cdn.jsdelivr.net/gh/v3n0m3n0/Commodore64-Web-Emulator@main/roms/polish/${encodedFileName}`,
     `https://raw.githubusercontent.com/v3n0m3n0/Commodore64-Web-Emulator/main/${encodedPath}`,
     `https://cdn.jsdelivr.net/gh/v3n0m3n0/Commodore64-Web-Emulator@main/${encodedPath}`,
     `https://raw.githack.com/v3n0m3n0/Commodore64-Web-Emulator/main/${encodedPath}`,
     `https://fastly.jsdelivr.net/gh/v3n0m3n0/Commodore64-Web-Emulator@main/${encodedPath}`,
-    `https://raw.githubusercontent.com/v3n0m3n0/Commodore64-Web-Emulator/main/${cleanPath}`,
   ];
 
   let lastStatus = 404;
@@ -138,7 +152,7 @@ async function fetchRetroRomBytes(romUrl: string, gameName: string): Promise<Uin
     }
   }
 
-  throw new Error(`HTTP ${lastStatus} pobierania pliku ${gameName}`);
+  throw new Error(`Nie udało się pobrać obrazu gry ${gameName} (HTTP ${lastStatus}). Upewnij się, że plik istnieje w repozytorium lub wgraj oryginalny obraz dyskietki/taśmy.`);
 }
 
 export const C64PolishGamesCatalog: React.FC<C64PolishGamesCatalogProps> = ({
@@ -203,24 +217,27 @@ export const C64PolishGamesCatalog: React.FC<C64PolishGamesCatalogProps> = ({
     }
 
     const knownErrors = [
-      "SYNTAX ERROR",
-      "SYNTAX  ERROR",
-      "OUT OF DATA",
-      "ILLEGAL QUANTITY",
-      "LOAD ERROR",
-      "TYPE MISMATCH",
-      "REDIM",
-      "DIVISION BY ZERO",
-      "OVERFLOW",
-      "FORMULA TOO COMPLEX",
-      "UNDEF",
+      "?SYNTAX ERROR",
+      "?OUT OF DATA",
+      "?ILLEGAL QUANTITY",
+      "?LOAD ERROR",
+      "?TYPE MISMATCH",
+      "?REDIM'D ARRAY",
+      "?DIVISION BY ZERO",
+      "?OVERFLOW",
+      "?FORMULA TOO COMPLEX",
+      "?UNDEF'D STATEMENT",
+      "?BAD SUBSCRIPT",
+      "?STRING TOO LONG",
+      "?FILE NOT FOUND",
+      "?DEVICE NOT PRESENT",
     ];
 
     for (const err of knownErrors) {
-      if (text.includes(err)) {
-        const match = text.match(new RegExp(err + ".*?(?:IN|W)?\\s*(\\d+)", "i"));
+      if (text.includes(err) || text.includes(err.replace("?", ""))) {
+        const match = text.match(new RegExp(err.replace("?", "\\?") + ".*?(?:IN|W)?\\s*(\\d+)", "i"));
         const lineStr = match ? ` IN ${match[1]}` : "";
-        return `?${err}${lineStr}`;
+        return `${err}${lineStr}`;
       }
     }
     return null;
@@ -265,7 +282,7 @@ export const C64PolishGamesCatalog: React.FC<C64PolishGamesCatalogProps> = ({
         { name: "Ekstrakcja i weryfikacja integralności programu binarnego PRG", status: "pending", details: "Oczekiwanie..." },
         { name: "Detokenizacja kodu BASIC, wektory pamięci ($002B-$0032) i wektor startowy", status: "pending", details: "Oczekiwanie..." },
         { name: "Inicjalizacja rejestrów CPU 6510, Zero Page i układów VIC-II / CIA", status: "pending", details: "Oczekiwanie..." },
-        { name: "Emulacja rastra PAL i kontrola KERNAL Error Guard ($E5D4 / $0400)", status: "pending", details: "Oczekiwanie..." },
+        { name: "Emulacja rastra PAL i kontrola KERNAL Error Guard ($0400 / CPU)", status: "pending", details: "Oczekiwanie..." },
       ],
     };
     setTestReport(initialReport);
@@ -444,26 +461,26 @@ export const C64PolishGamesCatalog: React.FC<C64PolishGamesCatalogProps> = ({
         status: `$${testSys.cpu.getStatus().toString(16).toUpperCase().padStart(2, "0")}`,
       };
 
-      // KERNAL Error Guard & Screen RAM Inspection ($0400-$07E7 & $E5D4)
+      // KERNAL Error Guard & Screen RAM Inspection ($0400-$07E7)
       const screenError = scanScreenErrors(testSys);
-      const isKernalErrorLoop = testSys.cpu.pc === 0xe5d4 || testSys.cpu.pc === 0xa437;
+      const isCpuCrash = testSys.cpu.halted;
 
-      if (screenError || isKernalErrorLoop) {
-        const errorDesc = screenError || "?SYNTAX ERROR / RUNTIME HALT";
+      if (screenError || isCpuCrash) {
+        const errorDesc = screenError || "?RUNTIME CRASH / CPU HALTED";
         const isBurmistrz3 = game.id === "burmistrz-3" || game.name.toLowerCase().includes("burmistrz 3");
 
         initialReport.errorDiagnostic = {
           c64Error: errorDesc,
-          pcLocation: `$${testSys.cpu.pc.toString(16).toUpperCase()} (KERNAL Error Trap Vector)`,
+          pcLocation: `$${testSys.cpu.pc.toString(16).toUpperCase()} (Rejestr PC)`,
           explanation: isBurmistrz3
-            ? "Zrzut taśmy .T64 gry Burmistrz 3 posiada uszkodzony/obcięty nagłówek BASIC w payloadzie ($52 $A9 $34 $33 $07), co powoduje zatrzymanie interpretera BASIC pod wektorem $E5D4 ze statusem ?SYNTAX ERROR. W katalogu dostępna jest w 100% sprawna wersja dyskietkowa 1541: Burmistrz.d64."
-            : `Interpreter BASIC lub KERNAL zgłosił błąd czasu wykonania "${errorDesc}". CPU zostało zatrzymane na wektorze $E5D4.`,
+            ? "Zrzut taśmy .T64 gry Burmistrz 3 posiada uszkodzony/obcięty nagłówek BASIC w payloadzie ($52 $A9 $34 $33 $07), co powoduje zatrzymanie interpretera BASIC ze statusem ?SYNTAX ERROR. W katalogu dostępna jest w 100% sprawna wersja dyskietkowa 1541: Burmistrz.d64."
+            : `Interpreter BASIC lub KERNAL zgłosił błąd czasu wykonania "${errorDesc}". CPU zostało zatrzymane na adresie $${testSys.cpu.pc.toString(16).toUpperCase()}.`,
           recommendedGameId: isBurmistrz3 ? "burmistrz" : undefined,
           recommendedGameName: isBurmistrz3 ? "Burmistrz (Burmistrz.d64 - Wydanie Dyskietkowe 1541)" : undefined,
         };
 
         initialReport.steps[5] = {
-          name: "Emulacja rastra PAL i kontrola KERNAL Error Guard ($E5D4 / $0400)",
+          name: "Emulacja rastra PAL i kontrola KERNAL Error Guard ($0400 / CPU)",
           status: "failed",
           details: `BŁĄD WYKONANIA C64: KERNAL zgłosił "${errorDesc}" pod adresem $${testSys.cpu.pc.toString(16).toUpperCase()}. Program nie przeszedł weryfikacji integralności runtime.`,
         };
@@ -476,9 +493,9 @@ export const C64PolishGamesCatalog: React.FC<C64PolishGamesCatalogProps> = ({
       system.loadAndRunPRG(extractedPRG, game.name);
 
       initialReport.steps[5] = {
-        name: "Emulacja rastra PAL i kontrola KERNAL Error Guard ($E5D4 / $0400)",
+        name: "Emulacja rastra PAL i kontrola KERNAL Error Guard ($0400 / CPU)",
         status: "passed",
-        details: `Wykonano 30 klatek PAL (50.125 Hz). CPU wykonuje kod pod adresem $${testSys.cpu.pc.toString(16).toUpperCase()}, brak błędów KERNAL w buforze ekranu $0400.`,
+        details: `Wykonano 30 klatek PAL (50.125 Hz). CPU wykonuje kod pod adresem $${testSys.cpu.pc.toString(16).toUpperCase()} (STAN AKTYWNY), brak błędów KERNAL w buforze ekranu $0400.`,
       };
       initialReport.status = "passed";
       setTestReport({ ...initialReport });

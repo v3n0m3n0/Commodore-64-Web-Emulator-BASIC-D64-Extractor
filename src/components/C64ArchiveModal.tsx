@@ -5,7 +5,7 @@
  */
 
 import React from "react";
-import { X, Play, FileCode, Disc, Radio, HardDrive, Download } from "lucide-react";
+import { X, Play, FileCode, Disc, Radio, HardDrive, Layers, Music } from "lucide-react";
 import { ExtractedMediaFile } from "../c64/c64_archive_manager";
 
 interface C64ArchiveModalProps {
@@ -19,6 +19,60 @@ export const C64ArchiveModal: React.FC<C64ArchiveModalProps> = ({
   onClose,
   onMountFile,
 }) => {
+  const getIcon = (type: ExtractedMediaFile["type"]) => {
+    switch (type) {
+      case "CRT":
+        return <Layers className="w-4 h-4 text-[#d2a8ff]" />;
+      case "D64":
+        return <Disc className="w-4 h-4 text-[#58a6ff]" />;
+      case "T64":
+      case "TAP":
+        return <Radio className="w-4 h-4 text-[#7ee787]" />;
+      case "SID":
+        return <Music className="w-4 h-4 text-[#f0883e]" />;
+      default:
+        return <FileCode className="w-4 h-4 text-[#79c0ff]" />;
+    }
+  };
+
+  const getTypeBadge = (type: ExtractedMediaFile["type"]) => {
+    switch (type) {
+      case "CRT":
+        return "bg-[#8957e5] text-white";
+      case "D64":
+        return "bg-[#1f6feb] text-white";
+      case "T64":
+      case "TAP":
+        return "bg-[#238636] text-white";
+      case "SID":
+        return "bg-[#bd561d] text-white";
+      case "PRG":
+      case "P00":
+        return "bg-[#388bfd]/20 text-[#58a6ff] border border-[#388bfd]/40";
+      default:
+        return "bg-[#21262d] text-[#8b949e]";
+    }
+  };
+
+  const getProfileLabel = (type: ExtractedMediaFile["type"]) => {
+    switch (type) {
+      case "CRT":
+        return "Expansion Port Cartridge Profile";
+      case "D64":
+        return "1541 DOS 2.6 Virtual Disk Track Profile";
+      case "T64":
+      case "TAP":
+        return "Datasette 1530 Tape Profile";
+      case "SID":
+        return "MOS 6581 SID Music Chiptune Profile";
+      case "PRG":
+      case "P00":
+        return "Direct Memory Load & Autostart Profile";
+      default:
+        return "PETSCII Text / BASIC Script Profile";
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-[#161b22] border border-[#30363d] rounded-2xl max-w-2xl w-full p-6 shadow-2xl flex flex-col max-h-[85vh]">
@@ -52,24 +106,21 @@ export const C64ArchiveModal: React.FC<C64ArchiveModalProps> = ({
               className="bg-[#0d1117] border border-[#30363d] hover:border-[#1f6feb] rounded-xl p-3 flex items-center justify-between gap-3 transition-colors"
             >
               <div className="flex items-center gap-3">
-                <span className="p-2 rounded-lg bg-[#21262d] text-[#58a6ff]">
-                  {file.type === "D64" ? (
-                    <Disc className="w-4 h-4" />
-                  ) : file.type === "T64" || file.type === "TAP" ? (
-                    <Radio className="w-4 h-4" />
-                  ) : (
-                    <FileCode className="w-4 h-4" />
-                  )}
+                <span className="p-2 rounded-lg bg-[#21262d]">
+                  {getIcon(file.type)}
                 </span>
                 <div>
                   <div className="font-bold text-white text-xs sm:text-sm font-mono">
                     {file.name}
                   </div>
-                  <div className="text-[11px] text-[#8b949e] flex items-center gap-2 mt-0.5">
-                    <span className="px-1.5 py-0.2 rounded bg-[#21262d] text-[#7ee787] font-bold">
+                  <div className="text-[11px] text-[#8b949e] flex flex-wrap items-center gap-2 mt-0.5">
+                    <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${getTypeBadge(file.type)}`}>
                       {file.type}
                     </span>
                     <span>{(file.size / 1024).toFixed(1)} KB</span>
+                    <span className="text-[#6e7681] text-[10px] hidden sm:inline">
+                      • {getProfileLabel(file.type)}
+                    </span>
                   </div>
                 </div>
               </div>
