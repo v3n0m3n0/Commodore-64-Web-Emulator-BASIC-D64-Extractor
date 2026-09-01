@@ -37,10 +37,35 @@ export default function App() {
   // Archive modal state
   const [extractedFiles, setExtractedFiles] = useState<ExtractedMediaFile[] | null>(null);
 
-  // Start system emulation loop on mount
+  // Start system emulation loop on mount & check URL query params
   useEffect(() => {
     system.start();
     setIsRunning(true);
+
+    // Check for ?load= or ?url= or ?zip= in URL query parameters
+    const params = new URLSearchParams(window.location.search);
+    const loadUrl =
+      params.get("load") ||
+      params.get("url") ||
+      params.get("rom") ||
+      params.get("d64") ||
+      params.get("prg") ||
+      params.get("zip");
+
+    if (loadUrl) {
+      C64ArchiveManager.loadFromUrl(loadUrl)
+        .then((extracted) => {
+          const runnable = C64ArchiveManager.getRunnableFiles(extracted);
+          if (runnable.length === 1) {
+            handleMountExtractedFile(runnable[0]);
+          } else if (extracted.length > 0) {
+            setExtractedFiles(extracted);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to auto-load external media from URL:", err);
+        });
+    }
 
     // 10Hz telemetry update interval
     const telemetryInterval = setInterval(() => {
@@ -52,6 +77,27 @@ export default function App() {
       clearInterval(telemetryInterval);
     };
   }, [system]);
+
+  // Global window drag and drop listener (allows dropping ZIP/ROMs anywhere on screen)
+  useEffect(() => {
+    const handleWindowDragOver = (e: DragEvent) => {
+      e.preventDefault();
+    };
+    const handleWindowDrop = (e: DragEvent) => {
+      e.preventDefault();
+      if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+        handleFileUpload(e.dataTransfer.files);
+      }
+    };
+
+    window.addEventListener("dragover", handleWindowDragOver);
+    window.addEventListener("drop", handleWindowDrop);
+
+    return () => {
+      window.removeEventListener("dragover", handleWindowDragOver);
+      window.removeEventListener("drop", handleWindowDrop);
+    };
+  }, []);
 
   // Handle Play/Pause
   const handleTogglePlay = () => {
@@ -88,6 +134,13 @@ export default function App() {
     setVideoStandard(std);
   };
 
+  // Handle Sync Mode Toggle (Host VSync 60Hz / PAL 50Hz / NTSC 60Hz)
+  const handleToggleSyncMode = () => {
+    system.toggleSyncMode();
+    setVideoStandard(system.vic.videoStandard);
+    setTelemetry(system.getTelemetry());
+  };
+
   // Handle Reset
   const handleReset = (hard: boolean) => {
     if (hard) {
@@ -98,23 +151,32 @@ export default function App() {
     setTelemetry(system.getTelemetry());
   };
 
-  // Process File Uploads (.ZIP, .D64, .PRG, .CRT, .T64, .TAP)
-  const handleFileUpload = async (files: FileList) => {
-    if (!files || files.length === 0) return;
+  // Process File Uploads (.ZIP, .D64, .PRG, .CRT, .T64, .TAP, .SID, .BAS or URL)
+  const handleFileUpload = async (filesOrUrl: FileList | File[] | ExtractedMediaFile[] | string) => {
+    if (!filesOrUrl) return;
 
     try {
-      const allExtracted: ExtractedMediaFile[] = [];
+      let allExtracted: ExtractedMediaFile[] = [];
 
-      for (let i = 0; i < files.length; i++) {
-        const extracted = await C64ArchiveManager.processUploadedFile(files[i]);
-        allExtracted.push(...extracted);
+      if (typeof filesOrUrl === "string") {
+        allExtracted = await C64ArchiveManager.loadFromUrl(filesOrUrl);
+      } else if (Array.isArray(filesOrUrl) && filesOrUrl.length > 0 && "type" in filesOrUrl[0]) {
+        allExtracted = filesOrUrl as ExtractedMediaFile[];
+      } else {
+        const fileList = Array.from(filesOrUrl as FileList | File[]);
+        for (let i = 0; i < fileList.length; i++) {
+          const extracted = await C64ArchiveManager.processUploadedFile(fileList[i]);
+          allExtracted.push(...extracted);
+        }
       }
 
-      if (allExtracted.length === 1) {
-        // Single file: mount & run immediately
-        handleMountExtractedFile(allExtracted[0]);
-      } else if (allExtracted.length > 1) {
-        // Multi-file or ZIP: show selection modal
+      const runnableFiles = C64ArchiveManager.getRunnableFiles(allExtracted);
+
+      if (runnableFiles.length === 1) {
+        // Fast-path: exactly 1 runnable media file present (e.g. disk image in ZIP with readme/nfo)
+        handleMountExtractedFile(runnableFiles[0]);
+      } else if (allExtracted.length > 0) {
+        // Multi-disk archive, multi-game compilation, or documentation: open selection modal
         setExtractedFiles(allExtracted);
       }
     } catch (err) {
@@ -127,21 +189,32 @@ export default function App() {
     setExtractedFiles(null);
 
     if (file.type === "D64") {
-      system.mountD64(file.data, true);
+      system.mountD64(file.data, true, file.name, file.detectedStandard);
       setActiveTab("screen");
       setIsRunning(true);
     } else if (file.type === "CRT") {
-      system.loadCartridge(file.data);
+      system.loadCartridge(file.data, file.name, file.detectedStandard);
       setActiveTab("screen");
       setIsRunning(true);
-    } else if (file.type === "T64" || file.type === "TAP") {
-      system.mountT64(file.data, true);
+    } else if (file.type === "TAP") {
+      system.mountTAP(file.data, true, file.name, file.detectedStandard);
+      setActiveTab("screen");
+      setIsRunning(true);
+    } else if (file.type === "T64") {
+      system.mountT64(file.data, true, file.name, file.detectedStandard);
       setActiveTab("screen");
       setIsRunning(true);
     } else if (file.type === "PRG" || file.type === "P00") {
-      system.loadAndRunPRG(file.data, file.name);
+      system.loadAndRunPRG(file.data, file.name, file.detectedStandard);
       setActiveTab("screen");
       setIsRunning(true);
+    } else if (file.type === "SID") {
+      if (file.detectedStandard) {
+        system.setStandard(file.detectedStandard);
+      }
+      system.sid.reset();
+      system.sid.resumeAudio();
+      setActiveTab("sid");
     } else if (file.type === "BAS") {
       const text = new TextDecoder().decode(file.data);
       system.typeText(text);
@@ -166,6 +239,7 @@ export default function App() {
         onToggleMute={handleToggleMute}
         onChangeVolume={handleChangeVolume}
         onChangeStandard={handleChangeStandard}
+        onToggleSyncMode={handleToggleSyncMode}
         onReset={handleReset}
         onFileUpload={handleFileUpload}
         onSelectTab={setActiveTab}

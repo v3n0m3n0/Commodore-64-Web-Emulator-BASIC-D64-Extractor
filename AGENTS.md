@@ -13,3 +13,27 @@
   - Czyszczenie bufora ramki i obsługa ramek bocznych/pionowych w standardach 38/40 kolumn i 24/25 wierszy.
   - Prawidłowe bankowanie pamięci VIC-II przez bity `$DD00` i port procesora `$0001`.
   - Korzystanie ze standardowych wektorów skoków KERNAL (`$FF81` - `$FFF3`).
+
+## 3. Obowiązkowy Grep Bazy Wiedzy Przed Każdą Naprawą Błędu (KB-First Rule)
+- **PRZED przystąpieniem do diagnozy lub naprawy KAŻDEGO błędu / issue**, agent MUSI wykonać grep bazy wiedzy w celu wyszukania wcześniej odnotowanych informacji, wzorców i kontekstu dotyczącego danego problemu.
+- Ścieżki do przeszukania (w kolejności):
+  1. `docs/knowledge_base/` — techniczna dokumentacja sprzętu C64, VICE, formatów plików.
+  2. `docs/fix_logs/` — historia wszystkich poprzednich prób naprawy błędów w tym projekcie.
+  3. KI artifact: `c:\Users\KB\.gemini\antigravity-ide\knowledge\c64-web-emulator\artifacts\architecture.md` — architektura kodu projektu.
+- Grep musi obejmować **co najmniej dwa słowa kluczowe** bezpośrednio związane z naprawianym błędem (np. `clearFrameBuffer`, `vicBank`, `rasterCompare`, `fastBoot`, `startLine`).
+- Jeśli grep zwróci trafienie w `docs/fix_logs/`, agent musi przeczytać ten log przed zaproponowaniem rozwiązania — może on dokumentować wcześniejsze próby, które się nie powiodły.
+- Pomijanie tego kroku jest **niedopuszczalne**, nawet jeśli agent uważa, że zna rozwiązanie.
+
+## 4. System Logów Napraw Błędów (Fix Log System)
+- Po **każdej zakończonej próbie naprawy błędu** (niezależnie od sukcesu lub porażki) agent MUSI utworzyć lub zaktualizować plik logu w `docs/fix_logs/`.
+- **Format nazwy pliku:** `YYYY-MM-DD_TEMAT-BUGU.md` (np. `2026-09-01_VERMES-framebuffer-artifact.md`).
+- **Obowiązkowa zawartość logu:**
+  - Data i godzina próby.
+  - Opis zgłoszonego błędu (symptom widoczny przez użytkownika).
+  - Zidentyfikowane przyczyny źródłowe (root causes).
+  - Lista zmodyfikowanych plików z numerami linii.
+  - Wynik próby: `SUKCES` / `CZĘŚCIOWY` / `PORAŻKA`.
+  - Wnioski i zalecenia dla kolejnych prób.
+- Logi są trwałą historyczną bazą wiedzy. **Nigdy ich nie usuwaj ani nie nadpisuj** — jeśli ten sam błąd wymaga kolejnej próby, dodaj nową sekcję datowaną w tym samym pliku.
+- KI metadata (`c:\Users\KB\.gemini\antigravity-ide\knowledge\c64-web-emulator\metadata.json`) powinna być aktualizowana po każdym logu, aby summaries wskazywały na najnowsze fix logi.
+

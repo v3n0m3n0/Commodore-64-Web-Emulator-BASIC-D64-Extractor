@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
@@ -60,6 +61,27 @@ app.get("/api/roms", async (req, res) => {
 
     // Extract file name if cleanPath includes a directory
     const fileName = path.basename(cleanPath);
+
+    // 1. Check local disk storage first (fast, offline, authentic)
+    const localCandidates = [
+      path.join(__dirname, "src/roms/games/polish_classics", fileName),
+      path.join(__dirname, "public/roms", fileName),
+      path.join(__dirname, cleanPath),
+      path.join(__dirname, "src", cleanPath),
+      path.join(__dirname, "public", cleanPath),
+    ];
+
+    for (const localPath of localCandidates) {
+      if (fs.existsSync(localPath) && fs.statSync(localPath).isFile()) {
+        const buffer = fs.readFileSync(localPath);
+        const contentType = "application/octet-stream";
+        romCache.set(cleanPath, { data: buffer, contentType });
+        res.setHeader("Content-Type", contentType);
+        res.setHeader("Cache-Control", "public, max-age=86400");
+        res.setHeader("X-ROM-Cache", "LOCAL-DISK");
+        return res.send(buffer);
+      }
+    }
 
     // List of mirror base URLs across both repositories and direct branches
     const mirrors = [

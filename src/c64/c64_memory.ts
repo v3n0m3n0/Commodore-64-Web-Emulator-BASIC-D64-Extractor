@@ -48,6 +48,7 @@ export class C64Memory {
   public gameActive: boolean = false;   // Active low line (true when active / grounded)
   public exromActive: boolean = false;  // Active low line (true when active / grounded)
   public cartImage: CartridgeImage | null = null;
+  public datasette: any = null;
 
   constructor() {
     this.loadSystemRoms();
@@ -278,7 +279,10 @@ export class C64Memory {
 
     // 6510 Processor I/O Port ($0000-$0001)
     if (addr === 0x0000) return this.portDDR;
-    if (addr === 0x0001) return this.portData;
+    if (addr === 0x0001) {
+      const sense = this.datasette ? this.datasette.getSenseSwitch() : 0x10;
+      return (this.portData & this.portDDR) | (sense & ~this.portDDR) | (this.portData & 0xef);
+    }
 
     const loram = this._loram;
     const hiram = this._hiram;
@@ -375,6 +379,9 @@ export class C64Memory {
       this._loram = (val & 0x01) !== 0;
       this._hiram = (val & 0x02) !== 0;
       this._charen = (val & 0x04) !== 0;
+      if (this.datasette) {
+        this.datasette.setMotorState(val);
+      }
       return val;
     }
 

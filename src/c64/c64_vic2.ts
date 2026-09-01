@@ -45,9 +45,22 @@ export class C64VIC2 {
   public cyclesPerLine: number = 63;
   public vicBank: number = 0;
 
+  // VIC-II Internal Row Counter State Machine (per Christian Bauer VIC-II spec)
+  // These track the hardware counters that determine which character row and
+  // pixel line to render.  Essential for correct raster-split scrollers where
+  // YSCROLL changes mid-frame.
+  public vcBase: number = 0;           // Video Counter Base (0, 40, 80, ..., 960)
+  public rc: number = 0;               // Row Counter (0-7 pixel rows within character)
+  public displayActive: boolean = false; // True after first bad line until frame end
+
   // VIC-II Dynamic Border Unit State
   public vBorder: boolean = true;
   public mainBorder: boolean = true;
+
+  // Set to true by reset()/forceBlackFrame() so the next raster=0 clear uses black
+  // instead of the (potentially stale) border colour register, eliminating inter-game
+  // pixel bleed on the very first rendered frame after a cold reset.
+  private _pendingBlackClear: boolean = true;
 
   constructor(memory: any, cpu?: any) {
     this.mem = memory;
@@ -80,7 +93,7 @@ export class C64VIC2 {
     return den && line >= 0x30 && line <= 0xf7 && ((line & 0x07) === yscroll);
   }
   public isIrqActive(): boolean {
-    return (this.regs[0x19] & 0x80) !== 0 && ((this.regs[0x19] & this.regs[0x1a] & 0x0f) !== 0);
+    return (this.regs[0x19] & 0x80) !== 0;
   }
   public get frameBuffer(): Uint8ClampedArray {
     return new Uint8ClampedArray(this.pixels.buffer);
@@ -108,7 +121,25 @@ export class C64VIC2 {
     this.pixels.fill(col);
   }
 
+  /**
+   * Immediately fill the entire pixel buffer with opaque black.
+   * Called by C64System after a hard reset / game load to guarantee that no pixel
+   * data from a previous game session can bleed through before the first full frame
+   * of the new game is rendered.
+   */
+  public forceBlackFrame() {
+    this.pixels.fill(0xFF000000); // Opaque black in ABGR little-endian
+    this._pendingBlackClear = false;
+  }
+
   reset() {
+    // ── Pixel buffer: wipe to opaque black FIRST ──────────────────────────────
+    // This must happen before any register defaults are applied so that no
+    // previous-game pixel data can survive a chip reset, regardless of how the
+    // clearFrameBuffer() call below is sequenced relative to register writes.
+    this.pixels.fill(0xFF000000);
+    this._pendingBlackClear = true; // Next raster=0 will also start clean
+
     this.regs.fill(0);
     this.regs[0x11] = 0x1B;
     this.regs[0x16] = 0xC8;
@@ -120,9 +151,12 @@ export class C64VIC2 {
     this.rasterIrqEnabled = false;
     this.vBorder = true;
     this.mainBorder = true;
+    this.vcBase = 0;
+    this.rc = 0;
+    this.displayActive = false;
     this.totalRasterLines = this.standard === 'NTSC' ? 263 : 312;
     this.cyclesPerLine = this.standard === 'NTSC' ? 65 : 63;
-    this.clearFrameBuffer(0x0E);
+    this.clearFrameBuffer(0x0E); // Light-blue placeholder until first raster renders
   }
 
   read(reg) {
@@ -190,6 +224,11 @@ export class C64VIC2 {
     if (reg === 0x1A) {
       this.rasterIrqEnabled = (val & 0x01) !== 0;
       this.regs[0x1A] = val;
+      if (this.rasterIrqEnabled && (this.regs[0x19] & 0x01) !== 0) {
+        this.regs[0x19] |= 0x80;
+      } else if (!this.rasterIrqEnabled && (this.regs[0x19] & 0x0E) === 0) {
+        this.regs[0x19] &= 0x7F;
+      }
       return;
     }
 
@@ -205,10 +244,30 @@ export class C64VIC2 {
   startLine(): number {
     const c64Raster = this.currentRaster;
 
-    // Reset vertical border to closed state at top of frame
+    // Reset vertical border to closed state at top of frame.
+    // At raster=0 we also clear the entire pixel buffer so that no stale data from
+    // a previous game session (or a partially-rendered frame) is ever composited
+    // with the current frame's scanlines.
+    //
+    // _pendingBlackClear is set by reset() and forceBlackFrame(); on the very first
+    // frame after a chip reset/game-load we use opaque black instead of the border
+    // colour register, because the register may still reflect the *previous* game's
+    // palette until the new game's init code writes its own colours.  Every
+    // subsequent frame uses the live border colour (correct, efficient).
     if (c64Raster === 0) {
       this.vBorder = true;
-      this.clearFrameBuffer();
+      // Reset VIC-II internal row counter state at frame start
+      this.vcBase = 0;
+      this.rc = 0;
+      this.displayActive = false;
+      if (this._pendingBlackClear) {
+        this.pixels.fill(0xFF000000); // Opaque black — eliminates inter-game bleed
+        this._pendingBlackClear = false;
+      }
+      // No full-frame clearFrameBuffer() — each scanline renders its own pixels
+      // fresh in renderScanline(), covering all 272 canvas rows (raster 15..286).
+      // This eliminates the race where a bulk clear with border color at raster=0
+      // would use stale register values for raster-split sections.
     }
 
     // Dynamic Vertical Border Flip-Flop evaluation (MOS 6569/6567 hardware standard)
@@ -243,6 +302,17 @@ export class C64VIC2 {
     // Occurs when raster is in 48..247, (raster & 7) === (YSCROLL & 7), and DEN (bit 4) is 1.
     const screenOn = (this.regs[0x11] & 0x10) !== 0;
     const isBadLine = screenOn && (c64Raster >= 48 && c64Raster <= 247) && ((c64Raster & 7) === (this.regs[0x11] & 7));
+
+    // VIC-II internal row counter update on bad line detection:
+    // On a bad line the Row Counter (RC) is reset to 0, the Video Counter (VC)
+    // is loaded from VCBASE, and character/color data is fetched for 40 columns.
+    // This is critical for raster-split effects (e.g. Zamczysko's smooth scroller)
+    // where YSCROLL changes mid-frame via raster IRQ.
+    if (isBadLine) {
+      this.rc = 0;
+      this.displayActive = true;
+    }
+
     return isBadLine ? 40 : 0;
   }
 
@@ -256,6 +326,18 @@ export class C64VIC2 {
     if (c64Raster >= 15 && c64Raster < 287) {
       this.renderScanline(c64Raster);
     }
+
+    // Advance VIC-II internal row counter state machine after rendering.
+    // RC increments each line while display is active.  When RC overflows
+    // from 7 back to 0, VCBASE advances by 40 (one character row).
+    if (this.displayActive) {
+      if (this.rc === 7) {
+        this.vcBase += 40;
+        if (this.vcBase >= 1000) this.vcBase = 0;
+      }
+      this.rc = (this.rc + 1) & 7;
+    }
+
     this.currentRaster = (this.currentRaster + 1) % this.totalRasterLines;
   }
 
@@ -305,9 +387,15 @@ export class C64VIC2 {
     }
 
     const startX = 32 + xscroll;
-    const displayY = c64Raster - (48 + yscroll); // 0..199 (25-row) or 0..191 (24-row)
+
+    // VIC-II internal row counter state: use hardware counters (vcBase, rc)
+    // instead of the stateless formula `c64Raster - (48 + yscroll)`.  This
+    // correctly handles mid-frame YSCROLL changes for raster-split scrollers
+    // (e.g. Zamczysko title screen) where the upper half is static and the
+    // lower half scrolls with a different YSCROLL value.
+    const charRow = Math.floor(this.vcBase / 40);  // 0..24 character row
+    const charLine = this.rc;                       // 0..7 pixel row within character
     const maxRows = is25Rows ? 25 : 24;
-    const maxDisplayY = maxRows * 8;
 
     const bgColor0 = palette[regs[0x21] & 0x0F];
     const bgColor1 = palette[regs[0x22] & 0x0F];
@@ -325,14 +413,13 @@ export class C64VIC2 {
     const mask = this.scanlineFgMask;
     mask.fill(0);
 
-    // If displayY is outside the active character matrix (e.g. before first badline during scroll)
-    if (displayY < 0 || displayY >= maxDisplayY) {
+    // Check if VIC-II display is active and within valid character row range
+    if (!this.displayActive || charRow >= maxRows) {
       pixels.fill(bgColor0, rowOffset + 32, rowOffset + 352);
     } else {
       pixels.fill(bgColor0, rowOffset + 32, rowOffset + 352);
-      const charRow = (displayY >> 3);
-      const charLine = displayY & 7;
-      const rowCharBase = charRow * 40;
+      // Use vcBase directly as the row character base offset (0, 40, 80, ..., 960)
+      const rowCharBase = this.vcBase;
 
       for (let col = 0; col < 40; col++) {
         const pStart = rowOffset + startX + (col << 3);

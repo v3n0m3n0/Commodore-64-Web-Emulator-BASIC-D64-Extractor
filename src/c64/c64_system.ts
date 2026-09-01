@@ -16,8 +16,13 @@ import { C64PRG, PRGInfo } from "./c64_prg";
 import { C64D64, D64DiskInfo } from "./c64_d64";
 import { C64CRT, CartridgeImage } from "./c64_crt";
 import { C64T64, T64Archive } from "./c64_t64";
+import { C64TAP, TAPImage } from "./c64_tap";
+import { C64Datasette } from "./c64_datasette";
 import { C64Basic } from "./c64_basic_detokenizer";
 import { C64Assembler, AssemblyResult } from "./c64_assembler";
+import { C64StandardDetector } from "./c64_standard_detector";
+
+export type SyncMode = "host_vsync" | "pal_50hz" | "ntsc_60hz";
 
 export interface SystemTelemetry {
   fps: number;
@@ -36,12 +41,17 @@ export interface SystemTelemetry {
   activeVoices: number;
   cartridge: string | null;
   mountedDisk: string | null;
+  mountedTape: string | null;
+  tapeCounter: number;
+  tapeMotor: boolean;
+  tapePlay: boolean;
   cia1TimerA: number;
   cia1TimerB: number;
   cia1Icr: number;
   cia2Icr: number;
   irqActive: boolean;
   nmiActive: boolean;
+  syncMode: SyncMode;
 }
 
 export class C64System {
@@ -52,9 +62,15 @@ export class C64System {
   public keyboard: C64Keyboard;
   public cia1: C64CIA;
   public cia2: C64CIA;
+  public datasette: C64Datasette;
 
   // Keyboard Mode: Pure Text / Matrix (no joystick collision) vs Game Shared (WASD/Arrows/Space map to Joy 1 & 2)
   public keyboardMode: "text_pure" | "game_shared" = "text_pure";
+
+  // Display Synchronization Mode:
+  // "pal_50hz"   -> Strict 50.125 Hz PAL clock (100% Authentic PAL speed)
+  // "ntsc_60hz"  -> Strict 59.826 Hz NTSC standard (Native 60 Hz)
+  public syncMode: SyncMode = "pal_50hz";
 
   // Running State
   public isRunning: boolean = false;
@@ -70,14 +86,53 @@ export class C64System {
   // Mounted Storage
   public mountedDisk: D64DiskInfo | null = null;
   public mountedTape: T64Archive | null = null;
+  public mountedTapImage: TAPImage | null = null;
   public mountedCart: CartridgeImage | null = null;
   public currentPrg: PRGInfo | null = null;
 
   // Animation Frame Request ID
   private animFrameId: number | null = null;
-  private onFrameRender?: () => void;
+  public onFrameRender?: () => void;
   private keyboardQueue: number[] = [];
   private firePulseTimeout: any = null;
+
+  // Cycle-Exact Scanline Timing (Overrun Carry)
+  // Tracks any fractional cycles a multi-cycle 6502 instruction executed past the 63/65 cycle scanline budget.
+  // This overrun is deducted from the next scanline's budget, guaranteeing that exactly 19,656 CPU cycles (PAL)
+  // or 17,095 cycles (NTSC) execute per frame with zero phase drift against VIC-II raster IRQs.
+  public lineCycleRemainder: number = 0;
+
+  // Frame Render Callback registration (connects canvas directly to frame tick)
+  public setFrameRenderCallback(cb: (() => void) | undefined) {
+    this.onFrameRender = cb;
+  }
+
+  // Breakpoints & Debugger
+  public breakpoints: Set<number> = new Set<number>();
+  public onBreakpointHit?: (pc: number) => void;
+
+  public addBreakpoint(addr: number) {
+    this.breakpoints.add(addr & 0xffff);
+  }
+
+  public removeBreakpoint(addr: number) {
+    this.breakpoints.delete(addr & 0xffff);
+  }
+
+  public toggleBreakpoint(addr: number): boolean {
+    const normalized = addr & 0xffff;
+    if (this.breakpoints.has(normalized)) {
+      this.breakpoints.delete(normalized);
+      return false;
+    } else {
+      this.breakpoints.add(normalized);
+      return true;
+    }
+  }
+
+  public clearBreakpoints() {
+    this.breakpoints.clear();
+  }
 
   constructor() {
     this.memory = new C64Memory();
@@ -98,6 +153,10 @@ export class C64System {
     this.memory.cia1 = this.cia1;
     this.memory.cia2 = this.cia2;
 
+    // Instantiate C2N Datasette
+    this.datasette = new C64Datasette(this.cia1);
+    this.memory.datasette = this.datasette;
+
     this.hardReset();
   }
 
@@ -116,6 +175,12 @@ export class C64System {
     this.cia1.reset();
     this.cia2.reset();
     this.cpu.reset();
+    if (this.datasette) {
+      this.datasette.stop();
+      if (this.mountedTapImage) {
+        this.datasette.mount(this.mountedTapImage, false);
+      }
+    }
 
     // Check if Cartridge is attached
     if (this.memory.cartridgeAttached) {
@@ -161,10 +226,20 @@ export class C64System {
       this.initReadyState();
     }
 
+    // ── Guarantee clean pixel buffer before emulation loop resumes ──────────────
+    // After fastBoot (or initReadyState fallback) the pixel buffer may contain
+    // rendered BASIC READY frames from the synthetic boot loop.  On a real C64 you
+    // would never see those intermediate frames because the electron gun hasn't
+    // started yet.  Force-black here so the very first real frame the game renders
+    // always starts from a clean slate, regardless of what VIC bank / mode / colour
+    // the new game uses vs. the previous one.
+    this.vic.forceBlackFrame();
+
     this.lastFrameTime = 0;
     this.frameAccumulator = 0;
     this.frameCount = 0;
     this.lastFpsTime = 0;
+    this.lineCycleRemainder = 0;
   }
 
   // Warm Reset (RESTORE / CPU Reset Vector)
@@ -173,6 +248,7 @@ export class C64System {
     this.vic.clearFrameBuffer();
     this.lastFrameTime = 0;
     this.frameAccumulator = 0;
+    this.lineCycleRemainder = 0;
   }
 
   // Fast-boot the CPU from cold start until it finishes KERNAL init and reaches READY ($A480)
@@ -353,15 +429,52 @@ export class C64System {
     this.cpu.setP(0x24); // Interrupts enabled, Break clear
   }
 
+  // Configure hardware video standard (PAL 50.125 Hz vs NTSC 59.826 Hz)
+  // Updates VIC-II raster/cycle counts, CIA 1/2 master clock rates, KERNAL region flag, and frame pacing
+  public setStandard(std: VideoStandard, updateSyncMode: boolean = true) {
+    this.vic.setStandard(std);
+    const isPal = std === VideoStandard.PAL;
+    const clockHz = isPal ? 985248 : 1022727;
+    this.cia1.setClockRate(clockHz);
+    this.cia2.setClockRate(clockHz);
+
+    // KERNAL Zero Page video standard register ($02A6: 0 = NTSC, 1 = PAL)
+    if (this.memory && this.memory.ram) {
+      this.memory.ram[0x02a6] = isPal ? 1 : 0;
+    }
+
+    if (updateSyncMode) {
+      this.syncMode = isPal ? "pal_50hz" : "ntsc_60hz";
+    }
+  }
+
   // Mount and inject a PRG file into memory and automatically RUN it
-  public loadAndRunPRG(data: Uint8Array, fileName = "AUTOSTART.PRG"): boolean {
+  public loadAndRunPRG(
+    data: Uint8Array,
+    fileName = "AUTOSTART.PRG",
+    explicitStandard?: VideoStandard
+  ): boolean {
     const prg = C64PRG.parse(data, fileName);
     if (!prg) return false;
 
     this.currentPrg = prg;
 
+    // Automatic PAL / NTSC standard detection and hardware clock adjustment
+    const detectedStandard =
+      explicitStandard !== undefined
+        ? explicitStandard
+        : C64StandardDetector.detect(fileName, data, "PRG");
+    this.setStandard(detectedStandard, true);
+
     // 1. Cold reset and boot to authentic READY state
     this.hardReset(false);
+
+    // Explicit pixel buffer clear after boot: hardReset() calls forceBlackFrame()
+    // internally, but if a game was running and the React render loop paints a
+    // canvas frame between hardReset() returning and the first stepFrame() of the
+    // new game, the user could momentarily see boot-screen pixels.  A second
+    // forceBlackFrame() here closes that sub-frame window.
+    this.vic.forceBlackFrame();
 
     // 2. Inject PRG bytes into RAM
     const res = this.memory.injectPRG(data);
@@ -429,13 +542,30 @@ export class C64System {
   }
 
   // Mount Cartridge (.CRT)
-  public loadCartridge(data: Uint8Array): boolean {
+  public loadCartridge(
+    data: Uint8Array,
+    fileName = "CARTRIDGE.CRT",
+    explicitStandard?: VideoStandard
+  ): boolean {
     const cart = C64CRT.parse(data);
     if (!cart) return false;
 
     this.mountedCart = cart;
     this.memory.attachCartridge(cart);
+
+    // Automatic PAL / NTSC standard detection and hardware clock adjustment
+    const detectedStandard =
+      explicitStandard !== undefined
+        ? explicitStandard
+        : C64StandardDetector.detect(fileName || cart.name, data, "CRT");
+    this.setStandard(detectedStandard, true);
+
     this.hardReset(false);
+
+    // forceBlackFrame() is called inside hardReset(), but apply it again here as a
+    // belt-and-suspenders guard against the React render loop painting stale pixels
+    // in the sub-frame window between hardReset() returning and the first game frame.
+    this.vic.forceBlackFrame();
 
     if (!this.isRunning) {
       this.start();
@@ -444,10 +574,22 @@ export class C64System {
   }
 
   // Mount D64 Disk Image and optionally autorun the first program
-  public mountD64(data: Uint8Array, autoRun = false): D64DiskInfo | null {
+  public mountD64(
+    data: Uint8Array,
+    autoRun = false,
+    fileName?: string,
+    explicitStandard?: VideoStandard
+  ): D64DiskInfo | null {
     const d64 = C64D64.parse(data);
     if (!d64) return null;
     this.mountedDisk = d64;
+
+    // Automatic PAL / NTSC standard detection and hardware clock adjustment
+    const detectedStandard =
+      explicitStandard !== undefined
+        ? explicitStandard
+        : C64StandardDetector.detect(fileName || d64.diskName, data, "D64");
+    this.setStandard(detectedStandard, true);
 
     if (autoRun) {
       this.autoRunFirstDiskFile();
@@ -495,24 +637,80 @@ export class C64System {
     }
 
     if (targetEntry && targetEntry.data && targetEntry.data.length > 0) {
-      return this.loadAndRunPRG(targetEntry.data, targetEntry.fileName);
+      return this.loadAndRunPRG(targetEntry.data, targetEntry.fileName, this.vic.videoStandard);
     }
     return false;
   }
 
   // Mount T64 Tape Image
-  public mountT64(data: Uint8Array, autoRun = false): T64Archive | null {
+  public mountT64(
+    data: Uint8Array,
+    autoRun = false,
+    fileName?: string,
+    explicitStandard?: VideoStandard
+  ): T64Archive | null {
     const t64 = C64T64.parse(data);
     if (!t64) return null;
     this.mountedTape = t64;
 
+    // Automatic PAL / NTSC standard detection and hardware clock adjustment
+    const detectedStandard =
+      explicitStandard !== undefined
+        ? explicitStandard
+        : C64StandardDetector.detect(fileName || t64.tapeDescription, data, "T64");
+    this.setStandard(detectedStandard, true);
+
     if (autoRun && t64.records.length > 0) {
       const entry = t64.records[0];
       if (entry && entry.prgData && entry.prgData.length > 0) {
-        this.loadAndRunPRG(entry.prgData, entry.fileName);
+        this.loadAndRunPRG(entry.prgData, entry.fileName, detectedStandard);
       }
     }
     return t64;
+  }
+
+  // Mount Raw Tape Image (.TAP) and execute Fast Autostart or C2N Datasette Streaming
+  public mountTAP(
+    data: Uint8Array,
+    autoRun = true,
+    fileName?: string,
+    explicitStandard?: VideoStandard
+  ): TAPImage | null {
+    const tap = C64TAP.parse(data);
+    if (!tap) return null;
+
+    this.mountedTapImage = tap;
+
+    // Automatic PAL / NTSC standard detection and hardware clock adjustment
+    const detectedStandard =
+      explicitStandard !== undefined
+        ? explicitStandard
+        : C64StandardDetector.detect(fileName || "TAPE.TAP", data, "TAP");
+    this.setStandard(detectedStandard, true);
+
+    // 1. Mount into virtual C2N Datasette tape drive
+    this.datasette.mount(tap, autoRun);
+
+    // 2. Tier 1: Fast Autostart if standard KERNAL program block was reconstructed
+    if (autoRun && tap.files && tap.files.length > 0) {
+      const firstFile = tap.files[0];
+      if (firstFile && firstFile.prgData && firstFile.prgData.length > 0) {
+        this.loadAndRunPRG(firstFile.prgData, firstFile.name, detectedStandard);
+        return tap;
+      }
+    }
+
+    // 3. Tier 2: Real-Time C2N Datasette Turbo Streaming Autostart
+    if (autoRun) {
+      this.hardReset(false);
+      this.datasette.play();
+      this.typeText('LOAD\nRUN\n');
+      if (!this.isRunning) {
+        this.start();
+      }
+    }
+
+    return tap;
   }
 
   // Push a single PETSCII key character into KERNAL keyboard buffer ($0277 / $00C6)
@@ -526,43 +724,50 @@ export class C64System {
     }
   }
 
-  // Composite impulse for "DALEJ / FIRE":
-  // Simulates pressing SPACE and RETURN in keyboard matrix, pushes PETSCII codes into buffer,
-  // and pulls FIRE on CIA 1 Joystick 1 ($DC01) and Joystick 2 ($DC00) low.
+  // Composite impulse for "DALEJ (FIRE) / RETURN":
+  // Injects clean Return ($0D) into KERNAL keyboard buffer and pulses matrix RETURN key ($DC00/$DC01)
   public triggerFireAndNext() {
-    // 1. Matrix keys (Space: Row 7, Col 4; Return: Row 0, Col 1)
-    this.keyboard.pressKey(7, 4);
-    this.keyboard.pressKey(0, 1);
-
-    // 2. PETSCII buffer push (Space=32, Return=13)
-    this.pushKey(32);
+    // 1. Direct PETSCII injection of RETURN into KERNAL keyboard buffer ($0277 / $00C6)
     this.pushKey(13);
 
-    // 3. CIA 1 Joystick Fire on Port 1 & 2 ($DC00 / $DC01 bit 4 low = 0)
-    this.cia1.joy1 &= ~0x10;
-    this.cia1.joy2 &= ~0x10;
+    // 2. Hardware matrix Return key press
+    this.keyboard.pressChord(0, 1, {}, 120);
+
+    // 3. Pulse joystick fire in game_shared mode after keyboard pulse
+    if (this.keyboardMode === "game_shared") {
+      setTimeout(() => {
+        this.cia1.joy1 &= ~0x10;
+        this.cia1.joy2 &= ~0x10;
+        setTimeout(() => {
+          this.cia1.joy1 |= 0x10;
+          this.cia1.joy2 |= 0x10;
+        }, 100);
+      }, 140);
+    }
 
     // Wake audio if context was suspended
     this.sid.resumeAudio();
-
-    if (this.firePulseTimeout) {
-      clearTimeout(this.firePulseTimeout);
-    }
-
-    this.firePulseTimeout = setTimeout(() => {
-      // Release matrix keys
-      this.keyboard.releaseKey(7, 4);
-      this.keyboard.releaseKey(0, 1);
-      // Release joystick fire (bit 4 high = 1)
-      this.cia1.joy1 |= 0x10;
-      this.cia1.joy2 |= 0x10;
-      this.firePulseTimeout = null;
-    }, 140);
   }
 
   // Authentic RESTORE key press (triggers NMI line on 6510 CPU)
   public triggerRestore() {
     this.cpu.triggerNMI();
+  }
+
+  // Switch Display Synchronization Mode
+  public setSyncMode(mode: SyncMode) {
+    this.syncMode = mode;
+    this.setStandard(mode === "ntsc_60hz" ? VideoStandard.NTSC : VideoStandard.PAL, false);
+    this.lastFrameTime = 0;
+    this.frameAccumulator = 0;
+  }
+
+  public toggleSyncMode(): SyncMode {
+    const modes: SyncMode[] = ["pal_50hz", "ntsc_60hz"];
+    const currentIdx = modes.indexOf(this.syncMode);
+    const nextMode = modes[(currentIdx + 1) % modes.length];
+    this.setSyncMode(nextMode);
+    return nextMode;
   }
 
   // Switch between Pure Text/Matrix Mode and Shared Joystick Mode
@@ -693,30 +898,35 @@ export class C64System {
 
     // 1. Start of scanline (triggers raster IRQ if matched on current line)
     const stolen = this.vic.startLine();
-    const cpuBudget = cycPerLine - (stolen || 0);
+    // Exact cycle carry: subtract previous scanline's cycle overrun from current line's budget
+    const cpuBudget = cycPerLine - (stolen || 0) - this.lineCycleRemainder;
 
-    // Check interrupts before executing CPU budget for this scanline
-    if (this.vic.isIrqActive() || this.cia1.irqAsserted) {
-      this.cpu.triggerIRQ();
-    }
-    if (this.cia2.irqAsserted) {
-      this.cpu.triggerNMI();
-    }
+    // Interrupts (VIC/CIA1 IRQ and CIA2 NMI) are checked cycle-accurately by CPU handleInterrupts() on each instruction.
 
     // 2. Step CPU instructions for available budget
     let cpuDone = 0;
     while (cpuDone < cpuBudget) {
+      if (this.breakpoints.size > 0 && this.breakpoints.has(this.cpu.pc)) {
+        this.pause();
+        this.onBreakpointHit?.(this.cpu.pc);
+        break;
+      }
       const cyc = this.cpu.step();
       this.cia1.step(cyc);
       this.cia2.step(cyc);
+      this.datasette.step(cyc);
       cpuDone += cyc;
       this.totalCycles += cyc;
     }
+
+    // Save cycle overrun for the next scanline (guarantees cycle-exact frame duration across all lines)
+    this.lineCycleRemainder = Math.max(0, cpuDone - cpuBudget);
 
     // Step CIA timers by stolen cycles if DMA occurred
     if (stolen > 0) {
       this.cia1.step(stolen);
       this.cia2.step(stolen);
+      this.datasette.step(stolen);
       this.totalCycles += stolen;
     }
 
@@ -735,6 +945,7 @@ export class C64System {
       const cyc = this.cpu.step();
       this.cia1.step(cyc);
       this.cia2.step(cyc);
+      this.datasette.step(cyc);
       executed += cyc;
       this.totalCycles += cyc;
       this.lineCycles += cyc;
@@ -759,6 +970,7 @@ export class C64System {
     const cycles = this.cpu.step();
     this.cia1.step(cycles);
     this.cia2.step(cycles);
+    this.datasette.step(cycles);
     this.totalCycles += cycles;
     this.lineCycles += cycles;
 
@@ -775,6 +987,46 @@ export class C64System {
     }
 
     return cycles;
+  }
+
+  // Step Over (Subroutine JSR skip): if JSR, run until PC advances to return address
+  public stepOver(): number {
+    const opcode = this.memory.read(this.cpu.pc);
+    if (opcode === 0x20) { // JSR instruction (3 bytes)
+      const targetPC = (this.cpu.pc + 3) & 0xffff;
+      let totalCyc = 0;
+      let maxSteps = 500000;
+      while (this.cpu.pc !== targetPC && maxSteps-- > 0) {
+        if (this.breakpoints.size > 0 && this.breakpoints.has(this.cpu.pc)) {
+          this.pause();
+          this.onBreakpointHit?.(this.cpu.pc);
+          break;
+        }
+        totalCyc += this.stepInstruction();
+      }
+      return totalCyc;
+    }
+    return this.stepInstruction();
+  }
+
+  // Step Out (Execute until RTS / RTI return from current subroutine)
+  public stepOut(): number {
+    let totalCyc = 0;
+    let maxSteps = 500000;
+    while (maxSteps-- > 0) {
+      const opcode = this.memory.read(this.cpu.pc);
+      const cyc = this.stepInstruction();
+      totalCyc += cyc;
+      if (opcode === 0x60 || opcode === 0x40) { // RTS or RTI
+        break;
+      }
+      if (this.breakpoints.size > 0 && this.breakpoints.has(this.cpu.pc)) {
+        this.pause();
+        this.onBreakpointHit?.(this.cpu.pc);
+        break;
+      }
+    }
+    return totalCyc;
   }
 
   // Alias for stepInstruction
@@ -807,27 +1059,25 @@ export class C64System {
         if (delta > 100) delta = 100;
         if (delta < 0) delta = 0;
 
-        // Calculate exact target frame duration based on active video standard (PAL or NTSC)
+        // Authentic Real-Time Frame Clock Regulation (PAL 50.125 Hz / NTSC 59.826 Hz)
         const isPal = this.vic.videoStandard === VideoStandard.PAL;
-        // PAL: 985248.4 / 19656 = 50.12456 Hz (~19.9503 ms)
-        // NTSC: 1022727.27 / 17095 = 59.82611 Hz (~16.7145 ms)
-        const targetHz = isPal ? (985248.4 / 19656) : (1022727.27 / 17095);
+        // PAL: 985248.4 / 19656 = 50.12456 Hz (~19.9503 ms per frame)
+        // NTSC: 1022727.27 / 17095 = 59.82611 Hz (~16.7145 ms per frame)
+        const targetHz = isPal ? 50.12456 : 59.82611;
         const frameDurationMs = 1000 / targetHz;
 
-        this.frameAccumulator += delta;
+        // Clamp delta to prevent catch-up bursts or lag spikes
+        const clampedDelta = Math.min(Math.max(delta, 0), 50);
+        this.frameAccumulator += clampedDelta;
 
-        // Update real-world FPS measurement every 1000ms
-        if (!this.lastFpsTime) this.lastFpsTime = timestamp;
-        if (timestamp - this.lastFpsTime >= 1000) {
-          const elapsedSec = (timestamp - this.lastFpsTime) / 1000;
-          this.fps = Math.round((this.frameCount / elapsedSec) * 10) / 10;
-          this.frameCount = 0;
-          this.lastFpsTime = timestamp;
+        // Cap accumulator to avoid multi-frame fast-forward bursts after browser tab pauses
+        if (this.frameAccumulator > frameDurationMs * 2) {
+          this.frameAccumulator = frameDurationMs * 1.2;
         }
 
-        // Run authentic number of emulation frames matching real-time clock
         let framesRun = 0;
-        while (this.frameAccumulator >= frameDurationMs && framesRun < 4) {
+        // Execute frame when accumulator reaches target frame duration (at most 2 frames per tick)
+        while (this.frameAccumulator >= frameDurationMs && framesRun < 2) {
           this.stepFrame();
           this.frameAccumulator -= frameDurationMs;
           framesRun++;
@@ -840,6 +1090,7 @@ export class C64System {
           }
         }
 
+        // Render frame to canvas whenever emulation stepped
         if (framesRun > 0 || this.isWarpMode) {
           this.onFrameRender?.();
         }
@@ -897,12 +1148,21 @@ export class C64System {
       activeVoices,
       cartridge: this.mountedCart ? this.mountedCart.name : null,
       mountedDisk: this.mountedDisk ? this.mountedDisk.diskName : null,
+      mountedTape: this.mountedTape
+        ? this.mountedTape.tapeDescription
+        : this.mountedTapImage
+        ? "C2N Raw TAP"
+        : null,
+      tapeCounter: this.datasette ? this.datasette.counter : 0,
+      tapeMotor: this.datasette ? this.datasette.motorOn : false,
+      tapePlay: this.datasette ? this.datasette.playSwitchPressed : false,
       cia1TimerA: this.cia1.timerA,
       cia1TimerB: this.cia1.timerB,
       cia1Icr: this.cia1.icr,
       cia2Icr: this.cia2.icr,
       irqActive: this.vic.isIrqActive() || this.cia1.irqAsserted,
       nmiActive: this.cia2.irqAsserted,
+      syncMode: this.syncMode,
     };
   }
 

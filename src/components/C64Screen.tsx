@@ -19,11 +19,12 @@ import {
 } from "lucide-react";
 import { C64System, SystemTelemetry } from "../c64/c64_system";
 import { C64Keyboard } from "../c64/c64_keyboard";
+import { ExtractedMediaFile } from "../c64/c64_archive_manager";
 
 interface C64ScreenProps {
   system: C64System;
   telemetry: SystemTelemetry;
-  onFileUpload: (files: FileList) => void;
+  onFileUpload: (files: FileList | File[] | ExtractedMediaFile[] | string) => void;
 }
 
 export const C64Screen: React.FC<C64ScreenProps> = ({ system, telemetry, onFileUpload }) => {
@@ -63,23 +64,27 @@ export const C64Screen: React.FC<C64ScreenProps> = ({ system, telemetry, onFileU
     setTimeout(() => setIsFireActive(false), 220);
   };
 
-  // Hook canvas rendering to system frame tick
+  // Synchronize canvas rendering directly with system frame generation (Zero-Jitter Frame Pacing)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
-    // Direct render loop
-    let animId: number;
-    const renderLoop = () => {
+    const render = () => {
       system.vic.renderToCanvas(ctx, { scanlines, crtGlow });
-      animId = requestAnimationFrame(renderLoop);
     };
 
-    animId = requestAnimationFrame(renderLoop);
-    return () => cancelAnimationFrame(animId);
+    // Immediate initial paint
+    render();
+
+    // Hook frame tick callback: whenever C64System completes a frame, paint immediately
+    system.setFrameRenderCallback(render);
+
+    return () => {
+      system.setFrameRenderCallback(undefined);
+    };
   }, [system, scanlines, crtGlow]);
 
   // Handle Global Physical Keyboard Events and forward to C64 Keyboard Matrix
@@ -135,9 +140,7 @@ export const C64Screen: React.FC<C64ScreenProps> = ({ system, telemetry, onFileU
           e.code === "Space" ||
           e.code === "ControlLeft" ||
           e.code === "ControlRight" ||
-          e.code === "KeyJ" ||
-          e.code === "Enter" ||
-          e.code === "NumpadEnter"
+          e.code === "KeyJ"
         ) {
           system.cia1.joy1 &= ~0x10;
           system.cia1.joy2 &= ~0x10;
@@ -452,9 +455,15 @@ export const C64Screen: React.FC<C64ScreenProps> = ({ system, telemetry, onFileU
               FPS: <span className="text-[#58a6ff]">{typeof telemetry.fps === "number" ? telemetry.fps.toFixed(1) : telemetry.fps}</span>
             </span>
             <span>
-              RASTER: <span className="text-yellow-400">{telemetry.rasterLine}</span>
+              SYNC:{" "}
+              <span className={telemetry.syncMode === "host_vsync" ? "text-[#58a6ff] font-bold" : telemetry.syncMode === "pal_50hz" ? "text-yellow-400 font-bold" : "text-orange-400 font-bold"}>
+                {telemetry.syncMode === "host_vsync" ? "V-SYNC 60Hz" : telemetry.syncMode === "pal_50hz" ? "PAL 50Hz" : "NTSC 60Hz"}
+              </span>
             </span>
             <span>
+              RASTER: <span className="text-yellow-400">{telemetry.rasterLine}</span>
+            </span>
+            <span className="hidden md:inline">
               MODE: <span className="text-green-400">{telemetry.videoMode}</span>
             </span>
             <span className="hidden sm:inline">

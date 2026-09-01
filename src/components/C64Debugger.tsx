@@ -32,6 +32,15 @@ import {
   FileCheck,
   AlertCircle,
   X,
+  CircleDot,
+  Circle,
+  CornerDownRight,
+  CornerUpLeft,
+  ArrowLeft,
+  Edit2,
+  Check,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import { C64System, SystemTelemetry } from "../c64/c64_system";
 import { C64Disassembler, DisassembledInstruction } from "../c64/c64_disassembler";
@@ -50,6 +59,7 @@ export const C64Debugger: React.FC<C64DebuggerProps> = ({ system, telemetry, tar
   const [viewMode, setViewMode] = useState<DebuggerViewMode>("all");
   const [disasmAddr, setDisasmAddr] = useState<number>(targetAddress || system.cpu.pc);
   const [disasmList, setDisasmList] = useState<DisassembledInstruction[]>([]);
+  const [disasmHistory, setDisasmHistory] = useState<number[]>([]);
   const [hexStartAddr, setHexStartAddr] = useState<number>(0x0400); // Screen RAM default
   const [hexSearchInput, setHexSearchInput] = useState<string>("0400");
   const [disasmSearchInput, setDisasmSearchInput] = useState<string>(
@@ -57,17 +67,44 @@ export const C64Debugger: React.FC<C64DebuggerProps> = ({ system, telemetry, tar
   );
   const [exportSuccess, setExportSuccess] = useState<boolean>(false);
   const [showSnapshotModal, setShowSnapshotModal] = useState<boolean>(false);
+  const [showBreakpointsModal, setShowBreakpointsModal] = useState<boolean>(false);
+  const [newBreakpointInput, setNewBreakpointInput] = useState<string>("");
+  const [breakpointsList, setBreakpointsList] = useState<number[]>(Array.from(system.breakpoints));
   const [snapshotDescription, setSnapshotDescription] = useState<string>("");
   const [snapshotFeedback, setSnapshotFeedback] = useState<{
     type: "success" | "error";
     message: string;
   } | null>(null);
 
+  // Editable CPU Register state
+  const [editingReg, setEditingReg] = useState<"PC" | "A" | "X" | "Y" | "SP" | null>(null);
+  const [editRegValue, setEditRegValue] = useState<string>("");
+
+  // Editable Hex byte state
+  const [editingHexAddr, setEditingHexAddr] = useState<number | null>(null);
+  const [editHexValue, setEditHexValue] = useState<string>("");
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Sync breakpoint hit callback
+  useEffect(() => {
+    system.onBreakpointHit = (hitPC) => {
+      setDisasmAddr(hitPC);
+      setDisasmSearchInput(hitPC.toString(16).toUpperCase());
+      setSnapshotFeedback({
+        type: "success",
+        message: `🔴 BREAKPOINT HIT at PC=$${hitPC.toString(16).padStart(4, "0").toUpperCase()}`,
+      });
+      setTimeout(() => setSnapshotFeedback(null), 6000);
+    };
+    return () => {
+      system.onBreakpointHit = undefined;
+    };
+  }, [system]);
 
   // Update disassembly on CPU tick or address change
   useEffect(() => {
-    const list = C64Disassembler.disassembleRange(system.memory, disasmAddr, 18);
+    const list = C64Disassembler.disassembleRange(system.memory, disasmAddr, 20);
     setDisasmList(list);
   }, [system, disasmAddr, telemetry.pc]);
 
@@ -79,9 +116,42 @@ export const C64Debugger: React.FC<C64DebuggerProps> = ({ system, telemetry, tar
     }
   }, [targetAddress]);
 
+  // Toggle breakpoint on an address
+  const handleToggleBreakpoint = (addr: number) => {
+    system.toggleBreakpoint(addr);
+    setBreakpointsList(Array.from(system.breakpoints));
+  };
+
+  const handleAddBreakpointFromInput = (e: React.FormEvent) => {
+    e.preventDefault();
+    const parsed = parseInt(newBreakpointInput.replace(/[$#]/g, ""), 16);
+    if (!isNaN(parsed) && parsed >= 0 && parsed <= 0xffff) {
+      system.addBreakpoint(parsed);
+      setBreakpointsList(Array.from(system.breakpoints));
+      setNewBreakpointInput("");
+    }
+  };
+
+  const handleClearAllBreakpoints = () => {
+    system.clearBreakpoints();
+    setBreakpointsList([]);
+  };
+
   // Step single instruction
   const handleStepInstruction = () => {
     system.stepInstruction();
+    setDisasmAddr(system.cpu.pc);
+  };
+
+  // Step Over (JSR skip)
+  const handleStepOver = () => {
+    system.stepOver();
+    setDisasmAddr(system.cpu.pc);
+  };
+
+  // Step Out (RTS / RTI skip)
+  const handleStepOut = () => {
+    system.stepOut();
     setDisasmAddr(system.cpu.pc);
   };
 
@@ -107,6 +177,48 @@ export const C64Debugger: React.FC<C64DebuggerProps> = ({ system, telemetry, tar
   const handleJumpToPC = () => {
     setDisasmAddr(system.cpu.pc);
     setDisasmSearchInput(system.cpu.pc.toString(16).toUpperCase());
+  };
+
+  // Follow subroutine address in Disassembler
+  const handleFollowAddress = (target: number) => {
+    setDisasmHistory((prev) => [...prev, disasmAddr]);
+    setDisasmAddr(target);
+    setDisasmSearchInput(target.toString(16).toUpperCase());
+  };
+
+  // Navigate back in Disassembler history
+  const handleNavBack = () => {
+    if (disasmHistory.length > 0) {
+      const prevAddr = disasmHistory[disasmHistory.length - 1];
+      setDisasmHistory((prev) => prev.slice(0, prev.length - 1));
+      setDisasmAddr(prevAddr);
+      setDisasmSearchInput(prevAddr.toString(16).toUpperCase());
+    }
+  };
+
+  // Commit edited CPU Register
+  const handleCommitRegisterEdit = () => {
+    if (!editingReg) return;
+    const parsed = parseInt(editRegValue.replace(/[$#]/g, ""), 16);
+    if (!isNaN(parsed)) {
+      if (editingReg === "PC") system.cpu.pc = parsed & 0xffff;
+      if (editingReg === "A") system.cpu.a = parsed & 0xff;
+      if (editingReg === "X") system.cpu.x = parsed & 0xff;
+      if (editingReg === "Y") system.cpu.y = parsed & 0xff;
+      if (editingReg === "SP") system.cpu.sp = parsed & 0xff;
+    }
+    setEditingReg(null);
+    setEditRegValue("");
+  };
+
+  // Commit edited Hex byte
+  const handleCommitHexEdit = (addr: number) => {
+    const parsed = parseInt(editHexValue.replace(/[$#]/g, ""), 16);
+    if (!isNaN(parsed) && parsed >= 0 && parsed <= 0xff) {
+      system.memory.write(addr, parsed);
+    }
+    setEditingHexAddr(null);
+    setEditHexValue("");
   };
 
   // Export comprehensive system telemetry snapshot to local JSON file
@@ -509,24 +621,88 @@ export const C64Debugger: React.FC<C64DebuggerProps> = ({ system, telemetry, tar
       }
 
       rows.push(
-        <div key={rowAddr} className="flex items-center gap-3 py-0.5 hover:bg-[#21262d] px-2 rounded font-mono text-xs">
-          <span className="text-[#58a6ff] w-14 font-bold">
+        <div key={rowAddr} className="flex items-center gap-2 py-0.5 hover:bg-[#21262d] px-2 rounded font-mono text-xs">
+          <span className="text-[#58a6ff] w-14 font-bold select-none">
             ${rowAddr.toString(16).padStart(4, "0").toUpperCase()}
           </span>
-          <div className="flex items-center gap-1.5 text-white">
-            {bytes.slice(0, 8).map((byte, idx) => (
-              <span key={idx} className="w-5 text-center">
-                {byte.toString(16).padStart(2, "0").toUpperCase()}
-              </span>
-            ))}
-            <span className="text-[#484f58] mx-0.5">|</span>
-            {bytes.slice(8, 16).map((byte, idx) => (
-              <span key={idx} className="w-5 text-center">
-                {byte.toString(16).padStart(2, "0").toUpperCase()}
-              </span>
-            ))}
+          <div className="flex items-center gap-1 text-white">
+            {bytes.slice(0, 8).map((byte, idx) => {
+              const currentByteAddr = rowAddr + idx;
+              const isEditing = editingHexAddr === currentByteAddr;
+              return (
+                <span
+                  key={idx}
+                  onClick={() => {
+                    setEditingHexAddr(currentByteAddr);
+                    setEditHexValue(byte.toString(16).padStart(2, "0").toUpperCase());
+                  }}
+                  className={`w-6 text-center cursor-pointer rounded px-0.5 transition-colors ${
+                    isEditing
+                      ? "bg-[#1f6feb] text-white font-bold ring-1 ring-[#58a6ff]"
+                      : "hover:bg-[#30363d] hover:text-[#58a6ff]"
+                  }`}
+                  title={`$${currentByteAddr.toString(16).padStart(4, "0").toUpperCase()} = #${byte} ($${byte.toString(16).padStart(2, "0").toUpperCase()}) - Click to Edit`}
+                >
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      autoFocus
+                      value={editHexValue}
+                      onChange={(e) => setEditHexValue(e.target.value)}
+                      onBlur={() => handleCommitHexEdit(currentByteAddr)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleCommitHexEdit(currentByteAddr);
+                        if (e.key === "Escape") setEditingHexAddr(null);
+                      }}
+                      className="w-5 bg-black text-center text-white outline-none text-xs"
+                      maxLength={2}
+                    />
+                  ) : (
+                    byte.toString(16).padStart(2, "0").toUpperCase()
+                  )}
+                </span>
+              );
+            })}
+            <span className="text-[#484f58] mx-0.5 select-none">|</span>
+            {bytes.slice(8, 16).map((byte, idx) => {
+              const currentByteAddr = rowAddr + 8 + idx;
+              const isEditing = editingHexAddr === currentByteAddr;
+              return (
+                <span
+                  key={idx + 8}
+                  onClick={() => {
+                    setEditingHexAddr(currentByteAddr);
+                    setEditHexValue(byte.toString(16).padStart(2, "0").toUpperCase());
+                  }}
+                  className={`w-6 text-center cursor-pointer rounded px-0.5 transition-colors ${
+                    isEditing
+                      ? "bg-[#1f6feb] text-white font-bold ring-1 ring-[#58a6ff]"
+                      : "hover:bg-[#30363d] hover:text-[#58a6ff]"
+                  }`}
+                  title={`$${currentByteAddr.toString(16).padStart(4, "0").toUpperCase()} = #${byte} ($${byte.toString(16).padStart(2, "0").toUpperCase()}) - Click to Edit`}
+                >
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      autoFocus
+                      value={editHexValue}
+                      onChange={(e) => setEditHexValue(e.target.value)}
+                      onBlur={() => handleCommitHexEdit(currentByteAddr)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleCommitHexEdit(currentByteAddr);
+                        if (e.key === "Escape") setEditingHexAddr(null);
+                      }}
+                      className="w-5 bg-black text-center text-white outline-none text-xs"
+                      maxLength={2}
+                    />
+                  ) : (
+                    byte.toString(16).padStart(2, "0").toUpperCase()
+                  )}
+                </span>
+              );
+            })}
           </div>
-          <span className="text-[#7ee787] ml-2 tracking-widest">{asciiStr}</span>
+          <span className="text-[#7ee787] ml-2 tracking-widest select-none">{asciiStr}</span>
         </div>
       );
     }
@@ -545,106 +721,264 @@ export const C64Debugger: React.FC<C64DebuggerProps> = ({ system, telemetry, tar
             <h2 className="text-base font-bold text-white uppercase tracking-wider">
               MOS 6510 / 6502 CPU REGISTERS
             </h2>
-            <p className="text-xs text-[#8b949e]">Cycle-accurate instruction execution & registers</p>
+            <p className="text-xs text-[#8b949e]">Cycle-accurate instruction execution, live registers & breakpoints</p>
           </div>
         </div>
 
-        {/* Live Register Badges */}
+        {/* Live Register Badges (Clickable / Editable) */}
         <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
-          <div className="bg-[#0d1117] border border-[#30363d] px-3 py-1.5 rounded-lg">
+          {/* PC */}
+          <div
+            onClick={() => {
+              if (editingReg !== "PC") {
+                setEditingReg("PC");
+                setEditRegValue(system.cpu.pc.toString(16).toUpperCase());
+              }
+            }}
+            className="bg-[#0d1117] border border-[#30363d] px-3 py-1.5 rounded-lg cursor-pointer hover:border-[#bc8cff] transition-all"
+            title="Program Counter (Click to edit)"
+          >
             <span className="text-[#8b949e]">PC: </span>
-            <span className="text-[#bc8cff] font-bold">
-              ${system.cpu.pc.toString(16).padStart(4, "0").toUpperCase()}
-            </span>
+            {editingReg === "PC" ? (
+              <input
+                type="text"
+                autoFocus
+                value={editRegValue}
+                onChange={(e) => setEditRegValue(e.target.value)}
+                onBlur={handleCommitRegisterEdit}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleCommitRegisterEdit();
+                  if (e.key === "Escape") setEditingReg(null);
+                }}
+                className="w-16 bg-black text-[#bc8cff] font-bold outline-none px-1 rounded"
+              />
+            ) : (
+              <span className="text-[#bc8cff] font-bold">
+                ${system.cpu.pc.toString(16).padStart(4, "0").toUpperCase()}
+              </span>
+            )}
           </div>
 
-          <div className="bg-[#0d1117] border border-[#30363d] px-3 py-1.5 rounded-lg">
+          {/* A */}
+          <div
+            onClick={() => {
+              if (editingReg !== "A") {
+                setEditingReg("A");
+                setEditRegValue(system.cpu.a.toString(16).toUpperCase());
+              }
+            }}
+            className="bg-[#0d1117] border border-[#30363d] px-3 py-1.5 rounded-lg cursor-pointer hover:border-white transition-all"
+            title="Accumulator (Click to edit)"
+          >
             <span className="text-[#8b949e]">A: </span>
-            <span className="text-white font-bold">
-              ${system.cpu.a.toString(16).padStart(2, "0").toUpperCase()} ({system.cpu.a})
-            </span>
+            {editingReg === "A" ? (
+              <input
+                type="text"
+                autoFocus
+                value={editRegValue}
+                onChange={(e) => setEditRegValue(e.target.value)}
+                onBlur={handleCommitRegisterEdit}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleCommitRegisterEdit();
+                  if (e.key === "Escape") setEditingReg(null);
+                }}
+                className="w-10 bg-black text-white font-bold outline-none px-1 rounded"
+              />
+            ) : (
+              <span className="text-white font-bold">
+                ${system.cpu.a.toString(16).padStart(2, "0").toUpperCase()} ({system.cpu.a})
+              </span>
+            )}
           </div>
 
-          <div className="bg-[#0d1117] border border-[#30363d] px-3 py-1.5 rounded-lg">
+          {/* X */}
+          <div
+            onClick={() => {
+              if (editingReg !== "X") {
+                setEditingReg("X");
+                setEditRegValue(system.cpu.x.toString(16).toUpperCase());
+              }
+            }}
+            className="bg-[#0d1117] border border-[#30363d] px-3 py-1.5 rounded-lg cursor-pointer hover:border-white transition-all"
+            title="X Index Register (Click to edit)"
+          >
             <span className="text-[#8b949e]">X: </span>
-            <span className="text-white font-bold">
-              ${system.cpu.x.toString(16).padStart(2, "0").toUpperCase()} ({system.cpu.x})
-            </span>
+            {editingReg === "X" ? (
+              <input
+                type="text"
+                autoFocus
+                value={editRegValue}
+                onChange={(e) => setEditRegValue(e.target.value)}
+                onBlur={handleCommitRegisterEdit}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleCommitRegisterEdit();
+                  if (e.key === "Escape") setEditingReg(null);
+                }}
+                className="w-10 bg-black text-white font-bold outline-none px-1 rounded"
+              />
+            ) : (
+              <span className="text-white font-bold">
+                ${system.cpu.x.toString(16).padStart(2, "0").toUpperCase()} ({system.cpu.x})
+              </span>
+            )}
           </div>
 
-          <div className="bg-[#0d1117] border border-[#30363d] px-3 py-1.5 rounded-lg">
+          {/* Y */}
+          <div
+            onClick={() => {
+              if (editingReg !== "Y") {
+                setEditingReg("Y");
+                setEditRegValue(system.cpu.y.toString(16).toUpperCase());
+              }
+            }}
+            className="bg-[#0d1117] border border-[#30363d] px-3 py-1.5 rounded-lg cursor-pointer hover:border-white transition-all"
+            title="Y Index Register (Click to edit)"
+          >
             <span className="text-[#8b949e]">Y: </span>
-            <span className="text-white font-bold">
-              ${system.cpu.y.toString(16).padStart(2, "0").toUpperCase()} ({system.cpu.y})
-            </span>
+            {editingReg === "Y" ? (
+              <input
+                type="text"
+                autoFocus
+                value={editRegValue}
+                onChange={(e) => setEditRegValue(e.target.value)}
+                onBlur={handleCommitRegisterEdit}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleCommitRegisterEdit();
+                  if (e.key === "Escape") setEditingReg(null);
+                }}
+                className="w-10 bg-black text-white font-bold outline-none px-1 rounded"
+              />
+            ) : (
+              <span className="text-white font-bold">
+                ${system.cpu.y.toString(16).padStart(2, "0").toUpperCase()} ({system.cpu.y})
+              </span>
+            )}
           </div>
 
-          <div className="bg-[#0d1117] border border-[#30363d] px-3 py-1.5 rounded-lg">
+          {/* SP */}
+          <div
+            onClick={() => {
+              if (editingReg !== "SP") {
+                setEditingReg("SP");
+                setEditRegValue(system.cpu.sp.toString(16).toUpperCase());
+              }
+            }}
+            className="bg-[#0d1117] border border-[#30363d] px-3 py-1.5 rounded-lg cursor-pointer hover:border-[#d29922] transition-all"
+            title="Stack Pointer (Click to edit)"
+          >
             <span className="text-[#8b949e]">SP: </span>
-            <span className="text-[#d29922] font-bold">
-              $01{system.cpu.sp.toString(16).padStart(2, "0").toUpperCase()}
-            </span>
+            {editingReg === "SP" ? (
+              <input
+                type="text"
+                autoFocus
+                value={editRegValue}
+                onChange={(e) => setEditRegValue(e.target.value)}
+                onBlur={handleCommitRegisterEdit}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleCommitRegisterEdit();
+                  if (e.key === "Escape") setEditingReg(null);
+                }}
+                className="w-10 bg-black text-[#d29922] font-bold outline-none px-1 rounded"
+              />
+            ) : (
+              <span className="text-[#d29922] font-bold">
+                $01{system.cpu.sp.toString(16).padStart(2, "0").toUpperCase()}
+              </span>
+            )}
           </div>
 
-          <div className="bg-[#0d1117] border border-[#30363d] px-3 py-1.5 rounded-lg">
+          {/* Flags */}
+          <div className="bg-[#0d1117] border border-[#30363d] px-3 py-1.5 rounded-lg" title="Processor Status Flags: Negative, Overflow, Break, Decimal, Interrupt, Zero, Carry">
             <span className="text-[#8b949e]">FLAGS [NV-BDIZC]: </span>
             <span className="text-[#7ee787] font-bold">{system.cpu.getFlagsString()}</span>
           </div>
         </div>
 
-        {/* Step Controls */}
+        {/* Execution & Stepping Controls */}
         <div className="flex flex-wrap items-center gap-1.5">
           <button
             onClick={handleStepInstruction}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-[#1f6feb] hover:bg-[#388bfd] text-white text-xs font-bold shadow-sm transition-all"
-            title="Execute Single 6502 Instruction"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-[#1f6feb] hover:bg-[#388bfd] text-white text-xs font-bold shadow-sm transition-all cursor-pointer active:scale-95"
+            title="Step Single 6502 Instruction (Step Into)"
           >
             <SkipForward className="w-3.5 h-3.5" />
             Step Inst
           </button>
 
           <button
+            onClick={handleStepOver}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-[#0969da] hover:bg-[#218bff] text-white text-xs font-bold shadow-sm transition-all cursor-pointer active:scale-95"
+            title="Step Over Subroutine (JSR skip)"
+          >
+            <CornerDownRight className="w-3.5 h-3.5" />
+            Step Over
+          </button>
+
+          <button
+            onClick={handleStepOut}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-[#13233a] hover:bg-[#1f3a5f] text-[#58a6ff] border border-[#1f6feb]/50 text-xs font-bold shadow-sm transition-all cursor-pointer active:scale-95"
+            title="Step Out of Current Subroutine (Execute until RTS/RTI)"
+          >
+            <CornerUpLeft className="w-3.5 h-3.5" />
+            Step Out
+          </button>
+
+          <button
             onClick={() => handleStepCycle(1)}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-[#8957e5] hover:bg-[#a371f7] text-white text-xs font-bold shadow-sm transition-all"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-[#8957e5] hover:bg-[#a371f7] text-white text-xs font-bold shadow-sm transition-all cursor-pointer active:scale-95"
             title="Execute exactly 1 clock cycle"
           >
             <Clock className="w-3.5 h-3.5" />
-            1 Cycle
+            1 Cyc
           </button>
 
           <button
             onClick={() => handleStepCycle(8)}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-[#6e40c9] hover:bg-[#8957e5] text-white text-xs font-bold shadow-sm transition-all"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-[#6e40c9] hover:bg-[#8957e5] text-white text-xs font-bold shadow-sm transition-all cursor-pointer active:scale-95"
             title="Execute 8 clock cycles"
           >
             <Zap className="w-3.5 h-3.5" />
-            8 Cycles
+            8 Cyc
           </button>
 
           <button
             onClick={handleStepScanline}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-[#d29922] hover:bg-[#e3b341] text-black text-xs font-bold shadow-sm transition-all"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-[#d29922] hover:bg-[#e3b341] text-black text-xs font-bold shadow-sm transition-all cursor-pointer active:scale-95"
             title="Step 1 Video Scanline (63 cycles PAL / 65 NTSC)"
           >
             <Sliders className="w-3.5 h-3.5" />
-            Step Line
+            Line
           </button>
 
           <button
             onClick={handleStepFrame}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-[#238636] hover:bg-[#2ea043] text-white text-xs font-bold shadow-sm transition-all"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-[#238636] hover:bg-[#2ea043] text-white text-xs font-bold shadow-sm transition-all cursor-pointer active:scale-95"
             title="Step Full Video Frame (312 Lines PAL / 263 NTSC)"
           >
             <Play className="w-3.5 h-3.5" />
-            Step Frame
+            Frame
           </button>
 
           <button
             onClick={handleJumpToPC}
-            className="px-2 py-1.5 rounded bg-[#21262d] hover:bg-[#30363d] text-white text-xs font-mono border border-[#30363d]"
-            title="Jump to Current PC"
+            className="px-2 py-1.5 rounded bg-[#21262d] hover:bg-[#30363d] text-white text-xs font-mono border border-[#30363d] cursor-pointer"
+            title="Jump Disassembler to Current PC"
           >
             PC
+          </button>
+
+          {/* Breakpoints Toggle Button */}
+          <button
+            onClick={() => setShowBreakpointsModal(true)}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded text-xs font-mono font-bold border transition-all cursor-pointer ${
+              breakpointsList.length > 0
+                ? "bg-[#f85149]/20 text-[#ff7b72] border-[#f85149]/60 shadow-[0_0_10px_rgba(248,81,73,0.3)]"
+                : "bg-[#21262d] text-[#8b949e] hover:text-white border-[#30363d]"
+            }`}
+            title="Manage Hardware Breakpoints"
+          >
+            <CircleDot className="w-3.5 h-3.5 text-[#f85149]" />
+            <span>BREAKPOINTS ({breakpointsList.length})</span>
           </button>
 
           {/* Hidden File Input for Loading Crash Snapshot JSON */}
@@ -727,6 +1061,121 @@ export const C64Debugger: React.FC<C64DebuggerProps> = ({ system, telemetry, tar
           >
             <X className="w-3.5 h-3.5" />
           </button>
+        </div>
+      )}
+
+      {/* Modal: Breakpoints Manager */}
+      {showBreakpointsModal && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="bg-[#161b22] border border-[#30363d] rounded-2xl shadow-2xl w-full max-w-md p-6 flex flex-col gap-4 text-white font-sans">
+            <div className="flex items-center justify-between border-b border-[#30363d] pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-[#f85149]/20 text-[#ff7b72] flex items-center justify-center border border-[#f85149]/30">
+                  <CircleDot className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Execution Breakpoints</h3>
+                  <p className="text-[11px] text-[#8b949e]">
+                    Pause emulation when CPU reaches specified address
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowBreakpointsModal(false)}
+                className="p-1.5 rounded-lg text-[#8b949e] hover:text-white hover:bg-[#21262d] transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Add Breakpoint Form */}
+            <form onSubmit={handleAddBreakpointFromInput} className="flex items-center gap-2">
+              <span className="text-xs font-mono text-[#8b949e]">$</span>
+              <input
+                type="text"
+                value={newBreakpointInput}
+                onChange={(e) => setNewBreakpointInput(e.target.value)}
+                placeholder="ADDR (e.g. 0801, E000, C000)"
+                className="flex-1 bg-[#0d1117] border border-[#30363d] focus:border-[#58a6ff] rounded-lg px-3 py-1.5 text-xs font-mono text-white outline-none"
+              />
+              <button
+                type="submit"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#1f6feb] hover:bg-[#388bfd] text-white text-xs font-mono font-bold cursor-pointer transition-all"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add
+              </button>
+            </form>
+
+            {/* Breakpoints List */}
+            <div className="flex flex-col gap-1.5 max-h-60 overflow-y-auto font-mono text-xs bg-[#0d1117] p-2.5 rounded-xl border border-[#30363d]">
+              {breakpointsList.length === 0 ? (
+                <div className="text-center py-6 text-[#8b949e] text-xs">
+                  No active breakpoints. Click on address numbers in the disassembler to toggle breakpoints.
+                </div>
+              ) : (
+                breakpointsList.map((bpAddr) => {
+                  const symbol = C64Disassembler.SYMBOLS[bpAddr];
+                  return (
+                    <div
+                      key={bpAddr}
+                      className="flex items-center justify-between py-1.5 px-3 rounded bg-[#161b22] border border-[#30363d] hover:border-[#f85149]/50"
+                    >
+                      <div className="flex items-center gap-2">
+                        <CircleDot className="w-3.5 h-3.5 text-[#f85149]" />
+                        <span className="text-white font-bold">
+                          ${bpAddr.toString(16).padStart(4, "0").toUpperCase()}
+                        </span>
+                        {symbol && (
+                          <span className="text-[10px] text-[#7ee787] bg-[#238636]/20 px-1.5 py-0.5 rounded">
+                            {symbol}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => {
+                            setDisasmAddr(bpAddr);
+                            setDisasmSearchInput(bpAddr.toString(16).toUpperCase());
+                            setShowBreakpointsModal(false);
+                          }}
+                          className="px-2 py-0.5 rounded bg-[#21262d] hover:bg-[#30363d] text-[#58a6ff] text-[10px] cursor-pointer"
+                        >
+                          View
+                        </button>
+                        <button
+                          onClick={() => handleToggleBreakpoint(bpAddr)}
+                          className="p-1 rounded bg-[#21262d] hover:bg-[#f85149]/30 text-[#8b949e] hover:text-[#ff7b72] cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between pt-2 border-t border-[#30363d]">
+              {breakpointsList.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleClearAllBreakpoints}
+                  className="text-xs text-[#ff7b72] hover:underline cursor-pointer"
+                >
+                  Clear All Breakpoints
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowBreakpointsModal(false)}
+                className="ml-auto px-4 py-1.5 rounded-lg bg-[#21262d] hover:bg-[#30363d] text-white text-xs font-semibold cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -934,7 +1383,7 @@ export const C64Debugger: React.FC<C64DebuggerProps> = ({ system, telemetry, tar
               <button
                 key={tab.id}
                 onClick={() => setViewMode(tab.id as DebuggerViewMode)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all ${
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer ${
                   isActive
                     ? "bg-[#1f6feb] text-white shadow-sm"
                     : "bg-[#161b22] text-[#8b949e] hover:text-white hover:bg-[#21262d] border border-[#30363d]"
@@ -1014,6 +1463,16 @@ export const C64Debugger: React.FC<C64DebuggerProps> = ({ system, telemetry, tar
                 <div className="flex items-center gap-2">
                   <Terminal className="w-5 h-5 text-[#bc8cff]" />
                   <h3 className="font-bold text-white text-sm uppercase">6502 DISASSEMBLER</h3>
+                  {disasmHistory.length > 0 && (
+                    <button
+                      onClick={handleNavBack}
+                      className="flex items-center gap-1 text-[11px] font-mono text-[#58a6ff] hover:text-white bg-[#21262d] px-2 py-0.5 rounded ml-2 cursor-pointer"
+                      title="Return to previous disassembled address"
+                    >
+                      <ArrowLeft className="w-3 h-3" />
+                      Back
+                    </button>
+                  )}
                 </div>
 
                 <form onSubmit={handleDisasmSearch} className="flex items-center gap-1.5">
@@ -1027,7 +1486,7 @@ export const C64Debugger: React.FC<C64DebuggerProps> = ({ system, telemetry, tar
                   />
                   <button
                     type="submit"
-                    className="p-1 rounded bg-[#21262d] hover:bg-[#30363d] text-white"
+                    className="p-1 rounded bg-[#21262d] hover:bg-[#30363d] text-white cursor-pointer"
                   >
                     <Search className="w-3.5 h-3.5" />
                   </button>
@@ -1037,20 +1496,65 @@ export const C64Debugger: React.FC<C64DebuggerProps> = ({ system, telemetry, tar
               <div className={`overflow-y-auto font-mono text-xs flex flex-col gap-1 pr-1 ${viewMode === "disasm" ? "max-h-[600px]" : "max-h-[420px]"}`}>
                 {disasmList.map((inst, idx) => {
                   const isCurrentPC = inst.address === system.cpu.pc;
+                  const isBreakpoint = breakpointsList.includes(inst.address);
+                  const isJumpOrSubroutine =
+                    (inst.mnemonic === "JSR" || inst.mnemonic === "JMP") &&
+                    inst.bytes.length === 3;
+                  const jumpTargetAddr = isJumpOrSubroutine
+                    ? inst.bytes[1] | (inst.bytes[2] << 8)
+                    : null;
+
                   return (
                     <div
                       key={idx}
-                      className={`flex items-center justify-between py-1 px-2.5 rounded transition-colors ${
-                        isCurrentPC ? "bg-[#1f6feb]/30 border-l-4 border-[#1f6feb]" : "hover:bg-[#21262d]"
+                      className={`flex items-center justify-between py-1 px-2.5 rounded transition-colors group ${
+                        isCurrentPC
+                          ? "bg-[#1f6feb]/30 border-l-4 border-[#1f6feb]"
+                          : isBreakpoint
+                          ? "bg-[#f85149]/15 border-l-4 border-[#f85149]"
+                          : "hover:bg-[#21262d]"
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <span className={`w-14 font-bold ${isCurrentPC ? "text-[#58a6ff]" : "text-[#8b949e]"}`}>
+                      <div className="flex items-center gap-2">
+                        {/* Breakpoint Gutter Toggle */}
+                        <button
+                          onClick={() => handleToggleBreakpoint(inst.address)}
+                          className="w-4 h-4 flex items-center justify-center cursor-pointer"
+                          title={isBreakpoint ? "Remove Breakpoint" : "Set Breakpoint"}
+                        >
+                          {isBreakpoint ? (
+                            <CircleDot className="w-3.5 h-3.5 text-[#f85149] animate-pulse" />
+                          ) : (
+                            <Circle className="w-3 h-3 text-[#484f58] opacity-0 group-hover:opacity-100 hover:text-[#f85149]" />
+                          )}
+                        </button>
+
+                        <span
+                          onClick={() => handleToggleBreakpoint(inst.address)}
+                          className={`w-14 font-bold cursor-pointer ${
+                            isCurrentPC
+                              ? "text-[#58a6ff]"
+                              : isBreakpoint
+                              ? "text-[#ff7b72]"
+                              : "text-[#8b949e] hover:text-white"
+                          }`}
+                        >
                           {inst.addressHex}
                         </span>
                         <span className="w-20 text-[#6e7681] text-[11px]">{inst.bytesHex}</span>
                         <span className="text-white font-bold w-12">{inst.mnemonic}</span>
-                        <span className="text-[#d29922] font-semibold">{inst.operand}</span>
+                        
+                        {jumpTargetAddr !== null ? (
+                          <span
+                            onClick={() => handleFollowAddress(jumpTargetAddr)}
+                            className="text-[#d29922] font-semibold hover:underline hover:text-[#58a6ff] cursor-pointer"
+                            title="Follow subroutine address"
+                          >
+                            {inst.operand}
+                          </span>
+                        ) : (
+                          <span className="text-[#d29922] font-semibold">{inst.operand}</span>
+                        )}
                       </div>
 
                       {inst.symbol && (
@@ -1085,7 +1589,7 @@ export const C64Debugger: React.FC<C64DebuggerProps> = ({ system, telemetry, tar
                   />
                   <button
                     type="submit"
-                    className="p-1 rounded bg-[#21262d] hover:bg-[#30363d] text-white"
+                    className="p-1 rounded bg-[#21262d] hover:bg-[#30363d] text-white cursor-pointer"
                   >
                     <Search className="w-3.5 h-3.5" />
                   </button>
@@ -1113,7 +1617,7 @@ export const C64Debugger: React.FC<C64DebuggerProps> = ({ system, telemetry, tar
                       setHexStartAddr(p.addr);
                       setHexSearchInput(p.addr.toString(16).toUpperCase());
                     }}
-                    className="px-2 py-0.5 rounded bg-[#0d1117] hover:bg-[#21262d] text-[#8b949e] hover:text-white border border-[#30363d]"
+                    className="px-2 py-0.5 rounded bg-[#0d1117] hover:bg-[#21262d] text-[#8b949e] hover:text-white border border-[#30363d] cursor-pointer"
                   >
                     {p.label}
                   </button>

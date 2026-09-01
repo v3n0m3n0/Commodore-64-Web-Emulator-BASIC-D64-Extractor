@@ -1,0 +1,24 @@
+Heroes of the Lance
+Off Tape Copy Protection
+
+NAME        INT WIS DEX CON CHA HIT
+Caramon     12  10  11  17  15  36
+Flint        7  12  10  18  13  42
+Goldmoon    12  16  14  12  17  19
+Raistlin    17  14  16  10  10   8
+Riverwind   13  14  16  13  13  34
+Sturm       14  11  12  16  12  29
+Tanis       12  13  16  12  15  35
+Tasselhoff   9  12  16  14  11  15
+
+SPELL                 COST
+Cure light wounds      1
+Protection from evil   1
+Find traps             2
+Hold person            2
+Spiritual hammer       2
+Prayer                 3
+Cure critical wounds   5
+Raise dead             5
+
+Michael Plate in 2006

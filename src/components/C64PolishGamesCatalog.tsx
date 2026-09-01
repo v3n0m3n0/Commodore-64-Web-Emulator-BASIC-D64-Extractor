@@ -31,6 +31,7 @@ import { C64D64 } from "../c64/c64_d64";
 import { C64T64 } from "../c64/c64_t64";
 import { C64PRG } from "../c64/c64_prg";
 import { C64Basic } from "../c64/c64_basic_detokenizer";
+import { C64ArchiveManager } from "../c64/c64_archive_manager";
 import polishCatalogData from "../data/c64_polish_catalog.json";
 
 export interface PolishGameMeta {
@@ -249,15 +250,43 @@ export const C64PolishGamesCatalog: React.FC<C64PolishGamesCatalogProps> = ({
     setErrorMessage(null);
 
     try {
-      const bytes = await fetchRetroRomBytes(game.romUrl, game.name);
+      let bytes = await fetchRetroRomBytes(game.romUrl, game.name);
+      let targetExt = game.ext.toLowerCase();
+      let targetFileName = game.name;
 
-      const ext = game.ext.toLowerCase();
-      if (ext === "d64") {
-        system.mountD64(bytes, true);
-      } else if (ext === "t64" || ext === "tap") {
-        system.mountT64(bytes, true);
-      } else if (ext === "prg" || ext === "p00") {
-        system.loadAndRunPRG(bytes, game.name);
+      // Transparent ZIP / GZ decompressor if ROM is packed
+      if (C64ArchiveManager.isZipData(bytes) || targetExt === "zip") {
+        const extracted = await C64ArchiveManager.unzipArchive(bytes);
+        const runnable = C64ArchiveManager.getRunnableFiles(extracted);
+        if (runnable.length > 0) {
+          bytes = runnable[0].data;
+          targetExt = runnable[0].extension.toLowerCase();
+          targetFileName = runnable[0].name;
+        }
+      } else if (C64ArchiveManager.isGzipData(bytes) || targetExt === "gz") {
+        const extracted = await C64ArchiveManager.gunzipFile(bytes, game.name);
+        if (extracted.length > 0) {
+          bytes = extracted[0].data;
+          targetExt = extracted[0].extension.toLowerCase();
+          targetFileName = extracted[0].name;
+        }
+      }
+
+      if (targetExt === "d64" || targetExt === "d71" || targetExt === "d81") {
+        system.mountD64(bytes, true, targetFileName);
+      } else if (targetExt === "t64" || targetExt === "tap") {
+        system.mountT64(bytes, true, targetFileName);
+      } else if (targetExt === "crt") {
+        system.loadCartridge(bytes, targetFileName);
+      } else if (targetExt === "prg" || targetExt === "p00" || targetExt === "c64") {
+        system.loadAndRunPRG(bytes, targetFileName);
+      } else {
+        // Fallback detection
+        const detected = C64ArchiveManager.detectMediaType(targetExt.toUpperCase(), bytes);
+        if (detected === "D64") system.mountD64(bytes, true, targetFileName);
+        else if (detected === "CRT") system.loadCartridge(bytes, targetFileName);
+        else if (detected === "T64" || detected === "TAP") system.mountT64(bytes, true, targetFileName);
+        else system.loadAndRunPRG(bytes, targetFileName);
       }
 
       onSwitchToScreen();
@@ -289,12 +318,28 @@ export const C64PolishGamesCatalog: React.FC<C64PolishGamesCatalogProps> = ({
 
     try {
       // Step 1: Download & Binary Validation
-      const bytes = await fetchRetroRomBytes(game.romUrl, game.name);
+      let bytes = await fetchRetroRomBytes(game.romUrl, game.name);
+      let ext = game.ext.toLowerCase();
+
+      if (C64ArchiveManager.isZipData(bytes) || ext === "zip") {
+        const extracted = await C64ArchiveManager.unzipArchive(bytes);
+        const runnable = C64ArchiveManager.getRunnableFiles(extracted);
+        if (runnable.length > 0) {
+          bytes = runnable[0].data;
+          ext = runnable[0].extension.toLowerCase();
+        }
+      } else if (C64ArchiveManager.isGzipData(bytes) || ext === "gz") {
+        const extracted = await C64ArchiveManager.gunzipFile(bytes, game.name);
+        if (extracted.length > 0) {
+          bytes = extracted[0].data;
+          ext = extracted[0].extension.toLowerCase();
+        }
+      }
 
       initialReport.steps[0] = {
         name: "Pobieranie i weryfikacja sumy binarnej nośnika",
         status: "passed",
-        details: `Pobrano pomyślnie ${bytes.length.toLocaleString()} bajtów. Format nośnika: .${game.ext.toUpperCase()}`,
+        details: `Pobrano pomyślnie ${bytes.length.toLocaleString()} bajtów. Format nośnika: .${ext.toUpperCase()}`,
       };
       setTestReport({ ...initialReport });
 
@@ -305,7 +350,6 @@ export const C64PolishGamesCatalog: React.FC<C64PolishGamesCatalogProps> = ({
 
       let extractedPRG: Uint8Array | null = null;
       let mediaInfoObj = undefined;
-      const ext = game.ext.toLowerCase();
 
       if (ext === "d64") {
         const d64 = C64D64.parse(bytes);

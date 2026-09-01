@@ -66,31 +66,15 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
     const useCbm = isCbmActive;
     const useCtrl = isCtrlActive;
 
-    // 2. Press matrix chord on CIA 1
+    // 2. Press matrix chord on CIA 1 (Authentic 8x8 Hardware Matrix scanning via KERNAL SCNKEY)
     system.keyboard.pressChord(
       col,
       row,
       { shift: useShift, cbm: useCbm, ctrl: useCtrl },
-      140
+      120
     );
 
-    // 3. Direct PETSCII buffer injection for 100% reliable single-tap responsiveness
-    let targetPetscii: number | undefined;
-    if (useCtrl && petsciiCtrl !== undefined) {
-      targetPetscii = petsciiCtrl;
-    } else if (useCbm && petsciiCbm !== undefined) {
-      targetPetscii = petsciiCbm;
-    } else if (useShift && petsciiShift !== undefined) {
-      targetPetscii = petsciiShift;
-    } else if (petsciiNormal !== undefined) {
-      targetPetscii = petsciiNormal;
-    }
-
-    if (targetPetscii !== undefined) {
-      system.pushKey(targetPetscii);
-    }
-
-    // 4. Handle shared joystick fire pulse if in game_shared mode
+    // 3. Handle shared joystick fire pulse if in game_shared mode
     if (system.keyboardMode === "game_shared") {
       if (code === "Space" || code === "Enter" || code === "NumpadEnter") {
         system.cia1.joy1 &= ~0x10;
@@ -102,7 +86,7 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
       }
     }
 
-    // 5. If non-locked modifiers were active, clear single-shot toggles
+    // 4. If non-locked modifiers were active, clear single-shot toggles
     if (isShiftActive && !isShiftLock) setIsShiftActive(false);
     if (isCbmActive) setIsCbmActive(false);
     if (isCtrlActive) setIsCtrlActive(false);
@@ -117,8 +101,7 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
   const handlePolishChar = (char: string) => {
     const p = C64Keyboard.POLISH_DIACRITICS[char];
     if (p) {
-      system.keyboard.pressChord(p.col, p.row, { shift: effectiveShift }, 140);
-      system.pushKey(p.petscii);
+      system.keyboard.pressChord(p.col, p.row, { shift: effectiveShift }, 120);
       if (isShiftActive && !isShiftLock) setIsShiftActive(false);
     }
   };
@@ -618,7 +601,7 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
             petscii={0x59}
             shiftPetscii={0xd9}
             cbmPetscii={0xb7}
-            leftGlyph="block_bottom_half"
+            leftGlyph="t_left"
             rightGlyph="bar_right"
             showPetscii={showPetscii}
             effectiveShift={effectiveShift}
@@ -633,7 +616,7 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
             petscii={0x55}
             shiftPetscii={0xd5}
             cbmPetscii={0xb8}
-            leftGlyph="block_top_half"
+            leftGlyph="cross_plus"
             rightGlyph="arc_top_right"
             showPetscii={showPetscii}
             effectiveShift={effectiveShift}
@@ -663,8 +646,8 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
             petscii={0x4f}
             shiftPetscii={0xcf}
             cbmPetscii={0xb9}
-            leftGlyph="quad_tl"
-            rightGlyph="quad_tr"
+            leftGlyph="quad_bl"
+            rightGlyph="arc_top_left"
             showPetscii={showPetscii}
             effectiveShift={effectiveShift}
             isCbmActive={isCbmActive}
@@ -678,8 +661,8 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
             petscii={0x50}
             shiftPetscii={0xd0}
             cbmPetscii={0xdf}
-            leftGlyph="quad_bl"
-            rightGlyph="quad_br"
+            leftGlyph="quad_br"
+            rightGlyph="arc_bottom_left"
             showPetscii={showPetscii}
             effectiveShift={effectiveShift}
             isCbmActive={isCbmActive}
@@ -724,6 +707,7 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
             petscii={0x5e}
             shiftPetscii={0xff}
             cbmPetscii={0xde}
+            leftGlyph="tri_top_right"
             showPetscii={showPetscii}
             effectiveShift={effectiveShift}
             isCbmActive={isCbmActive}
@@ -843,7 +827,7 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
             shiftPetscii={0xc4}
             cbmPetscii={0xac}
             leftGlyph="bar_mid_h"
-            rightGlyph="bar_mid_h"
+            rightGlyph="bar_double_h"
             showPetscii={showPetscii}
             effectiveShift={effectiveShift}
             isCbmActive={isCbmActive}
@@ -858,7 +842,7 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
             shiftPetscii={0xc6}
             cbmPetscii={0xbb}
             leftGlyph="bar_double_h"
-            rightGlyph="bar_double_h"
+            rightGlyph="bar_mid_h"
             showPetscii={showPetscii}
             effectiveShift={effectiveShift}
             isCbmActive={isCbmActive}
@@ -873,7 +857,7 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
             shiftPetscii={0xa0}
             cbmPetscii={0xa5}
             leftGlyph="bar_mid_v"
-            rightGlyph="bar_left"
+            rightGlyph="bar_double_v"
             showPetscii={showPetscii}
             effectiveShift={effectiveShift}
             isCbmActive={isCbmActive}
@@ -888,7 +872,7 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
             shiftPetscii={0xc8}
             cbmPetscii={0xb4}
             leftGlyph="bar_double_v"
-            rightGlyph="bar_double_v"
+            rightGlyph="cross_box"
             showPetscii={showPetscii}
             effectiveShift={effectiveShift}
             isCbmActive={isCbmActive}
@@ -903,7 +887,7 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
             shiftPetscii={0xca}
             cbmPetscii={0xb5}
             leftGlyph="angle_bottom_right"
-            rightGlyph="arc_top_left"
+            rightGlyph="arc_bottom_left"
             showPetscii={showPetscii}
             effectiveShift={effectiveShift}
             isCbmActive={isCbmActive}
@@ -917,8 +901,8 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
             petscii={0x4b}
             shiftPetscii={0xcb}
             cbmPetscii={0xa1}
-            leftGlyph="quad_tl"
-            rightGlyph="arc_bottom_left"
+            leftGlyph="angle_top_left"
+            rightGlyph="arc_top_right"
             showPetscii={showPetscii}
             effectiveShift={effectiveShift}
             isCbmActive={isCbmActive}
@@ -1022,7 +1006,7 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
               isEmulator
                 ? "h-[42px] sm:h-[48px] md:h-[52px]"
                 : "h-[50px] sm:h-[58px] md:h-[62px]"
-            } rounded-lg border-2 border-b-4 flex flex-col items-center justify-center transition-all cursor-pointer shadow-md ${
+            } rounded-lg border-2 border-b-4 flex items-center justify-center gap-1 transition-all cursor-pointer shadow-md ${
               isCbmActive
                 ? "bg-[#58a6ff] border-[#1f6feb] border-b-[#094bb7] text-white font-black translate-y-0.5 shadow-md shadow-blue-500/20"
                 : isEmulator
@@ -1031,8 +1015,9 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
             }`}
             title="Klawisz Commodore (C=) – Przełącz tryb grafiki PETSCII (Lewy symbol na klawiszach)"
           >
-            <span className="text-[11px] sm:text-xs font-black tracking-tight">CBM</span>
-            {isCbmActive && <span className="w-1.5 h-1.5 rounded-full bg-white mt-0.5" />}
+            <PetsciiIcon glyph="cbm_logo" size={16} />
+            <span className="text-[10px] sm:text-xs font-black tracking-tight">C=</span>
+            {isCbmActive && <span className="w-1.5 h-1.5 rounded-full bg-white ml-0.5 animate-pulse" />}
           </button>
 
           {/* Left SHIFT */}
@@ -1168,6 +1153,7 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
             petscii={0x2c}
             shiftPetscii={0x3c}
             cbmPetscii={0x2c}
+            leftGlyph="tri_top_left"
             showPetscii={showPetscii}
             effectiveShift={effectiveShift}
             isCbmActive={isCbmActive}
@@ -1182,6 +1168,7 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
             petscii={0x2e}
             shiftPetscii={0x3e}
             cbmPetscii={0x2e}
+            leftGlyph="tri_bottom_right"
             showPetscii={showPetscii}
             effectiveShift={effectiveShift}
             isCbmActive={isCbmActive}
@@ -1196,6 +1183,7 @@ export const C64VirtualKeyboard: React.FC<C64VirtualKeyboardProps> = ({ system }
             petscii={0x2f}
             shiftPetscii={0x3f}
             cbmPetscii={0x2f}
+            leftGlyph="tri_bottom_left"
             showPetscii={showPetscii}
             effectiveShift={effectiveShift}
             isCbmActive={isCbmActive}

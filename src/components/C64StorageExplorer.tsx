@@ -31,6 +31,7 @@ import { D64DirectoryEntry, D64DiskInfo, C64D64, BAMTrackInfo, BAMSectorDetail }
 import { C64T64 } from "../c64/c64_t64";
 import { BUNDLED_SAMPLES, BundledSample } from "../c64/c64_bundled_samples";
 import { C64Basic } from "../c64/c64_basic_detokenizer";
+import { C64ArchiveManager } from "../c64/c64_archive_manager";
 
 interface C64StorageExplorerProps {
   system: C64System;
@@ -134,34 +135,36 @@ export const C64StorageExplorer: React.FC<C64StorageExplorerProps> = ({
     }
   };
 
-  // Handle uploading custom files to Creator list
-  const handleCreatorFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle uploading custom files or ZIP archives to Creator list
+  const handleCreatorFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     for (let i = 0; i < files.length; i++) {
       const f = files[i];
-      const reader = new FileReader();
-      reader.onload = () => {
-        const bytes = new Uint8Array(reader.result as ArrayBuffer);
-        let loadAddr = 0x0801;
-        if (bytes.length >= 2) {
-          loadAddr = bytes[0] | (bytes[1] << 8);
+      try {
+        const extracted = await C64ArchiveManager.processUploadedFile(f);
+        for (const item of extracted) {
+          if (item.type === "PRG" || item.type === "P00" || item.type === "BAS") {
+            const cleanName = item.name.replace(/\.[^.]+$/, "").toUpperCase().slice(0, 16);
+            const loadAddr = item.loadAddress || 0x0801;
+            setCreatorFiles((prev) => [
+              ...prev,
+              {
+                id: `upload-${Date.now()}-${Math.random()}`,
+                name: cleanName,
+                type: "PRG",
+                data: item.data,
+                loadAddress: loadAddr,
+              },
+            ]);
+          }
         }
-        const cleanName = f.name.replace(/\.[^.]+$/, "").toUpperCase().slice(0, 16);
-        setCreatorFiles((prev) => [
-          ...prev,
-          {
-            id: `upload-${Date.now()}-${Math.random()}`,
-            name: cleanName,
-            type: "PRG",
-            data: bytes,
-            loadAddress: loadAddr,
-          },
-        ]);
-      };
-      reader.readAsArrayBuffer(f);
+      } catch (err) {
+        console.error("Error extracting file in disk creator:", err);
+      }
     }
+    e.target.value = "";
   };
 
   // Build and mount D64 image in Virtual Drive 8
@@ -268,6 +271,87 @@ export const C64StorageExplorer: React.FC<C64StorageExplorerProps> = ({
               className="px-3 py-1.5 rounded-lg bg-[#21262d] hover:bg-[#da3633] text-[#8b949e] hover:text-white text-xs font-medium border border-[#30363d] transition-colors"
             >
               Eject Cartridge
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 1530 C2N Datasette Tape Deck Card */}
+      {system.mountedTapImage && (
+        <div className="bg-[#161b22] border border-[#d29922]/50 rounded-2xl p-5 shadow-xl flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-[#d29922]/10 border border-[#d29922] flex items-center justify-center text-[#d29922]">
+              <Radio className="w-8 h-8 animate-pulse" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-bold text-white uppercase tracking-wider">
+                  COMMODORE 1530 C2N DATASETTE
+                </h2>
+                <span
+                  className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                    system.datasette.state === "PLAYING"
+                      ? "bg-[#238636] text-white animate-pulse"
+                      : "bg-[#30363d] text-[#8b949e]"
+                  }`}
+                >
+                  {system.datasette.state}
+                </span>
+                {system.datasette.motorOn && (
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#d29922] text-black animate-pulse">
+                    MOTOR ON
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-[#8b949e] mt-0.5">
+                Version {system.mountedTapImage.header.version} • {system.mountedTapImage.pulses.length.toLocaleString()} Pulses • Counter:{" "}
+                <span className="text-[#58a6ff] font-bold font-mono">
+                  {String(system.datasette.counter).padStart(4, "0")}
+                </span>{" "}
+                ({system.datasette.progressPercent.toFixed(1)}%)
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                system.datasette.play();
+                system.start();
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm ${
+                system.datasette.state === "PLAYING"
+                  ? "bg-[#238636] text-white"
+                  : "bg-[#21262d] hover:bg-[#30363d] text-white border border-[#30363d]"
+              }`}
+            >
+              <Play className="w-3.5 h-3.5 fill-current" />
+              PLAY
+            </button>
+            <button
+              onClick={() => {
+                system.datasette.stop();
+              }}
+              className="px-3 py-1.5 rounded-lg bg-[#21262d] hover:bg-[#30363d] text-white text-xs font-bold border border-[#30363d]"
+            >
+              STOP
+            </button>
+            <button
+              onClick={() => {
+                system.datasette.rewind();
+              }}
+              className="px-3 py-1.5 rounded-lg bg-[#21262d] hover:bg-[#30363d] text-white text-xs font-bold border border-[#30363d]"
+            >
+              REWIND
+            </button>
+            <button
+              onClick={() => {
+                system.datasette.eject();
+                system.mountedTapImage = null;
+              }}
+              className="px-3 py-1.5 rounded-lg bg-[#21262d] hover:bg-[#da3633] text-[#8b949e] hover:text-white text-xs font-medium border border-[#30363d] transition-colors"
+            >
+              Eject Tape
             </button>
           </div>
         </div>

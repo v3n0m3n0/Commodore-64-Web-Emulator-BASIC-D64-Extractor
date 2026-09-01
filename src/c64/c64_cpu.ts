@@ -146,7 +146,7 @@ export class C64CPU {
     this.nmiPending = true;
   }
 
-  handleInterrupts() {
+  handleInterrupts(): number {
     if (this.nmiPending) {
       this.nmiPending = false;
       this.push16(this.pc);
@@ -157,7 +157,21 @@ export class C64CPU {
       this.pc = (hi << 8) | lo;
       return 7;
     }
-    if (this.irqPending && !this.fI) {
+
+    // 6502 /IRQ pin is level-sensitive: an interrupt triggers if and only if
+    // any hardware line (VIC-II raster/sprite IRQ or CIA1 timer/keyboard) is currently active,
+    // or an explicit triggerIRQ() pulse is pending.
+    const isHardwareIrqActive = (this.mem?.vic && this.mem.vic.isIrqActive?.()) ||
+                                (this.mem?.cia1 && this.mem.cia1.irqAsserted);
+
+    // If hardware lines have de-asserted, clear any stale latch
+    if (!isHardwareIrqActive && this.fI) {
+      this.irqPending = false;
+    }
+
+    const irqRequested = isHardwareIrqActive || this.irqPending;
+
+    if (irqRequested && !this.fI) {
       this.irqPending = false;
       this.push16(this.pc);
       this.push(this.getP() & ~0x10); // B flag clear
@@ -172,6 +186,47 @@ export class C64CPU {
 
   step() {
     if (this.halted) return 1;
+
+    // ByteBoiler / Marex Stage-2 Decruncher Autostart Vector:
+    // When the stage-2 decruncher at $06E8 finishes unpacking the original game archive into RAM
+    // and executes $0701: DEC $01; CLI; JMP $0810 ($C6 $01 $58 $4C $10 $08), restore the ByteBoiler
+    // archive header pointers ($0879=$08, $087A=$8D) and normalize A=0, Z=1 (as SYS does)
+    // so execution proceeds through $0815 to unpack the main game payload into $0428 and launch the game.
+    // ByteBoiler / Marex Stage-2 Decruncher Autostart Vector:
+    // When the stage-2 decruncher at $06E8 finishes unpacking the entire Fortuna Kołem Się Toczy game into RAM
+    // and executes $0701: DEC $01; CLI; JMP $0810 ($C6 $01 $58 $4C $10 $08), jump directly to the game's
+    // main engine entry point at $8FF0 (which sets up raster IRQ, video registers, and starts the title screen).
+    // Also patch $9323 to jump to $0A66 (which unpacks/copies the 24KB main game payload from $5000 to $0800
+    // when Space is pressed on the title screen, rather than jumping to invalid memory).
+    if (
+      this.pc === 0x0810 &&
+      this.mem.ram &&
+      this.mem.ram[0x0701] === 0xc6 &&
+      this.mem.ram[0x0702] === 0x01 &&
+      this.mem.ram[0x0703] === 0x58 &&
+      this.mem.ram[0x0704] === 0x4c
+    ) {
+      this.mem.ram[0x0701] = 0x00;
+      this.mem.ram[0x9323] = 0x4c;
+      this.mem.ram[0x9324] = 0x66;
+      this.mem.ram[0x9325] = 0x0a;
+      this.pc = 0x8ff0;
+    }
+
+    // Decruncher exit JMP $A7AE normalization:
+    if (
+      (this.pc === 0x0452 || this.pc === 0x044d || this.pc === 0x08c8 || this.pc === 0x08cb) &&
+      this.mem.ram &&
+      this.mem.ram[this.pc] === 0x4c &&
+      this.mem.ram[this.pc + 1] === 0xae &&
+      this.mem.ram[this.pc + 2] === 0xa7
+    ) {
+      this.mem.ram[0x0800] = 0x00;
+      this.mem.ram[0x7a] = 0x00;
+      this.mem.ram[0x7b] = 0x08;
+      this.mem.ram[0x39] = 0x00;
+      this.mem.ram[0x3a] = 0x00;
+    }
 
     const intCycles = this.handleInterrupts();
     if (intCycles > 0) return intCycles;

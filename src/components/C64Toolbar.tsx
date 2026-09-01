@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { VideoStandard } from "../c64/c64_vic2";
 import { SystemTelemetry } from "../c64/c64_system";
+import { ExtractedMediaFile } from "../c64/c64_archive_manager";
 
 export type ActiveTabType = "screen" | "basic" | "sid" | "debugger" | "storage" | "copilot" | "polish";
 
@@ -41,8 +42,9 @@ interface C64ToolbarProps {
   onToggleMute: () => void;
   onChangeVolume: (vol: number) => void;
   onChangeStandard: (std: VideoStandard) => void;
+  onToggleSyncMode?: () => void;
   onReset: (hard: boolean) => void;
-  onFileUpload: (files: FileList) => void;
+  onFileUpload: (files: FileList | File[] | ExtractedMediaFile[] | string) => void;
   onSelectTab: (tab: ActiveTabType) => void;
 }
 
@@ -59,6 +61,7 @@ export const C64Toolbar: React.FC<C64ToolbarProps> = ({
   onToggleMute,
   onChangeVolume,
   onChangeStandard,
+  onToggleSyncMode,
   onReset,
   onFileUpload,
   onSelectTab,
@@ -221,19 +224,22 @@ export const C64Toolbar: React.FC<C64ToolbarProps> = ({
           <RotateCcw className="w-4 h-4" />
         </button>
 
-        {/* PAL / NTSC standard selector */}
+        {/* Sync Mode & Video Standard selector (V-Sync 60Hz / PAL 50Hz / NTSC 60Hz) */}
         <button
           id="btn-toggle-standard"
-          onClick={() =>
-            onChangeStandard(
-              videoStandard === VideoStandard.PAL ? VideoStandard.NTSC : VideoStandard.PAL
-            )
+          onClick={
+            onToggleSyncMode ||
+            (() =>
+              onChangeStandard(
+                videoStandard === VideoStandard.PAL ? VideoStandard.NTSC : VideoStandard.PAL
+              ))
           }
-          className="px-2.5 py-1 text-xs font-mono font-bold rounded bg-[#21262d] text-white border border-[#30363d] hover:border-[#8b949e]"
-          title="Switch Video Standard"
+          className="px-2.5 py-1 text-xs font-mono font-bold rounded bg-[#21262d] text-white border border-[#30363d] hover:border-[#8b949e] transition-all"
+          title="Przełącz standard wideo (PAL 50.1 Hz / NTSC 59.8 Hz)"
         >
-          {videoStandard} (
-          {videoStandard === VideoStandard.PAL ? "50.1 Hz" : "59.8 Hz"})
+          {telemetry.syncMode === "ntsc_60hz" || videoStandard === VideoStandard.NTSC
+            ? "🎮 NTSC (59.8 Hz)"
+            : "📺 PAL (50.1 Hz)"}
         </button>
 
         {/* Audio Volume & Mute */}
@@ -266,12 +272,13 @@ export const C64Toolbar: React.FC<C64ToolbarProps> = ({
         <input
           ref={fileInputRef}
           type="file"
-          accept=".d64,.prg,.p00,.crt,.t64,.tap,.bas,.txt,.zip,.gz"
+          accept=".d64,.prg,.p00,.crt,.t64,.tap,.bas,.txt,.zip,.gz,.sid,.mus"
           multiple
           className="hidden"
           onChange={(e) => {
             if (e.target.files && e.target.files.length > 0) {
               onFileUpload(e.target.files);
+              e.target.value = "";
             }
           }}
         />

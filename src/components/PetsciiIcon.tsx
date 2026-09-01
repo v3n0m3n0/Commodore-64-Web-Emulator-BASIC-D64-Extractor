@@ -18,6 +18,7 @@ export type PetsciiGlyphType =
   | "t_down"
   | "t_up"
   | "t_right"
+  | "t_left"
   | "bar_top"
   | "bar_bottom"
   | "bar_left"
@@ -51,7 +52,8 @@ export type PetsciiGlyphType =
   | "backslash"
   | "cross_x"
   | "rect_open"
-  | "rect_solid";
+  | "rect_solid"
+  | "cbm_logo";
 
 interface PetsciiIconProps {
   glyph: PetsciiGlyphType;
@@ -189,6 +191,26 @@ export const PetsciiIcon: React.FC<PetsciiIconProps> = ({
         <svg {...commonSvgProps}>
           <rect x="0" y="0" width="3" height="16" />
           <rect x="3" y="6.5" width="13" height="3" />
+        </svg>
+      );
+    case "t_left":
+      return (
+        <svg {...commonSvgProps}>
+          <rect x="13" y="0" width="3" height="16" />
+          <rect x="0" y="6.5" width="13" height="3" />
+        </svg>
+      );
+    case "cbm_logo":
+      return (
+        <svg {...commonSvgProps}>
+          {/* Commodore stylized C */}
+          <path
+            d="M 11 2.5 C 5.5 2.5 2 6 2 8 C 2 10 5.5 13.5 11 13.5 L 9 10.5 C 6.5 10.5 4.8 9.2 4.8 8 C 4.8 6.8 6.5 5.5 9 5.5 Z"
+          />
+          {/* Top flag */}
+          <polygon points="10,4.5 15,4.5 13.5,6.5 10,6.5" />
+          {/* Bottom flag */}
+          <polygon points="10,9.5 13.5,9.5 15,11.5 10,11.5" />
         </svg>
       );
 
