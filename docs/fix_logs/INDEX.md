@@ -4,6 +4,16 @@ Indeks wszystkich plików logów napraw błędów. Aktualizować po każdej nowe
 
 | Data | Plik logu | Komponent | Wynik |
 |---|---|---|---|
+| 2026-09-02 | [2026-09-02_DROGA-MORSKA-DO-INDII-t64-decompressor-analysis.md](2026-09-02_DROGA-MORSKA-DO-INDII-t64-decompressor-analysis.md) | `Polish Classics`, `C64System`, `C64D64`, `C64T64` | ✅ SUKCES |
+| 2026-09-02 | [2026-09-02_CARTRIDGE-MOUNT-BUTTON-AND-GAME-LOAD.md](2026-09-02_CARTRIDGE-MOUNT-BUTTON-AND-GAME-LOAD.md) | `C64Toolbar`, `App`, `C64System` | ✅ SUKCES |
+| 2026-09-02 | [2026-09-02_ROUNDABOUT-GALADRIEL-LOADER-FIX.md](2026-09-02_ROUNDABOUT-GALADRIEL-LOADER-FIX.md) | `C64System`, `C64TAP`, `C64Datasette` | ✅ SUKCES |
+| 2026-09-02 | [2026-09-02_GRID-ZONE-tap-cassette-buffer-loader-fix.md](2026-09-02_GRID-ZONE-tap-cassette-buffer-loader-fix.md) | `C64TAP`, `C64System`, `C64Datasette`, `C64ArchiveModal` | ✅ SUKCES |
+| 2026-09-02 | [2026-09-02_TAP-MULTI-CASSETTE-REFACTORING.md](2026-09-02_TAP-MULTI-CASSETTE-REFACTORING.md) | `C64TAP`, `C64Datasette`, `C64System`, `C64DatasetteStudio` | ✅ SUKCES |
+| 2026-09-02 | [2026-09-02_TOOLBAR-load-file-picker-label.md](2026-09-02_TOOLBAR-load-file-picker-label.md) | `C64Toolbar`, `C64StorageExplorer`, `C64Debugger` | ✅ SUKCES |
+| 2026-09-02 | [2026-09-02_NORTH-AND-SOUTH-tap-cyberload-fix.md](2026-09-02_NORTH-AND-SOUTH-tap-cyberload-fix.md) | `C64TAP`, `C64Datasette`, `C64System` | ✅ SUKCES |
+| 2026-09-02 | [2026-09-02_BURMISTRZ-3-t64-decrunch-analysis.md](2026-09-02_BURMISTRZ-3-t64-decrunch-analysis.md) | `C64T64`, `C64CPU`, `C64System` | ✅ SUKCES |
+| 2026-09-02 | [2026-09-02_KB-REFACTORING-full.md](2026-09-02_KB-REFACTORING-full.md) | `docs/knowledge_base/`, `AGENTS.md`, `GEMINI.md` | ✅ SUKCES |
+| 2026-09-02 | [2026-09-02_PETSCII-codeToPetscii-arrow-keys.md](2026-09-02_PETSCII-codeToPetscii-arrow-keys.md) | `c64_keyboard.ts`, `C64VirtualKeyboard` | 🔍 ANALIZA |
 | 2026-09-02 | [2026-09-02_TAP-CASSETTE-DATASETTE-SUPPORT.md](2026-09-02_TAP-CASSETTE-DATASETTE-SUPPORT.md) | `C64TAP`, `C64Datasette`, `C64System`, `C64Memory` | ✅ SUKCES |
 | 2026-09-02 | [2026-09-02_AUTO-PAL-NTSC-STANDARD-DETECTION.md](2026-09-02_AUTO-PAL-NTSC-STANDARD-DETECTION.md) | `C64StandardDetector`, `C64System`, `C64ArchiveManager` | ✅ SUKCES |
 | 2026-09-02 | [2026-09-02_POKER-d64-loader-progress.md](2026-09-02_POKER-d64-loader-progress.md) | `C64Screen`, `C64System`, `C64CIA` | ✅ SUKCES |

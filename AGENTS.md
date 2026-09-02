@@ -14,15 +14,21 @@
   - Prawidłowe bankowanie pamięci VIC-II przez bity `$DD00` i port procesora `$0001`.
   - Korzystanie ze standardowych wektorów skoków KERNAL (`$FF81` - `$FFF3`).
 
-## 3. Obowiązkowy Grep Bazy Wiedzy Przed Każdą Naprawą Błędu (KB-First Rule)
-- **PRZED przystąpieniem do diagnozy lub naprawy KAŻDEGO błędu / issue**, agent MUSI wykonać grep bazy wiedzy w celu wyszukania wcześniej odnotowanych informacji, wzorców i kontekstu dotyczącego danego problemu.
-- Ścieżki do przeszukania (w kolejności):
-  1. `docs/knowledge_base/` — techniczna dokumentacja sprzętu C64, VICE, formatów plików.
-  2. `docs/fix_logs/` — historia wszystkich poprzednich prób naprawy błędów w tym projekcie.
-  3. KI artifact: `c:\Users\KB\.gemini\antigravity-ide\knowledge\c64-web-emulator\artifacts\architecture.md` — architektura kodu projektu.
-- Grep musi obejmować **co najmniej dwa słowa kluczowe** bezpośrednio związane z naprawianym błędem (np. `clearFrameBuffer`, `vicBank`, `rasterCompare`, `fastBoot`, `startLine`).
-- Jeśli grep zwróci trafienie w `docs/fix_logs/`, agent musi przeczytać ten log przed zaproponowaniem rozwiązania — może on dokumentować wcześniejsze próby, które się nie powiodły.
-- Pomijanie tego kroku jest **niedopuszczalne**, nawet jeśli agent uważa, że zna rozwiązanie.
+## 3. KB-Preflight Protocol — Obowiązkowy Odczyt Bazy Wiedzy (KB-First Rule v2.0)
+Przed przystąpieniem do diagnozy lub naprawy **KAŻDEGO błędu / issue**, agent MUSI bezwzględnie wykonać pełną procedurę wstępną (*Preflight Check*) w następującej kolejności:
+
+1. **Krok 0 — Odczyt KI Architecture Artifact:**
+   - Przeczytaj plik `c:\Users\KB\.gemini\antigravity-ide\knowledge\c64-web-emulator\artifacts\architecture.md` w celu weryfikacji aktualnego stanu modułów i pipeline'u.
+2. **Krok 1 — Sprawdzenie Indeksu Fix Logów:**
+   - Przeczytaj `docs/fix_logs/INDEX.md` — zweryfikuj, czy dany błąd lub powiązany komponent był już wcześniej naprawiany. Jeśli znaleziono pasujący log, przeczytaj go w całości.
+3. **Krok 2 — Przeszukanie i Odczyt Technical Knowledge Base:**
+   - Wykonaj `grep` w katalogu `docs/knowledge_base/` z użyciem **co najmniej dwóch słów kluczowych** bezpośrednio powiązanych z błędem (np. `rasterCompare`, `clearFrameBuffer`, `vicBank`, `ioPortData`, `pressChord`).
+   - Jeśli wyszukiwanie zwróci trafienie, **przeczytaj odpowiedni rozdział bazy wiedzy w całości** przed planowaniem zmian.
+4. **Krok 3 — Weryfikacja Mapowania Kodu w Rozdziale 16:**
+   - Sprawdź `docs/knowledge_base/16_CODEBASE_CROSS_REFERENCE.md`, aby precyzyjnie ustalić relacje rejestrów sprzętowych i adresów pamięci z plikami TypeScript (`src/c64/`) i komponentami React (`src/components/`).
+5. **Krok 4 — Konsultacja Źródeł Zewnętrznych (pagetable.com / VICE):**
+   - Jeśli problem dotyczy nieudokumentowanego zachowania sprzętu, skonsultuj autorytatywne źródła referencyjne (`https://www.pagetable.com/c64ref/`).
+6. **Dopiero po wykonaniu kroków 0–4:** Agent może sformułować diagnozę, przedstawić reasoning użytkownikowi i przystąpić do modyfikacji kodu.
 
 ## 4. System Logów Napraw Błędów (Fix Log System)
 - Po **każdej zakończonej próbie naprawy błędu** (niezależnie od sukcesu lub porażki) agent MUSI utworzyć lub zaktualizować plik logu w `docs/fix_logs/`.
@@ -35,5 +41,11 @@
   - Wynik próby: `SUKCES` / `CZĘŚCIOWY` / `PORAŻKA`.
   - Wnioski i zalecenia dla kolejnych prób.
 - Logi są trwałą historyczną bazą wiedzy. **Nigdy ich nie usuwaj ani nie nadpisuj** — jeśli ten sam błąd wymaga kolejnej próby, dodaj nową sekcję datowaną w tym samym pliku.
-- KI metadata (`c:\Users\KB\.gemini\antigravity-ide\knowledge\c64-web-emulator\metadata.json`) powinna być aktualizowana po każdym logu, aby summaries wskazywały na najnowsze fix logi.
+- Zaktualizuj `docs/fix_logs/INDEX.md` dodając nowy wpis na samej górze tabeli.
+- KI metadata (`c:\Users\KB\.gemini\antigravity-ide\knowledge\c64-web-emulator\metadata.json`) powinna być aktualizowana po każdym logu.
 
+## 5. Aktualizacja i Weryfikacja Bazy Wiedzy (KB-Update & Verification Rule)
+- Po każdej nowej sesji analitycznej, weryfikacji sprzętowej ze źródłami zewnętrznymi lub wykryciu braków w dokumentacji, agent MUSI:
+  1. Zaktualizować odpowiedni rozdział bazy wiedzy w `docs/knowledge_base/`.
+  2. Dodać wpis audytowy do `docs/knowledge_base/VERIFICATION_LOG.md` z datą, zakresem zmian i źródłem referencyjnym.
+  3. Zadbać o zachowanie spójności między kodem emulatora a bazą wiedzy.
