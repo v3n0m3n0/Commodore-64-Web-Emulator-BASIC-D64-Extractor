@@ -17,3 +17,6 @@ export * as DemosceneRoms from "./games/demos";
 export { getBasicRomBytes, BASIC_V2_METADATA } from "../system/basic";
 export { getKernalRomBytes, KERNAL_ROM_METADATA } from "../system/kernal";
 export { getChargenRomBytes, CHARGEN_ROM_METADATA } from "../system/chargen";
+
+// Ingested Master Catalog
+export type { RomCatalog, RomCatalogEntry } from "../../scripts/ingest_roms";

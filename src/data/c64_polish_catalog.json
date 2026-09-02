@@ -175,12 +175,12 @@
     },
     {
       "id": "droga-morska-do-indii",
-      "name": "Droga morska do Indii.t64",
+      "name": "Droga morska do Indii.d64",
       "title": "Droga morska do Indii",
       "cleanTitle": "Droga morska do Indii",
-      "ext": "t64",
-      "size": 49951,
-      "romUrl": "src/roms/games/polish_classics/Droga morska do Indii.t64",
+      "ext": "d64",
+      "size": 174848,
+      "romUrl": "src/roms/games/polish_classics/Droga morska do Indii.d64",
       "meta": {
         "genre": "Strategia / Handlowa",
         "author": "Krzysztof K.",
