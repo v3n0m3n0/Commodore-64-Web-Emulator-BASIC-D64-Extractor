@@ -1,0 +1,137 @@
+
+                                    Star LHA
+
+
+
+  This program was designed to create  Commodore  LHA  archives  out  of  disk
+images and to extract them into disk images. It  uses  LHA  for  DOS  ((C)  by
+Haruyasu Yoshizaki, 1988-1992) for compression and decompression, remember  to
+put it into your path. Star LHA is an external utility  of  The Star Commander
+but is also distributed separately.
+
+  Included in this program is the C64/C128 LHA Extractor by Chris Smeets.
+
+  WARNING: Star LHA needs LHA 2.14 or newer in order to  be  able  to  extract
+files properly.
+
+
+
+  1. Usage
+
+  STARLHA [-]A <diskname> [-|/C|D|S|Y] [<lhaname>]
+  STARLHA [-]L <lhaname>
+  STARLHA [-]S[+|-] <lhaname>
+  STARLHA [-]X <lhaname> [-|/4|7|8|C|D|X[D|P|S]|Y] [<diskname>]
+
+  Commands:
+  A: put files into LHA archives (Add)
+  L: list the contents of LHA archives (List)
+  S: adds SFX header to LHA archives or strips it off of SFX archives (SFX)
+  X: extract the contents of LHA archives (eXtract)
+
+  <diskname>:
+  Type the path and the name of the disk images here (the extension is  always
+'.d64' for 1541, '.d71' for 1571 and '.d81' for 1581 disk images). Leave  this
+parameter blank to extract the archives into disk images with the  same  name.
+You can use wildcards to add  multiple  disk  images  and  you  can  use  long
+filenames, too.
+
+  <lhaname>:
+  Type the path, the name and the extension of the archives here (the  default
+extension of LHA archives is '.lzh', for LHA SFX archives it is  '.sfx').  You
+may leave it blank and the names of the archives will be those of the original
+disk images. You can use wildcards to list or extract  multiple  archives  and
+you can use long filenames, too.
+
+  Options:
+    +: When used with the S command, prepends the self-extract header  to  LHA
+       archives (default).
+    -: When used with the S command, strips the self-extract header off of SFX
+       archives.
+    4: Extracts data into 1541 disk images (default).
+    7: Extracts data into 1571 disk images.
+    8: Extracts data into 1581 disk images.
+    C: Asks for your confirmation about extracting each file.
+    D: Deletes successfully processed source files.
+    L: Displays Commodore filenames with the lowercase/uppercase character set
+       (default).
+    S: When compressing, the program creates self-extracting archives.
+    U: Displays Commodore filenames with the uppercase/graphics character set.
+    X: Extracts data into 40-track 1541 disk images. You can choose the offset
+       of the additional BAM entries by adding "S"  (Speed DOS,  default), "D"
+       (Dolphin DOS) or "P" (Prologic DOS) to this option.
+    Y: Assumes 'Yes' to all queries, good for running from batch files.
+
+  When decompressing an LHA archive, the program checks if the first  file  in
+the archive has the name "title". If it does then this file contains a comment
+which is displayed before decompression. However, the display routine can only
+handle the control codes $0D (carriage  return),  $0E  and  $8E  (changing  to
+lowercase/uppercase and uppercase/graphics character set). All  other  control
+codes are omitted.
+
+
+
+  2. Error messages
+
+  Unknown command
+    The command is unknown.
+  Invalid option
+    The option is unknown or the syntax of its argument is wrong.
+  FILENAME.EXT not found
+    The file does not exist.
+  Cannot create FILENAME.EXT
+    The file could not be created for some reason.
+  Cannot add "filename" correctly
+    The file could not be fully added into the archive. It  is  possible  that
+    the disk is full or the source disk image is corrupted.
+  Cannot compress temporary archive correctly
+    There is something wrong with compressing the temporary archive. Check  if
+    LHA for DOS is in your path.
+  "filename" exists...
+    It is not recommended to put two  files  with  the  same  name  into  disk
+    images. You can skip, rename the current  file  or  extract  it  with  its
+    original name.
+  Cannot extract "filename" correctly
+    The file could not be fully extracted from the  archive.  It  is  possible
+    that the disk is full or the archive is corrupted,  e.g.  some  bytes  are
+    missing from its end.
+  Cannot decompress LHANAME.LZH correctly
+    There is something wrong with decompressing the LHA archive. Check if  LHA
+    for DOS is in your path.
+  DISKNAME.D64 is not a valid disk image
+    The disk image is corrupted.
+  DISKNAME.D64 has an invalid BAM
+    The BAM of the disk image is corrupted. Try validating the disk image.
+  Directory is full in DISKNAME.D64
+    The directory of the disk image is full. You can store a  maximum  of  144
+    files in a 1541 or 1571 disk image and 296 files in a 1581 disk image.
+  DISKNAME.D64 is full
+    The disk image is full. You can store a maximum of 664 blocks in  a  1541,
+    749 blocks in an extended 1541, 1328 blocks in a 1571 and 3160 blocks in a
+    1581 disk image.
+  LHANAME.LZH is not a valid LHA archive
+    The LHA archive is corrupted.
+  LHANAME.LZH has in invalid entry
+    The current entry of the LHA archive is corrupted.
+
+
+
+  3. Copyright and legal issues
+
+  This program is freeware. You can use it as long as you  wish  and  you  can
+spread it as you like provided that it is in the original unmodified  archive.
+Don't distribute single files only the whole package and don't ask  for  money
+above the normal fee of the distribution media itself. This program may not be
+included in any compilation or  sold  on  disk  or  CD-ROM  without  my  prior
+permission.
+
+
+
+  4. The author
+
+  If you're interested in some similarly useful utilities you can contact me at
+the E-mail address "sta@c64.org" or visit my homepage at "http://sta.c64.org".
+
+
+
+  31st March, 2002                              Joe Forster/STA

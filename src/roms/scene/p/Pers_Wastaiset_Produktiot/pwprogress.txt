@@ -1,0 +1,9 @@
+== === PROGRESS WITHOUT PROGRESS - BY PWP == ===
+
+* for the oldskool demo compo at assembly 2006
+* commodore 64 (pal), prefer 6581 sid
+* code, music & graphics by viznut
+* should work fine with emulators such as vice
+* viznut@iki.fi
+* http://www.pelulamu.net/pwp/
+* true progress requires groth of wisdom

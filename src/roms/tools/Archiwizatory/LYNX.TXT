@@ -1,0 +1,69 @@
+
+                                The Lynx format
+
+  Disclaimer: The description below is a mere extrapolation from the files and
+program sources I have encountered.
+
+  Lynx is used to put multiple files into a single archive. The archives start
+with a small BASIC program that displays a message on the screen, saying  that
+you should use a Lynx program to extract its contents. Then comes a  directory
+of the files in the archive which is followed by  the  files  themselves,  all
+aligned to sector boundary. Lynx archives are in no way compressed, the  files
+are simply linked (hence the name) after each other in it.
+  All entries, strings and other parts of the directory are separated  with  a
+carriage return. All numbers are stored in a string form which usually  starts
+and ends with a space. Note that there may  be  no  or  multiple  spaces  both
+before and after numbers and numbers may contain leading zeros, as well.
+
+  A typical BASIC program for Lynx archives is the following:
+
+  10 POKE53280,0:POKE53281,0:POKE646,PEEK(162):PRINT"<CLS><DOWN><DOWN><DOWN>
+  <DOWN><DOWN><DOWN><DOWN><DOWN>":PRINT"     USE LYNX TO DISSOLVE THIS FILE":
+  GOTO10
+
+  The BASIC program ends with the usual three zero bytes. They are followed by
+the number of blocks used by the directory, then a copyright string  with  the
+Lynx program name, version number and the name of its author, and finally  the
+number of files in the archive, e.g.
+
+  <CR> 3  *LYNX XVII   WILL CORLEY<CR> 18 <CR>
+
+  means that the directory uses 3 blocks, holds 18 entries and the archive was
+created by Lynx version 17, copyright by Will Corley. Note that the length and
+content of the copyright stamp may  vary  but  it  must  contain  the  PETSCII
+uppercase string "LYNX".
+
+  Entries in the directory are made up by the file name,  the  length  of  the
+file in blocks, the filetype, and the number of bytes + 1 in the  last  block,
+e.g. (underscores represent Shift-Spaces padding the name up to 16 characters)
+
+  HASHMON_________<CR> 17 <CR>P<CR> 35 <CR>
+
+  means that the current file is a program, it is called "hashmon", it  is  17
+blocks long and the last block contains 34 bytes (the remaining part  of  that
+block is probably filled with garbage). All parts of  a  directory  entry  are
+separated by a carriage return character. Numbers may start and/or end with  a
+space and may also have leading zeros.
+
+  In the case of relative files, the record length  is  inserted  between  the
+file type and the "number of bytes + 1 in the last block" value, e.g.
+
+  RELDATA_________<CR> 42 <CR>R<CR> 254 <CR> 255 <CR>
+
+resembles a relative file called "reldata" that is 42 blocks  long,  including
+the side sectors, its record length is  254  bytes  and  has  its  last  block
+completely filled up with data.
+
+  The first file starts at the beginning of the block that  follows  the  last
+block of the directory. All files are similarly aligned so that they start  at
+the beginning of a block. This method has the  advantage  that  the  extractor
+program running on a real Commodore machine does not have to move  data,  only
+cut the archive into the original files. Block alignment means  that,  in  DOS
+files, the particular data starts at an offset of a multiple of 254:  when  it
+is copied onto a disk or into a disk image, such an  offset  will  be  at  the
+start of a sector.
+
+  In the case of relative files, side sectors are stored in front of the  file
+data. It is important that the sectors contain the correct record  length  and
+side sector number. Side sector links and data sectors links  may  be  omitted
+because these will be recalculated upon extraction anyway.

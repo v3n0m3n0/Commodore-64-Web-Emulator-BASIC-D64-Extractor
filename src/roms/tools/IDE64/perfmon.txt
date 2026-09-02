@@ -1,0 +1,20 @@
+IDE64 hard disk drive speed monitoring tool
+V0.3 (C) 2005 by Tomas Pribyl, Josef Soucek and Kajtar Zsolt
+------------------------------------------------------------
+
+PERFMON is a drive speed monitoring tool that measures
+I/O performance of drive accessible by standard kernal calls.
+It can also use the extended kernel calls of IDE64. The program
+runs on C64/C128, and auto detects PAL/NTSC machine for accurate
+measurement.
+
+Improvements since v0.2:
+
+- Does not crash without IDE64
+- Separate version for C128 native mode
+- Added VERIFY, file OPEN and file CREATE
+- Gives accurate numbers on NTSC too
+
+More info:
+----------
+http://www.ide64.org

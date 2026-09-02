@@ -1,0 +1,17 @@
+MSDOSCOPY 1.42
+
+This program will allow to copy programs from a MS-DOS disk (3 1/2",DD)
+to any CBM DOS disk.
+Minimum configuration:
+C64, 1581 configured as #9, any drive configured as #8.
+
+For detailed info see the docs, contained in the file MSDOSCOPY.SDA.
+
+Contents of archive:
+MSDOSCOPY 1.42
+MSDOSCOPY.DOC
+MSLOG
+TODO
+
+Send any comments/questions/suggestions to
+Oliver B. Warzecha (uph001@ux2.hrz.uni-dortmund.de)

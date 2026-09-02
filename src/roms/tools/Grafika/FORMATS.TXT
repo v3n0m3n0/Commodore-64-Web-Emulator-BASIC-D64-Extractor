@@ -1,0 +1,85 @@
+currently supported gfxfiles
+
+Advanced-FLI (c) v1.2 & v2.0+ 1991 Topaz Beerline
+pc ext:aft c64:"picname"          packed:no  blox:065 bytes:16385
+
+Artist 64 (c) 1986 Wigmore
+pc ext:a64 c64:"p-picname       " packed:no  blox:041 bytes:10242
+
+Advanced Art Studio 1.0 1987 OCP Ltd & 1.2b by (c) 1987 EEC
+pc ext:aas c64:"picname    .mpic" packed:no  blox:040 bytes:10018
+
+Amica Paint (c) 1986 Oliver Stiller
+pc ext:ami c64:"[b]picname      " packed:yes blox:??? bytes:?????
+
+Art Studio 1.1 (c) 1986 OCP Ltd
+pc ext:art c64:"picame      .pic" packed:no  blox:036 bytes:9009
+
+Blazing Paddles (c) 1984 Baudeville
+pc ext:blp c64:"pi.picname      " packed:no  blox:041 bytes:10242
+
+Create with Garfield (c) 1986 Ahead Designs
+pc ext:pwg c64:"crt?>picname    " packed:no  blox:040 bytes:10007
+notice that the last lines are hires!!!
+
+Doodle (c) 1984 Omni
+pc ext:dd  c64:"ddpicname"        packed:no  blox:033 bytes:9218
+
+EMC (c) Masters' Design Group
+pc ext:emc c64:"picname     .emc" packed:no  blox:069 bytes:17412
+
+FLI Designer 1.1 & 2.0 (c) FBI Crew
+pc ext:CPU c64:"picname"          packed:no  blox:069 bytes:17409
+
+FLI Editor 2.2 (c) 1990 Blackmail
+pc ext:bml c64:picnamame"         packed:no  blox:069 bytes:17474
+pc ext:bml c64:picname"           packed:yes blox:??? bytes:?????
+notice that the viewer emulates the first 3 char color mode too!
+
+Flying Colors (c) 1985
+pc ext:fly c64:"picname"          packed:no  blox:040 bytes:10050
+
+Game Graphics Designer (c)
+pc ext:ggd c64:"ggd>picname  .00" packed:no  blox:069 bytes:17387
+
+Garry Kitchen's Gamemaker (c) 1985 Activision
+pc ext:gkg c64:"picname /pic"     packed:no  blox:??? bytes:?????
+pc ext:gkg c64:"picname /pic"     packed:yes blox:??? bytes:?????
+
+Giga-CAD (c) 1986
+pc ext:gcd c64:"pi.picname"       packed:no  blox:033 bytes:8195
+pc ext:gcd c64:"hv.picname"       packed:no  blox:033 bytes:8194
+
+Hires Editor 1.0 (c) 1992 Topaz Beerline
+pc ext:het c64:"picname"          packed:no  blox:037 bytes:9217
+
+Hires FLI (c) Crest
+pc ect:hfc c64:"fli-picture [?]!" packed:no  blox:065 bytes:16386
+
+HiRES Manager (c) 1991 Cosmos-Designs
+pc ext:him c64:"(^) picname" packed:no  blox:065 bytes:16385
+pc ext:him c64:"(^) picname" packed:yes blox:??? bytes:?????
+
+HI-PIC Creator (c) 1992 Oxyron
+pc ext:hpc c64:"picname"          packed:no  blox:036 bytes:9003
+
+Image System (c) ???
+pc ext:ims c64:"ms.picname"       packed:no  blox:040 bytes:10218
+
+Koalapainter II (c) 1984 Audio Light
+pc ext:koa c64:"?pic picname   "  packed:no  blox:040 bytes:10003
+
+Logo Editor 1.2 (c) Centauri
+pc ext:lec c64 "picname"          packed:no  blox:033 bytes:8194
+
+Mega Grafix Utilities Bitmap (c) 1989 The Dolphins
+pc ext:mgb c64 "picname"          packed:no  blox:041 bytes:10241
+
+Mega Grafix Utilities FLI (c) 1989 The Dolphins
+pc ext:mgf c64:"picname"          packed:no  blox:070 bytes:17665
+
+Saracan Paint (c) 1990 Idea
+pc ext:sar c64:"`oo'picname"      packed:no  blox:041 bytes:10218
+
+Vidcomm
+pc ext:vid c64:"b.picname"        packed:no  blox:040 bytes:10000

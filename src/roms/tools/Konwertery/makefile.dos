@@ -1,0 +1,24 @@
+#	MS-DOS makefile for fvcbm ver. 3.0
+#	Tested under MS-DOS ver. 5.0 with Turbo C ver. 2.0
+
+# Turbo C
+CC=			tcc
+CFLAGS=		-O -w-par
+PACKFLAG=	-a-
+EXTRAOBJS=	\tc\lib\wildargs.obj
+
+# Microsoft C (untested)
+#CC=		cc1
+#CFLAGS=	-O -DMSC -D__MSDOS__
+#PACKFLAG=	-Zp1
+
+OBJS=		fvcbm.obj cbmarcs.obj $(EXTRAOBJS)
+
+fvcbm.exe:	$(OBJS)
+	$(CC) $(CFLAGS) $(OBJS)
+
+fvcbm.obj: fvcbm.c cbmarcs.h
+	$(CC) $(CFLAGS) -c fvcbm.c
+
+cbmarcs.obj: cbmarcs.c cbmarcs.h
+	$(CC) $(CFLAGS) $(PACKFLAG) -c cbmarcs.c

@@ -1,0 +1,113 @@
+
+                                   Star Lynx
+
+
+
+  This program was designed to create Lynx archives out  of  disk  images  and
+extract them into disk images. The program cannot handle relative files  since
+I have never seen one. Star Lynx is an external utility of  The Star Commander
+but is also distributed separately.
+
+
+
+  1. Usage
+
+  STARLYNX [-]A <filename> [-|/C|D|Y] [<lynxname>]
+  STARLYNX [-]L <lynxname> [-|/V]
+  STARLYNX [-]X <lynxname> [-|/4|7|8|C|D|X[D|P|S]|Y] [<diskname>]
+
+  Commands:
+  A: put files into Lynx archives (Add)
+  L: list the contents of Lynx archives (List)
+  X: extract the contents of Lynx archives (eXtract)
+
+  <diskname>:
+  Type the path and the name of the disk images here (the extension is  always
+'.d64' for 1541, '.d71' for 1571 and '.d81' for 1581 disk images). Leave  this
+parameter blank to extract the archives into disk images with the  same  name.
+You can use wildcards to add  multiple  disk  images  and  you  can  use  long
+filenames, too.
+
+  <lynxname>:
+  Type the path, the name and the extension of the archives here (the  default
+extension of Lynx archives is '.lnx'). You may leave it blank and the names of
+the archives will be those of the original disk images. You can use  wildcards
+to list or extract multiple archives and you can use long filenames, too.
+
+  Options:
+    4: Extracts data into 1541 disk images (default).
+    7: Extracts data into 1571 disk images.
+    8: Extracts data into 1581 disk images.
+    C: Asks for your confirmation about extracting each file.
+    D: Deletes successfully processed source files.
+    V: Turns verbose listing mode on which means that the creator of the  Lynx
+       archive (determined from the header) is also displayed after  the  name
+       of the archive.
+    X: Extracts data into 40-track 1541 disk images. You can choose the offset
+       of the additional BAM entries by adding "S"  (Speed DOS,  default), "D"
+       (Dolphin DOS) or "P" (Prologic DOS) to this option.
+    Y: Assumes 'Yes' to all queries, good for running from batch files.
+
+
+
+  2. Error messages
+
+  Unknown command
+    The command is unknown.
+  Invalid option
+    The option is unknown or the syntax of its argument is wrong.
+  FILENAME.EXT not found
+    The file does not exist.
+  Cannot create FILENAME.EXT
+    The file could not be created for some reason.
+  Cannot add "filename" correctly
+    The file could not be fully added into the archive. It  is  possible  that
+    the disk is full or the source disk image is corrupted.
+  "filename" exists...
+    It is not recommended to put two  files  with  the  same  name  into  disk
+    images. You can skip, rename the file or  extract  it  with  its  original
+    name.
+  Cannot extract "filename" correctly
+    The file could not be fully extracted from the  archive.  It  is  possible
+    that the disk is full or the archive is corrupted,  e.g.  some  bytes  are
+    missing from its end.
+  DISKNAME.D64 is not a valid disk image
+    The disk image is corrupted.
+  DISKNAME.D64 has an invalid BAM
+    The BAM of the disk image is corrupted. Try validating the disk image.
+  Directory is full in DISKNAME.D64
+    The directory of the disk image is full. You can store a  maximum  of  144
+    files in a 1541 or 1571 disk image and 296 files in a 1581 disk image.
+  DISKNAME.D64 is full
+    The disk image is full. You can store a maximum of 664 blocks in  a  1541,
+    749 blocks in an extended 1541, 1328 blocks in a 1571 and 3160 blocks in a
+    1581 disk image.
+  LYNXNAME.LNX has in invalid header
+    The header of the Lynx archive is corrupted.
+  LYNXNAME.LNX has in invalid entry
+    The current entry of the Lynx archive is corrupted or  it  is  a  relative
+    file which is not supported.
+  FILENAME.EXT has an invalid size
+    The file is either empty or it is too big to fit into a disk image.
+
+
+
+  3. Copyright and legal issues
+
+  This program is freeware. You can use it as long as you  wish  and  you  can
+spread it as you like provided that it is in the original unmodified  archive.
+Don't distribute single files only the whole package and don't ask  for  money
+above the normal fee of the distribution media itself. This program may not be
+included in any compilation or  sold  on  disk  or  CD-ROM  without  my  prior
+permission.
+
+
+
+  4. The author
+
+  If you're interested in some similarly useful utilities you can contact me at
+the E-mail address "sta@c64.org" or visit my homepage at "http://sta.c64.org".
+
+
+
+  31st March, 2002                              Joe Forster/STA

@@ -1,0 +1,29 @@
+Short:    Kaleidoscope V4.0, Powerful C64 PetASCII GFX package
+Author:   Bryce L. Tomlinson (Gu_Ru, Quicksilver)
+Uploader: Gu_Ru <brycet@efn.org>
+Type:     c64/Tools
+
+This is the same fully uncrippled shareware package I wrote back in 1989.
+To this day, nobody has released a PetASCII GFX editor to rival it, which
+is why it was such a huge hit in the USA, where Color 64 BBS originated.
+
+Included in this package are both Kaleidoscope V4.0 (the screen editor),
+and Kaleidoscope Animator (buffer-oriented CBM animator).
+
+Many folks here in the USA are still asking for me to write a V5.0, but I
+no longer have the source code for it, so this will be the last (and best)
+version ever, still the best 64 GFX editor ever written, if I do say so
+myself, and I do.
+
+============================= Archive contents =============================
+
+Archive:  kscope4.zip
+ Length    Date    Time    Name ("^" ==> case
+ ------    ----    ----    ----   conversion)
+  33100  01-01-80  00:00   1!KSCOPE
+  42866  01-01-80  00:00   2!KSCOPE
+  39120  01-01-80  00:00   3!KSCOPE
+  21661  01-01-80  00:00   4!KSCOPE
+   1199  01-01-80  00:00   kscope4.txt
+ ------                    -------
+ 137946                    5

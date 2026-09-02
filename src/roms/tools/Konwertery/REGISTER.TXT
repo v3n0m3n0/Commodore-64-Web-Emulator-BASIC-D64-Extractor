@@ -1,0 +1,256 @@
+
+                         Registering The Star Commander
+
+  If you wish to, you can register online at "http://sta.c64.org/screg.html".
+
+  The Star Commander is giftware. You may use the unregistered version as long
+as you wish, it is in no way crippled, there are no nag screens or  delays  in
+it and it won't refuse to run even years after  the  installation.  It  is  my
+personal will not to put any of these restrictions into the Commander  because
+I don't like such "features"  in shareware programs either.  However,  if  you
+appreciate the years of work it took  to  create  the  Commander  then  you're
+encouraged to register it. My main reason for this is to get some  information
+about the people using the Commander all over the  world  when  they  register
+but, of course, getting some money won't hurt either.
+
+  There are only two things that may annoy you when using an unregistered copy
+of the Commander: first, when you start it, you'll see three extra lines below
+the title, asking you to register; second, there is  a  similar  sign  in  the
+uppermost lines of the 'About the Commander' section of the online help.
+
+  Please, cut and fill in the registration form below. As a registration text,
+you can type a maximum  of  50  characters  that  will  be  displayed  in  the
+Commander. Indicate if you want your name to be put to the list of  registered
+users below and whether you would like to see the amount of money you paid for
+the Commander there or not.
+
+  When you're done, send the form to me in an E-mail. Soon you will receive  a
+reply containing a uuencoded keyfile that registers your copy. If you have  no
+access to the Internet but you're living in Hungary then print  the  form  out
+and send it to me in a snail-mail along with a formatted  disk  and  a  return
+envelope with stamps and your address on it - I'm sorry, but I can do  nothing
+with non-Hungarian stamps. When registering, you don't have to send any money,
+only if you want: this is what "giftware" is  about.  10 USD,  10 EUR  or  the
+equivalent in your own currency (the proposed fee for Hungarians is only  1000
+HUF) would be quite satisfying but you can send me more or less - it's  up  to
+you to decide how much the Commander is worth for you.
+
+  You can send the money by cash in a snail-mail to  me.  Please,  don't  send
+Eurocheques or coins, I can't change them to cash. Don't send personal  checks
+or money orders either because they involve high conversion costs for  me,  if
+my bank accepts them at all. My home address is the following:
+
+  Kov cs Bal zs
+  Orsolya u. 5. IV/12.
+  1204 Budapest
+  Hungary
+
+  If you register the Commander, the keyfile you get  will  make  those  three
+annoying lines disappear  forever.  If  you  enter  the  'About the Commander'
+section of the online help, you  will  see "This copy of The Star Commander is
+registered to: <registration text>" in the uppermost lines.  If  you  have  an
+E-mail address, you'll also be put onto the announcement list so that you  get
+a notification about new versions before the  release  day.  If  you  have  no
+access to the Internet but you're living in Hungary then you  can  send  me  a
+formatted disk and an envelope with stamps and your address on it any time  to
+get the latest release. You will always remain a registered user, the  keyfile
+will be valid with all future releases. Your name is optionally  going  to  be
+added to the list of registered users at the end of this file so that everyone
+sees you've already done the right thing.
+
+  As a registered user you won't get other extras because I  can't  offer  you
+more: the registered version doesn't have new features over  the  unregistered
+version and if you have problems, I'll try to help you independently  of  your
+being a registered user or not. However, by registering,  you  can  make  sure
+you've made your  moral  (and,  optionally,  your  monetary)  contribution  to
+further development.
+
+  Please, don't distribute your personal keyfile when  anyone  else  can  also
+register the Commander for free. Thank you!
+
+Joe Forster/STA
+sta@c64.org
+
+--------8<--------8<--------8<--------8<--------8<--------8<--------8<--------
+
+                      The Star Commander registration form
+
+Name:
+
+Handle:
+
+Address:
+
+E-mail:
+
+Registration text:
+
+  Don't forget to fill in the item "Registration text" above. This is the text
+you will see in the online help  section  'About the Commander'  in  the  form
+"This copy of The Star Commander is registered to: <registration text>".
+
+
+  I have  ( )  sent by currency to you          ( )  10 USD
+          ( )  sent no money to you             ( )  10 EUR
+                                                ( )  1000 HUF
+                                                ( )  other:
+
+  ( )  I want to see my name in the registered user list
+       ( )  with indicating the amount of money I paid
+
+Comments, wishes, ideas concerning the Commander:
+
+--------8<--------8<--------8<--------8<--------8<--------8<--------8<--------
+
+  Thanks to the following people for having registered. Be one of them now!
+
+  Linus kerlund,
+  Daniel kesson,
+  Dan Amborn,
+  Andr sfi Istv n J nos,
+  Frank Ansari,
+  Bartosz Apanasewicz,
+  Cameron Arnott,
+  Roy Ayres,
+  Balogh Mikl¢s,
+  Simon H. Becherer,
+  Michael Beier,
+  Jehan de B‚thune,
+  Bob Black,
+  Bokor M rton (500 HUF),
+  Pawel Bol,
+  Stephen Booth (no money),
+  Davoud Seyedin Boroujeni,
+  Alex Martin Borrego (2000 ESP),
+  Bors nyi Attila,
+  ifj. B”sz”rm‚nyi L szl¢,
+  Andr‚ Braun (20 DEM),
+  Juergen Brunner (30 USD),
+  Bub n M rton,
+  Axel Bhning,
+  Charles A. Bush Jr. (15 USD),
+  Butt s Levente,
+  Robert Caporetto,
+  Stanislav Ceska,
+  Thomas Chadzelek (50 DEM),
+  John M. Charroux,
+  Mark Chow,
+  CID studio / NEWCOMER crew,
+  Diego Claeys (25 USD),
+  Stacy Cooper,
+  Csernoch J nos,
+  Ian Cunningham,
+  De k Attila,
+  Debreczeny bel (500 HUF),
+  Volker Detering (15 DEM),
+  Robert Dietze,
+  Dob¢v ri J nos,
+  Andrew Dupuis,
+  Eglesz D‚nes,
+  Raymond Ellsworth,
+  Peter Epstein,
+  Mark Evans,
+  F bi n Istv n,
+  Fecher G bor,
+  Johan Fiti‚,
+  Paul Foerster,
+  Ulrich Foerster,
+  Yuri Fossaroli (no money),
+  Daniel Friberg,
+  Helmut Friedl,
+  Paul Gardner-Stephen,
+  Martin Gaus,
+  James Geraghty,
+  Ren‚ Gouws,
+  Eelco Grakist,
+  Pieter Grobler,
+  Tom Hagen,
+  Thomas Hechelhammer (20 DEM),
+  Troy Heidner,
+  Dennis van den Hoek,
+  Lorrie Hoffman,
+  Raf Hofmans,
+  Stan Holcomb (10 USD),
+  Kaspar Jensen,
+  Jeff Johnsen,
+  Eugen Jonas,
+  Kajt r Zsolt,
+  Peter Karlsson,
+  K sa Attila,
+  Martin Kempa,
+  Brian Ketterling,
+  Severin-Stephan Kittl,
+  Andre Klingbeil,
+  Tobias Korbmacher,
+  Franz Kottira,
+  Stefan Kratzer,
+  Michael Kuhlmann,
+  ifj. Lajk¢ J nos,
+  Marton Larrosa,
+  William (Bill) W. Layer,
+  Mike Lee,
+  Chris Link,
+  Thomas Lund,
+  Tor Arne Lye (no money),
+  Dominik Mandel,
+  Mat¢cza N ndor,
+  Matthias Matting,
+  Dan McMorris,
+  Mercz Rich rd,
+  Moln r M rk,
+  Nagy G bor,
+  Ingo Nau (20 DEM),
+  Ingo Naun,
+  N‚meth Attila,
+  Rudolf Niedzwetzki,
+  Roel Nieskens,
+  Frank Niggemann,
+  Nov k Bal zs,
+  Daniel O'Shea,
+  Christian Ohler (no money),
+  Imre Olajos Jr. (10 USD),
+  Thierry Kurt Olmedo (10 USD),
+  Peter Owen,
+  Adrian Panasiuk,
+  Kurt Pedersen,
+  Matthias Peter,
+  Robert Pilarczyk,
+  Tuomas Rantala,
+  Edward Ries (20 DEM),
+  John Rodebaugh,
+  Dieter Runge (15 DEM),
+  Andreas Rust,
+  Markus Ruttmann (15 DEM),
+  Kurt Sallner,
+  Wolfram Sang,
+  Martin Schaefer (30 DEM),
+  Patric Schepers,
+  Stephan Schmid,
+  Eckhard Schulz,
+  Ruben Spaans (20 USD),
+  Bartosz Stobiecki,
+  Roger Stocker (10 CHF),
+  Per H†kan Sundell,
+  Szitkovits G bor,
+  Szomor Zolt n,
+  Ren‚ Szvasztics,
+  Gareth Taft,
+  Rob Tetley,
+  David P. Thomas,
+  Weber Thomas (10 USD),
+  Jan Lund Thomsen,
+  Tihanyi P‚ter,
+  Toldy G bor,
+  Tur¢czi Ferenc,
+  Martijn van Veenendaal,
+  J”rg van der Vlies (10 DEM),
+  Vsevolod Volkov,
+  Mike Walfort,
+  Linus Walleij (300 SEK),
+  Werner Weicht,
+  George Wilkins,
+  Steven Wright,
+  Raj Wurttemberg (12 USD),
+  Warren Wynd,
+
+  and eighty seven other people who wished to remain anonymous

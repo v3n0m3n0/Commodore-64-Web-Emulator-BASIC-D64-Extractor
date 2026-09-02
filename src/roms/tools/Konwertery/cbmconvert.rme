@@ -1,0 +1,255 @@
+cbmconvert 0.9.1 - convert different Commodore binary archives to LHARC format
+
+Traditional archiving systems for the Commodore 64 do not compress the
+files at all, or they have poor compression rate. To minimize
+transmission times and space needed for Commodore binaries on file
+retrieval systems, you need a better archiving format.
+
+The LHARC archiver has been ported to the Commodore 128 years ago in
+the CS-DOS system, but you need a Commodore 128 with a RAM Expansion
+Unit to use it. As they are difficult to obtain nowadays, and as the
+program would run very slowly on the C-128, being able to use LHARC on
+a bigger system is a great relief. Extracting files from LHARC
+archives is possible also with a stock C-64.
+
+The cbmconvert package allows you to convert different CBM file
+archives to LHARC format. It is most useful on file retrieval systems
+storing Commodore files. Re-archiving old files may halve the file
+lengths or cut them even more. You can also use it yourself when you
+want to distribute your binaries in tightest possible format. Just
+pack the files on your C-64 with your favourite program, and convert
+the archive on a Unix system before uploading to the net.
+
+Currently cbmconvert accepts files created with Arkive, Lynx and
+ZipCode. The software to extract ARChived files and self-extracting
+archives (SDA) exists, but it is not included to this version because
+of copyright reasons. The module for ARC will hopefully be included to
+the next version of this package.
+
+
+
+SOFTWARE REQUIREMENTS
+
+- Unix compatible operating system with standard tools
+
+- LHARC for Unix (lha-1.00.tar.Z or similar)
+	If the "lha" command is not recognized on your system,
+	you have to compile this piece of software as well.
+
+- SFX header (sfx.ml) from an SFX file
+	This file is missing because of copyright reasons.
+	You can get it from any new SFX file by issuing the
+	command "head -3721c file.sfx > sfx.ml". Older SFX
+	files may have an SFX header of different length.
+
+
+
+HOW TO USE CBMCONVERT
+
+First install cbmconvert to your binaries subdirectory. Create sfx.ml
+as described above, and edit the Makefile to reflect your system
+settings. Then "make install".
+
+After the installation step, you have two scripts to use. For all
+other archives except ZipCoded files, use "convert". The script
+"zipconvert" takes care of the ZipCoded archives.
+
+The "convert" script works on following file formats:
+
+	Format               	File suffix
+	======		     	===========
+	Arkive		   	.ark
+	Lynx			.lnx
+
+For instance, to convert a Lynxed file "software.lnx" to LHARC format,
+use "convert software.lnx". If you don't get any error messages, it
+should be safe to delete the original file, "rm software.lnx". You can
+specify multiple filenames on the command line, e.g.
+"convert *.lnx *.ark".
+
+The conversion may lose some information. Filenames will be converted
+from PETSCII to ASCII, and some PETSCII specific characters will be
+distorted when converting back from ASCII to PETSCII before
+extraction.  Arkive stores some non-standard directory information,
+which will be ignored and left out of the LHARC files.
+
+Both Lynx and Arkive allow duplicate filenames. Only the first of them
+is extracted. These duplicates are often used as directory separators,
+to separate groups of filenames. If you really need such separators,
+use 1-block-long PRG or SEQ files with different names. For example,
+the first separator can be a string of 16 dashes, the second one can
+be 15 dashes, and so on.
+
+Arkive also works on illegal filetypes that cannot be created without
+directly modifying the directory blocks. As the LHARC format is
+device-independent, these types must be ignored. In this case you will
+be warned. And Arkive handles relative files in a very stupid way.
+If you have an ARK file with one or more relative files, you should check
+that the files are extracted correctly.
+
+ZipCode is the most 1541-dependent format this package can work on. It
+is probably best to leave these archives alone. However, many people
+use to pack regular 1541 disks with ZipCode. The "zipconvert" script
+is meant for this type of ZipCoded archives. You will be warned about
+any non-standard things in the disk image. The ZipCoded archives
+consist of four files prefixed with a number from 1 to 4, and a
+exclamation point. To extract an archive having the files "1!disk",
+"2!disk", "3!disk" and "4!disk", command "zipconvert disk".  You may
+then delete the original files with "rm ?\!disk" or similar. Like
+convert, zipconvert accepts multiple filenames on the command line.
+
+Support for ZipCode SixPacks ("1!!disk", "2!!disk", ..., "6!!disk")
+could be added easily, but this format is used mainly for really
+custom 1541 disks with abnormal low-level format.
+
+If the resulting LHARC file is less than 47479 bytes long, it will be
+prefixed with the self-extraction header so that you can extract it on
+a C-64 (or C-128). Otherwise it will be left without that header, and
+you can extract it only on a C-128 running CS-DOS and LHX. In the
+future there will probably be a LHX for C-64 as well. LZH files do not
+have any size limits except the 1541 disk size, 664 blocks, which is
+168656 bytes. The SFX header has other drawbacks as well: it can only
+extract PRG and SEQ files.
+
+
+
+TECHNICAL DETAILS
+
+The two shell scripts "convert" and "zipconvert" control following
+binary programs:
+
+	Name			Function
+	====			========
+	unark			Extract files from Arkives.
+	unlynx			Extract files from Lynx archives.
+	zip2disk		Extract a disk image from ZipCoded files.
+	disk2files		Extract files from a disk image.
+	lha			Create LHARC files.
+	lzhconvert		Rename files in LHArchives.
+
+Temporary files will be created in the "tmp" subdirectory of your home
+directory.
+
+
+
+Filename translation
+
+To prevent any distortion in the filenames, the files will be
+extracted under names like "FILEnnnnn", where "nnnnn" is an
+integer. Names for these temporary files are created by scan.c. The
+filename translation table will be redirected to a file "archive.list"
+where "archive" is replaced with the archive name to be converted.
+
+The temporary filenames and their original names are listed in a file
+called listfile. Blank lines and lines starting with a semicolon are
+ignored. The files are listed as follows:
+
+	"oldname1"	"newname1"
+	"oldname2"	"newname2"
+	...
+
+You may also use spaces or commas as filename separators. All current
+cbmconvert modules separate the filenames with horizontal tabulators.
+To enter special characters, you have to escape them like in C. For
+instance, to enter a filename "file\name" with the quotes, use
+"\"file\\name\"". 
+
+The following escape sequences are supported:
+
+	\a    alert           (BEL, \7,   \x7)
+	\b    backspace       (BS,  \10,  \x8)
+	\f    form feed       (FF,  \14,  \xc)
+	\n    new line        (LF,  \12,  \xa)
+	\r    return          (CR,  \15,  \xd)
+	\t    tabulator       (HT,  \11,  \x9)
+	\v    vertical tab    (VT,  \13,  \xb)
+	\"    quotation mark  (",   \42,  \x22)
+	\'    apostrophe      (',   \47,  \x27)
+	\\    backslash       (\,   \134, \x5c)
+	\?    question mark   (?,   \77,  \x3f)
+	\nnn  octal number         (max. 3 digits)
+	\xnn  hexadecimal number   (max. 2 digits)
+
+The cbmconvert modules use the octal notation to specify all other special
+characters except \ and ", which are prefixed with \.
+
+The CS-DOS's LHARC format has to record the file type somehow. It
+suffixes the file names with a null byte and a letter indicating file
+type. Relative files' record length will be stored after the file type
+indicator. Here's an example of a listfile that you would use to
+create files with different CBM file types:
+
+	; host filename			Commodore filename
+	"PROGRAM.PRG"			"program\0P"
+	"SEQUENTIAL.SEQ"		"sequential file\0S"
+	"USER.USR"			"user file\0U"
+	; relative file with a record length of 123 bytes (173 octal)
+	"RELATIVE.REL"			"relative file\0R\173"
+
+Note that LHARC for MS-DOS and lha for Unix write the filenames in
+upper case, when they are in generic or old-style mode.
+
+By default, CS-DOS LHX and the SFX header create PRG files. This is
+why cbmconvert modules leave the "\0P" suffix out.
+
+Note: The self-extraction header extracts only PRG and SEQ files;
+it does not create REL and USR files properly.
+
+
+How lzhconvert works
+
+The "lzhconvert" module has multiple functions. If you command
+"lzhconvert archive.lzh", it will print a list of the files in
+the archive in the listfile format. The right column contains
+default temporary file names. This feature could be used to
+convert SFX and LHARC files to some other format. To see the
+archive contents, use "lzhconvert archive.lzh | cut -f1".
+
+If you specify two filenames, lzhconvert will read the first
+one and write the converted file under the second name. It will
+ignore any self-extraction header and padding in the input file.
+Lzhconvert will read the listfile from standard input and then
+start converting. In addition to the filename conversion, it
+converts the archive from header level 1 to header level 0,
+leaving pathnames and other additional information out. Note
+that Unix-lha uses header level 2 by default, which is not
+supported by lzhconvert.
+
+Typical usage of lzhconvert is first making the listfile
+(lzhconvert archive.lzh > listfile), then editing it, and
+finally converting the archive
+(lzhconvert archive.lzh archive.tmp < listfile).
+
+
+
+IN CASE OF ERROR
+
+If you get any error message from "convert" or "zipconvert", you
+should examine at least the temporary list file ($HOME/tmp/*.list).
+It may contain some comments explaining what is wrong in some files.
+You may want to construct the LZH archive manually from the files
+in that directory.
+
+
+
+COPYRIGHT
+
+The cbmconvert package is in the public domain. Feel free to modify it
+to suit your needs. If possible, send your modifications to the author
+to be distributed with the next version.
+
+
+
+CREDITS
+
+The zip2disk module was programmed by Paul David Doherty
+<h0142kdd@rz.hu-berlin.de>.
+
+
+
+AUTHOR
+
+Marko Mäkelä <Marko.Makela@Helsinki.fi>
+Paper mail:	Sillitie 10 A
+		SF-01480 Vantaa
+		Finland

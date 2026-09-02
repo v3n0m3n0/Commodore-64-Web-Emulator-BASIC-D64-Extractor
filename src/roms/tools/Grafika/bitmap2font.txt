@@ -1,0 +1,8 @@
+Bitmap2Font
+by Nemezis/Impact
+nes@extreme.net.pl
+-----------------------------
+
+Usefull Bitmap to Font converter.
+Allows You to remove selected chars from destination
+charset.

@@ -1,0 +1,17 @@
+Graphic tools for C64
+
+Five programs written by Dave:
+
+Picture Converter - recognizes six common
+  graphic image file format
+Multicolor Picture Cleaner - makes bitmap
+  files to more compressible
+Hi-res Picture Cleaner - same thing for 
+  hi-res picture files
+BMAP Colours - helps to choose colors of
+  pure bitmap files
+Sprite Peeper - a useful program to seek
+  sprites in memory (don't say sprite
+  thief!)
+
+(source files included)

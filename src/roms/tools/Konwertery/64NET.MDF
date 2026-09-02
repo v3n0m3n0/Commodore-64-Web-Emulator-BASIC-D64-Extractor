@@ -1,0 +1,85 @@
+#the first entry is the default, however when ever
+#a function is called that uses one of these
+#values, the client is asked for the machine id.
+[Commodore 64 OR C128 in c64 mode]
+id 40
+colourchar 5
+load f12b 00 00 49
+save f68f 00 00 00
+searching f5af ff ff ff
+st 90
+devnum 00a7
+fast1 d030 fe 01
+fast2 d011 ef 00
+slow1 d030 fe 00
+slow2 d011 ef 10
+xreturn b2
+yreturn b3
+LA b8
+LDTND 98
+SA B9
+LAT 259
+FAT 263
+SAT 26D
+STAL C2
+MEMUSS AF
+BASICNEW A642
+KEYBUFF 0276
+KEYCOUNT C6
+
+[C65 or C64DX (in C64 mode)]
+id 3F
+colourchar 5
+load f12b 00 00 49
+save f68f 00 00 00
+searching f5af ff ff ff
+st 90
+devnum 00a7
+fast1 d02f 00 a5
+fast2 d02f 00 96
+fast3 d031 bf 40
+slow1 d031 bf 00
+slow2 d02f 00 00
+xreturn b2
+yreturn b3
+LA b8
+LDTND 98
+SA B9
+LAT 259
+FAT 263
+SAT 26D
+STAL C2
+MEMUSS AF
+BASICNEW A642
+KEYBUFF 0276
+KEYCOUNT C6
+
+
+[Commodore C128]
+id 80
+colourchar 153
+load f71e 00 00 49
+save f5bc 00 00 00
+searching f50f ff ff ff
+st 90
+devnum 00a7
+fast1 d030 fe 01
+fast2 d011 ef 00
+slow1 d030 fe 00
+slow2 d011 ef 10
+xreturn b2
+yreturn b3
+LA b8
+LDTND 98
+SA B9
+LAT 362
+FAT 36c
+SAT 376
+STAL C2
+MEMUSS AF
+BASICNEW Af84
+KEYBUFF 0349
+KEYCOUNT D0
+#
+
+

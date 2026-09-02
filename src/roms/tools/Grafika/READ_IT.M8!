@@ -1,0 +1,82 @@
+*** Credit ME and the tool if you use it to port gfx for WWW usage! ***
+
+Commie Vju v1.0 (DOS/Winlame)
+
+i hear you cry "oh no, another C= gfx viewer".
+And rite, why would you leech this one when you already have 64view and/or
+c64view 0.499 ?
+
+just read this small comparison below ;)
+
+comievju	by Geert Verschueren (Sorex/WOW)
+c64view 0.499	by Cameron Kaiser
+64view		by Gemini/System
+
+filelenght:
+
+	comievju	 2800 bytes ( 2.7Kb)
+	c64view 0.499	29824 bytes (29.1Kb)
+	64view		10825 bytes (10.5Kb)
+
+
+Execution time (for Koala timed on a 386-40):
+
+	comievju		0.49 seconds
+	c64view 0.499		4.49 seconds
+	64view			5.00 seconds
+
+Export:
+
+	comievju	BMP (press 's' when the picture is shown!)
+	c64view 0.499	none
+	64view		none
+
+Gfx support:
+
+	c64view 0.499	multihires Doodle, Koala and some colorscreenmap
+
+	64view		Koala (!!! it has a $D021 color bug !!!)
+
+	comievju	Advanced-FLI v1.2 & v2.0+ (c) 1991 Topaz Beerline
+			Artist 64 (c) 1986 Wigmore
+			Advanced Art Studio 1.0 (c) 1987 OCP Ltd & 1.2b by EEC
+			Amica Paint (c) 1986 Oliver Stiller
+			Art Studio 1.1 (c) 1986 OCP Ltd
+			Blazing Paddles (c) 1984 Baudeville
+			Create with Garfield (c) 1986 Ahead Designs
+			(!!!notice that the last lines are hires!!!)
+			Doodle Multi Hires (c) 1984 Omni 
+			EMC (c) Masters' Design Group
+			FLI Designer 1.1 & 2.0 (c) FBI Crew
+			FLI Editor 2.2 (c) 1990 Blackmail Unpacked
+			FLI Editor 2.2 (c) 1990 Blackmail Packed
+			(!!!notice that the viewer emulates the first 3 char
+			color mode too!!!)
+			Flying Colors (c) 1985
+			Game Graphics Designer (c) Digital Marketing ?
+			Garry Kitchen's Gamemaker (c) 1985 Activision, Unpacked
+			Garry Kitchen's Gamemaker (c) 1985 Activision, Packed
+			Giga-CAD (c) 1986, "pi.picname"
+			Giga-CAD (c) 1986, "hv.picname"
+			Hires Editor 1.0 (c) 1992 Topaz Beerline
+			Hires FLI (c) Crest
+			HiRES Manager (c) 1991 Cosmos-Designs, Unpacked
+			HiRES Manager (c) 1991 Cosmos-Designs, Packed
+			HI-PIC Creator (c) 1992 Oxyron
+			Image System (c) ???
+			Koalapainter II (c) 1984 Audio Light
+			Logo Editor 1.2 (c) Centauri
+			Mega Grafix Utilities Bitmap (c) 1989 The Dolphins
+			Mega Grafix Utilities FLI (c) 1989 The Dolphins
+			Saracen Paint (c) 1990 Idea
+			Vidcomm (c) ???
+
+Amazing or what? hehe :)
+
+please test the Image System and Vidcom viewers as i had to guess about the
+fileformat, or can't you select the papercolor in the editors? (don't have'em)
+
+An EXTensions file for Star/Volkov/Norton Commander is included with all
+graphics formats an full name of the tools, so append it to your current.
+
+Sorex/WOW (sorex@skynet.be)

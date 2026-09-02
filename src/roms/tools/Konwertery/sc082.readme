@@ -1,0 +1,9 @@
+Filename:        /pub/c64/incoming/Tools/sc082.zip
+Original date:   2002-03-31 00:08:00
+Destination dir: /pub/c64/Tools/Convert
+Replaces:        /pub/c64/Tools/Convert/sc081.zip
+Description:     The Star Commander: handles images of C64S, CCS64, PC64
+                 and VICE, copies files/disks from/to 1541/1571/1581
+                 drives and converts many Commodore archive formats
+E-Mail address:  sta@c64.org
+Comments:        giftware

@@ -1,0 +1,91 @@
+X1541.EXE
+ by  GHIELMET@eldi.epfl.ch (Leopoldo Ghielmetti)
+
+The X1541 program requires an adapter cable to connect your PC parallel 
+printer port (LPT1/LPT2/LPT3) and a commodore disk drive (1541/1581).
+*(The Female port pinouts are shown below. The normal cable is Male-Male.)
+
+                                  CBM IEEE serial port *Female*:
+     IBM Lpt port *Female*:                ___ ___
+        ,-----,                          .-   -   -.
+Strobe--+-1*  '---,                    .-           -.  _____
+        |      *14+--AutoFeed    Data--+--*5     1*--+--SrqIn  _____
+(Data 0)| 2*-,    |                   (       6*------)---------Reset
+        |    |_*15|(Error)      Clock--+--*4     2*--+---Ground
+        | 3*      |  ____              ._    3*     _.
+        |      *16+--Init                .____|____.
+        | 4*      |                       Atn-|
+        |      *17+--SelectIn  -------------------------------------------
+        | 5*      |            | C64signal |  IBMsignal       Lptport +2 |
+        | 6*   *18+-+-Ground   |  2 Ground | 18..25 Ground               |
+        |         | |          |  3 Atn    |      1 Strobe      bit0     |
+        | 7*   *19+-|          |  4 Clock  |     14 AutoFeed    bit1     |
+        vvvvvvvvvvv |          |  5 Data   |     17 SelectIn    bit3     |
+        |      *25+-+          |  6 Reset  |     16 Init        bit2     |
+        |13*  ,---'            -------------------------------------------
+        '-----'
+
+
+
+
+X1541.EXE  IBM <--> C64 file reader
+
+type "x1541"   for the interface scheme (see above)
+type "x1541 ?" for the options list
+     options are : "/b" force monochrome mode
+                   "/c" force color mode
+                   "/LPTn" force I/O from LPT port n (n in range 1..3)
+
+<ALT>     Activate Menu or to dismiss menu and go to file list
+          Also used to dismiss status boxes (after COPY)
+<ENTER>   Highlight memu or Select menu item
+<DOWN>    Highlight menu
+
+<ESC> or  Go back; Highlight previous menu 
+<LEFT>or
+<UP>      ( Sub-menu stays screen, but is no longer highlighted)
+
+<TAB>     Move between 1541 and IBM filelists
+          Also used move to "OK" in COLOR menu
+
+Cursor keys    Move through menus
+<PAGE UP> &    and Move through filelists
+<PAGE DN>   
+
+
+<SPACE>   Select files in filelist for copying
+
+1541-COMMAND Note:     command letter (e.g. N0:Test Format,tt) 
+                   Must be capital letter --^
+
+
+**** Brief command sequence for file copy ********
+
+1. OPEN 1541   <ENTER> to select and highlight Drive# sub-menu
+               <ENTER> to select drive number (8-11)
+2. OPEN IBM
+3. <TAB> to source filelist
+4. <SPACE> selects file(s)
+5. <ALT> for menu
+6. COPY
+7. <ALT> to dismiss status box after copy is complete
+
+DE NADA 
+
+Well I forgot to mention it, to make a file with another extension (seq, 
+usr, rel (not yet supported)) you should give the correct extension to the
+IBM file Eg. *.seq will be transferred as sequential file (seq)
+
+In normal condition 1581 and 1571 have the same mechanism as 1541 but for
+lack of documentation I did not implement the fast serial mode feature.
+
+ciao, Leopoldo
+
+
+           /**************************************\
+           * Ghielmetti Leopoldo                  *
+           \**************************************/*****\
+                   *   e-mail : ghielmet@eldi.epfl.ch   *
+                   \************************************/
+
+Posting and docs by bjh@linc.att.com

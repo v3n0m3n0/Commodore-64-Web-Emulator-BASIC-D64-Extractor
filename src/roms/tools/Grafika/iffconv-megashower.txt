@@ -1,0 +1,14 @@
+I have uploaded two utilities, namely: the Iff-converter v1.0 and the
+latest version of the Megashower (v1.02). Both utilities are done by
+Scroll/Megastyle (me), and they are now ntsc-fixed too.
+
+The purpose of the iff-converter speaks for itself, it converts an iff or lbm
+picture into one of many existing c64 picture formats (art studio and afli).
+The Megashower is a browser/shower program for different kinds of picture
+and music files.
+
+Some time ago I discovered an early version of the Iff-converter (v0.99)
+on this ftp, it was not supposed to be spread, but anyway here's the new
+version.
+
+Scroll/Megastyle Productions

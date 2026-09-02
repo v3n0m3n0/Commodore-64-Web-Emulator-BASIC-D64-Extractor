@@ -1,0 +1,14 @@
+A:	Compress with Star Arkive
+	starark a !.!
+L:	Compress with Star LHA
+	starlha a !.!
+I:	Compress with Star Library
+	starlbr a !.!
+Y:	Compress with Star Lynx
+	starlynx a !.!
+Z:	Compress with Star Zip
+	starzip a !.!
+T:	Collect with Star Tape
+	startape @!@ collect
+F10:	Main Menu
+	sc.mnu

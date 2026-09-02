@@ -1,0 +1,12 @@
+ZipCode 2 D64
+
+Just a simple program to convert a set of Zipcoded disk files into
+a .D64 image for use with the C64S Emulator.  The program was converted
+from 'C' into Pascal.  The full TP source code is included.  Original
+C code by Paul David Doherty with modifications by Marko Makela.
+
+Thanks goes out to Werner and Marko for sending me the necessary files.
+
+
+Norman Yen
+email: norman_yen@idream.tfbbs.wimsey.com

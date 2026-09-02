@@ -1,0 +1,21 @@
+Trans64                         Version 1.16
+
+Trans64 is a program to transfer files between the PC and a  C64 floppydrive.
+The floppy is  connected with a simple  cable to the  parallelport of the PC.
+You  can  transfer  files among  virtual disks,  virtual tapes,  dos and  the
+floppydrive.  Also you  can  transfer  whole disks if a 1541, 1570 or 1571 is
+connected.  You can  use fast transferroutines for  the filetransfer.  So you
+can  transfer a whole disk in  2 1/2 minutes to the PC  and in 7 minutes from 
+the PC to the floppy. With normal  speed  you will need 9 minutes to read the
+whole disk and  9 1/2 minutes to write the whole disk.  Also you can also use
+a turbo routine to read a whole disk in 1:06 minutes.
+The  cable used for the connection is either the cable used  by X1541  or the
+cable used  by  Disk64E.  To build the cable read the section 'cable' of  the
+online-help.
+If you have already built a cable  connect the floppy to the PC and switch it
+on before you start the program. So the program will automatically detect the
+cable and floppydrive connected with the PC.  Otherwise select the  menupoint
+'configuration' and select your setup.
+
+                    Bernhard Schwall
+e-mail:             schwall@athene.informatik.uni-bonn.de

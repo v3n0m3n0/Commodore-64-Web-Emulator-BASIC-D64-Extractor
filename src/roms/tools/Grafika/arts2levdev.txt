@@ -1,0 +1,6 @@
+ArtS2LevDev
+by Nemezis/Impact
+nes@extreme.net.pl
+-----------------------------
+
+Usefull ArtStudio <> Level Development System converter.

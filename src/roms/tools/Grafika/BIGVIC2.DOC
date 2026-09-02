@@ -1,0 +1,55 @@
+BIGVIC 2 was developed to convert pc graphics into c64 graphics.
+
+It works with a resolution of 320 x 200 pixels (or less) in 256 colors and
+the pcx or lbm (both, iff or pbx) format. So you have to convert your graphics
+to one of these formats first using eg photoshop 4.0.
+
+You are now able to load your graphic into BIGVIC and convert them in one of
+the nine c64 formats supported. For a short example, just load X-AMPLE.PCX,
+enter any filename and format you like, press 'L' to load the colorsettings
+and select X-AMPLE.BVP. Now you are able to see the result of the picture
+by pressing 'F3'. It is a interlaced FLI-Picture, you might know from our
+promotional slideshow SPACE BUBBLES 2 for the c64.
+
+BIGVIC 2 supports the following c64 formats:
+
+	Bitmap		pure bitmap without any color information.
+			uses a percentual dithermethod when dithermode is
+			activated.
+
+	OCP		OCP Art Studio. A hires format, with color
+			information.
+
+	HIFLI		Hires FLI format with 8 videorams, one for each
+			cursorline.
+
+	KOALA		standard multicolor format, with one color- and
+			one videoram. Could be dithered for better results.
+
+	MCI		Multicolor Interlaced, with two bitmaps, two video-,
+			but one colorram.
+
+	KOALA INT.	Koala Interlace. Pretty the same as above, but with
+			two colorrams.
+
+	FLI		FLI format with 8 videorams.
+
+	IFLI		Interlaced FLI format, eg. fun- or gunpaint.
+			Two bitmaps, 16 videorams, one colorram.
+
+	FLINT		FLI Interlace with 2 colorrams for even better
+			results.
+
+For further information about the functions of BIGVIC 2, check out the help-
+page in the program. Simply press 'F1', when in editing mode.
+
+To order your personal copy of BIGVIC 2 with saving enabled, just email us at
+dxs@comptron.de.
+
+The price is 50,- German Marks and it comes along with a nice manual.
+
+If we got enough response we will continue developing BIGVIC 3 with even more
+formats (eg. some of the crazy formats Crossbow and Deekay keep developing),
+a SVGA-environment and even better convert algorithms.
+
+Registered users will get future versions for free, of course.

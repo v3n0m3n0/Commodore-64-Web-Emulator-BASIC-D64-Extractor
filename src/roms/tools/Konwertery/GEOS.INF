@@ -1,0 +1,49 @@
+Friday 21th July 1995
+
+64NET now works with GEOS, however at this stage the drivers must be 
+purchased seperately from:
+
+     Performance Peripherals Europe.
+     phone: +49 2227 3221
+
+the estimated cost is approx DM25.
+
+* At a later stage the GEOS software for 64net may be bundled with the 64net
+distribution, and infact can be purchased at the same time you buy the
+registered version of 64net.
+
+TO USE 64NET WITH GEOS:
+
+1) Copy the relevant GEOS files onto your GEOS boot disk, ie:
+
+          64NET CONFIG
+          64NET MGR
+          64NET MOVE
+          64NET TIME
+          64NET SET
+          64NET PRINT
+
+2) On the IBM-PC run 64NETCFG.EXE from your 64net directory.
+   * Ensure that "Virtualised quick-mount list" is active.
+   If you have .D64  .D71 or .D81 files you wish to access from GEOS,
+   use the "Add Mounts" option to search for them, and assimilate them into
+   your mount list.
+
+3) Start 64NET on your IBM-PC
+
+4) Boot your GEOS disk.
+   * Run "64NET MGR" from GEOS.  If you have no partitions defined, then 
+   create one or more.  This a relatively simple menu driven process.
+   * Run "64NET CONFIG" and assign one or more unused drives to be used with 
+   64NET.  Then save your configuration and quit.
+
+Once you have followed these steps, GEOS should now recognuise 64NET, and
+continue to do so even after re-boot.
+
+NOTE: Do not use RBOOT, as it will not redetect 64NET as the autoexecs will
+not necessarily be run
+
+
+
+Paul Gardner-Stephen
+

@@ -1,0 +1,206 @@
+                            PDATA DOCUMENTATION
+                            -------------------
+
+   Release version : 3.52 final
+   Date            : Saturday, 3rd February 1995
+                     (This textfile was last modified on 25th August 1995)
+
+   Copyright © 1993-1995 Deadbeat/The Sharks
+               (C64 coding, optimized cable schematics, documentation)
+
+   Copyright © 1993 Hude
+               (Amiga coding)
+
+   Please notice that the Amiga executable file is now called "XData"!
+   (It's 100% compatible with PData; read FUTURE for more information)
+
+1. OVERVIEW
+
+   PData is an utility for transfering both binary and text files between
+   the C64/C128 and Amiga. It's about 25 times faster than a null modem
+   cable and it even leaves your Amiga's serial port free for other
+   applications (The maximum BPS rate in a _standard_ C64 is around 2.4K).
+
+2. DISTRIBUTION AND DISCLAIMER
+
+   PData may be freely distributed as long as all files are included
+   intact and as long as no more than a nominal fee is charged to cover
+   time and copying costs. PData may NOT be used for commercial purposes
+   without a written permission from the author(s). The author(s) can't be
+   held liable for any damage directly or indirectly caused by the use or
+   misuse of this manual and/or the program it describes. PData is provided
+   "as-is" and it is a subject to change without notice.
+
+   Internet users will most likely find the latest version of PData from
+   nic.funet.fi. You could also try to /msg SHARKBITE for some HELP on IRC.
+   Those unprivileged ones (Persons without 'net access) should call any
+   of THE SHARKS boards, and they'll get the latest version.
+
+   If you like this program, feel free to send me (Deadbeat) a postcard.
+   On the other hand, you could always drop me with some e-mail...
+
+3. REQUIREMENTS
+
+   The C64 end of PData will work in every C64/C128. The Amiga end of PData
+   will - hopefully - work in every model, but Kickstart v37.175 (v2.04) or
+   above is required to utilize all features. A special cable between the
+   C64 and Amiga is required. The following things are needed for the cable:
+
+        - One card edge connector (C64 user port)
+        - One male D-25 connector (Amiga parallel port)
+        - Suitable length of flat cable (Width 12 or more)
+
+   Additionally, you'll need the following files for your Amiga...
+
+        - Devs/Parallel.device
+        - L/Port-handler
+        - Libs/Asl.library
+        - Libs/Locale.library
+
+4. PDATA CABLE SCHEMATICS
+
+   C64 user port              Amiga parallel port
+
+   Pin      Description       Description      Pin
+
+   B        FLAG*             STROBE           1
+   C        PB0               DATA 0           2
+   D        PB1               DATA 1           3
+   E        PB2               DATA 2           4
+   F        PB3               DATA 3           5
+   H        PB4               DATA 4           6
+   J        PB5               DATA 5           7
+   K        PB6               DATA 6           8
+   L        PB7               DATA 7           9
+   8        PC*               ACK*             10
+   M        PA2               BUSY             11
+   N        GND               GND              17
+
+5. USING PDATA C64
+
+   Using PData C64 is fairly easy. You'll first be prompted for your work
+   drive. Any device between 8 and 11 will do. Then you can select whether
+   to handle your files as binary or text. If you select binary, the files
+   will be transfered without any alterations. Selecting text mode will
+   cause everything to be translated from PETSCII to ASCII and vice versa.
+   The next step is to decide whether to send or receive files. At this
+   point, you can press "," to access a SEQ file handler, using which you
+   can print out or view sequential files. Assuming that you didn't enter
+   the SEQ file handler, you now can press F1 to toggle between normal/zip
+   mode. If zip mode is on, PData will add those 1! 2! 3! and 4! prefixes
+   in front of each zip disk-packed file automatically and you only need
+   to worry about fourteen last characters. If you start receiving a file
+   in single mode, you'll be prompted whether to process files as PRG or
+   SEQ. If a file exists, you'll be given a chance to regret. You can use
+   "$" (CR = $ as Default) to see directory, "@" for DOS commands and "?"
+   to see number of free blocks available on disk. Pressing "=" at all
+   times (Except in multi-file transfer menu) will take you one step
+   "backwards" in the menus. In zip mode, you can individually decide
+   which of the files should be overwritten. Pressing F3 will take you
+   to multi-file transfer menu. In multi-file transfer menu, press F1 for
+   sending files, F3 for receiving files, F5 for directory and F7 for main
+   menu. After pressing F1, you can use Y/N to select files. Pressing CR
+   (Return) will quit or start transfer, depending if you've got any files
+   selected. After pressing F3, you can enter target filenames. Leave one
+   blank line and hit CR to start transfer. Multi-file transfer can handle
+   255 files both directions. It handles only binary PRG files and never
+   overwrites it's target files. At ALL times, pressing restore will clear
+   the channel, initialize vectors and restart program. If you're in doubt
+   of something, just try it. There's no way the program could crash.
+
+6. USING XDATA AMIGA
+
+   xdata (s/r/?) (path/filename)
+   (s = send / r = receive / ? = help)
+   Example : xdata r dh1:dl/c64_rules.txt
+
+   Pressing CTRL+C will - hopefully - abort transfer. Use it in combination
+   with RESTORE in the C64 end to gain maximum effect. If you have a
+   multifacecard (MFC) in your Amiga, remember you must use the XData.CFG
+   in S: directory to re-route PAR: into PIT:. Edit the file so that it
+   reads PIT:<CR>. If you're not a hard drive user, I suggest you redirect
+   the files into RAM: when receiving something from the C64, if you don't
+   have lots of spare time to waste (See missing features).
+
+7. MISCELLANEOUS
+
+   Configuring your regular directory tool for PData makes your life much
+   easier. Once you've made the first transfer after turning both of your
+   computers on, you can ignore the C64's on-screen prompts about setting
+   the other end to send/receive mode. This is because once the Amiga's
+   port-handler has been "activated", PData can't "lose" anything. When
+   transfering PData mainfile (PDATA.C64) to the C64, you MUST use the
+   filename "PDATA 3.5-SHARKS". To transfer the file, try a null modem
+   cable. Schematics are supplied below. You'll need a RS-232 adapter for
+   the C64 and a suitable terminal program for both ends. If, however, you
+   should experience problems in doing so, e-mail the official PData
+   helpline at this address: mysti@stekt.oulu.fi and beg for help! :)
+   (Mysdee/The Sharks just volunteered to help all the people in need!)
+
+8. NULL MODEM CABLE SCHEMATICS
+
+   Pin     Description       Description       Pin
+
+   2       TXD               RXD               3
+   3       RXD               TXD               2
+   4       RTS               DCD               8
+   6       DSR               DTR               20
+   7       GND               GND               7
+   8       DCD               RTS               4
+   20      DTR               DSR               6
+
+9. BUGS AND MISSING FEATURES
+
+   C64 end:   - None known, although there has been some reports about
+                problems with multi-file transfers.
+
+   Amiga end: - Sometimes refuses to work if a filename ends with "+".
+              - Refuses to work if a filename contains any spaces.
+              - Receive buffer missing.
+                ...
+
+   PData doesn't send a header containing a filename. This is NOT a bug.
+   By the way, did you know that PData can be used to transfer data between
+   two C64's or two Amiga's with minor cable modifications? Hardware wizards
+   may figure this one out on their own, full cable schematics will be
+   released later on for the public.
+
+10. FUTURE
+
+   This version of PData is the very final ever. I've finally decided to
+   share my views about the future with the public. PDATA IS DEAD. LONG LIVE
+   XDATA. After careful consideration and lots of time, I've finally decided
+   to make some major changes. The changes are so radical, that I've decided
+   to change the name as well. Expect the initial release of XData soon...
+   In fact, I've had the C64 end finished for months now, but finding a
+   qualified Amiga coder has been the most difficult thing. Hude lost his
+   interest towards this project, and he even managed to lose the source
+   codes somewhere. Anyways, there'll be lots of new features. The entire
+   C64 end has been reprogrammed from scratch. Finally there should be a PC
+   version as well. There has been pretty radical ideas for future versions,
+   like a TwinExpress with GUI, but much better and more advanced. Data
+   transfer rates will be *MUCH* higher, no more typing in hundreds of
+   filenames thanks to neat headers - and hopefully we'll finally get rid
+   of the ugly ASL file requester!... Reqtools rules... Just wait and see.
+   The Amiga executable is indeed already named "XData", but it's exactly
+   the same as "PData". I just patched the program a bit to make it look
+   better. Besides, I finally wanted to get rid of the "PData" name!
+
+11. GETTING IN TOUCH WITH ME...
+
+   Alias:           Deadbeat/The Sharks
+
+   Snailmail:       Timo Rönkkö
+                    Linjakuja 3
+                    FIN-74120 Iisalmi
+                    Finland
+
+   E-mail:          deadbeat@freenet.hut.fi
+
+   IRCnick:         Deadbeat 
+                    (I'm usually on channels #C-64 and #Amigascne)
+
+   Feel free to /msg me on IRC, if you see me around. Please don't
+   snailmail me letters begging for cables, I have _NO_ time to make any.
+   Consider the making of a PData cable as a lamer-protection! ;)
+   If you really have to ask me something, try e-mail first (Prefered).

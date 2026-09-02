@@ -1,0 +1,41 @@
+
+Note to GigaCad plus + disclaimer:
+
+Giga Cad is a 3d construction program for C-64.
+I recommend using a Turbocard as this program is really slow.
+It's not easy to handle and I recommend getting the manual
+for it from Magna Media Verlag/Germany who sold this Program under
+their former label "Markt und Technik".
+
+* I don't know whether this progam is still sold or not, so be careful
+* because this program is probably NOT freeware.
+* Use this copy only to test the program and buy it, if you like to
+* continue working with it (assuming it is still available).
+* Check out the following URL to get in contact with Magna-Media:
+* http://www.magnamedia.de
+
+Unfortunately the Program is in German only.
+The display of the 3d-models does not match the ISO-Standard, as on
+the left side you see the object from the left too.
+(ISO diplays the right-side of the object on the left - for good reasons).
+
+Structure of the movie-files:
+The movie-graphics are a simple Charset without a matrix.
+The Screenmatrix is 20x12 Characters big and built like this:
+
+@abcdefghijklmnopqrs
+tuvwxy..............
+....................
+.......
+.
+.
+
+Contents of the disc-images:
+Disc one contains the main program, an add ons.
+Disc two, three and four contain Object-Data and examples.
+
+Have fun. This is a copy of my original discs, if you add SCPU-optimizations
+to this program then contact me.
+
+-Brix/Plush-
+

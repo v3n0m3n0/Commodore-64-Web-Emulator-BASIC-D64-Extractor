@@ -1,0 +1,55 @@
+Information for when running 64net v1.81.01 as a TSR!
+-----------------------------------------------------
+
+
+  To shift 64NET into back ground press "B" .. ALT-A will then bring it to 
+foreground where it will poll the ports continously.  64NET can then be 
+shoved out of sight again when needed with B. 64NET runs exclusively when in
+foreground, but shares the CPU while in back ground.
+  LOAD and SAVE operations however scab 100% CPU time as they are relatively
+short operations.
+
+  While 64NET is operating in the background it will (by default) check all
+the ports once every 2 or so seconds. 
+
+  TSR mode operation can be fine tuned with the following:
+
+in 64net.ini under the [PREFERENCES] section:
+TSR MODE - start 64net in the TSR mode.
+TSR BUFFER nnnnn  - set the default amount of "extra" RAM 64NET keeps
+		    allocated for itself. the default is 32KB, but 8KB seems
+		    fairly stable.
+TSR DELAY nnnnn   - Set the number of ticks between poll checks. 1 Tick is 
+		    approx 1/18.2 seconds. The default value is 37 (approx 2
+		    seconds.)
+
+SPEED nnnnn       - This option is not new, but if you set this value to a
+		    relatively small number (i use 100 on a 386SX33, so say
+		    about 700 on a 486DX33) so that the sync tolerance for
+		    64NET is "narrow". This will ensure that 64net uses very
+		    little CPU time while in back ground.  I have found on my
+		    system the usage is approx 5-10%.
+
+NOTE: 64NET will chew up about 300-400KB of RAM to operate!! This will also
+limit your range of applications you can run "over" 64net.
+  The Application screen preserver will only preserve a 80x25 screen on page
+#0 .. ie most "normal" screens. 80x43 screens should be ok, as 64net will
+only alter the upper 25 rows anyway... 132 column and graphical screens could
+prove a worry!
+ 
+
+Features which may be added if you like the sound of them may include a kewl
+"Drive light" effect on the screen when ever 64NET is doing something..
+(perhaps a red "*" or something in the top left or right corner of the
+screen.
+
+If you find any bugs, as with other versions, please contact me so
+that they may be promptly corrected!
+
+NOTE: The 64net pop-up hotkey is subject to change and may in fact
+become configurable.
+
+Well, there you go!
+
+/Paul
+

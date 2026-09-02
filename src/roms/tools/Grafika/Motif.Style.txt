@@ -1,0 +1,11 @@
+Motif v1.0/Style
+----------------
+A brand new FLI (standard) editor
+ - NTSC/PAL
+ - work in zoom window and still view 
+   that half of the FLI you are working
+   on.
+ - circle, line, fill
+ - intelligent color selection
+
+ coded by The Wiz/Style

@@ -1,0 +1,151 @@
+          ษออออออออออออออออออออออออออออออออออออออออออออออออป
+          บ                VicShow v.092 beta              บ
+          บ   (c)1997-98 by ALBION & COLOR7 Productions!   บ
+          ศออออออออออออออออออออออออออออออออออออออออออออออออผ
+
+1.Copyright
+อออออออออออ
+This is freeware program and you may use it as long as you want. It can be
+also freely distributed in oryginal package as long as no payment is
+charged. Disassembling, reprogramming, hacking or using any part of
+executable file is prohibited without written permission of the autor!
+VicShow is provided "as is" and you use it at your OWN risk.
+
+2.Introduction
+ออออออออออออออ
+This utility was fully designed by Piotr Tracz a.k.a KaeMEGie/Albion.
+VicShow allow you display oryginal Commodore 64's FLI & FLI-lace
+graphic formats using any ms-dos compatible machines. The engine is
+based upon my VicStudio C64 - powerfull converter for C64 which can convert
+all kind of graphic from C64>PC / PC>C64. The whole program is totally
+written in 80x86 assembler which made it very short and fast - I do
+hate all programs which doesn't do anything special and takes megabytes
+of my HDD space, Windowz'95 is my favourite :)
+
+3.Hardware Requirments
+ออออออออออออออออออออออ
+VicShow hasn't big requirments - everything it needs is an ms-dos
+compatible machine with min.80386 processor and standart VGA graphic card -
+monsters kinda Matrox Milenium II are strongly not recomendet! :)
+
+4.Using
+อออออออ
+VicShow is a command-line utility designed to be used with a Norton
+Commander (and all similars) program.
+
+vicshow.exe [option] filename_of_c64_graphic_file
+
+where option can be:
+-m :enables mixed colors during viewing FLI-lace graphic
+
+There is no any restrictions to the filename_of_c64_graphic_file as
+VicShow will automatically decide does file is supported C64 graphic
+or not. Despite, I sugest you will give all your C64's gfx files the
+same extension, feg. ".f64".
+
+Meantime,graphic is showed you can press key "F10" and VicShow
+will save it as a uncompressed 256 colors BMP file
+
+5.Supported Graphic Formats
+อออออออออออออออออออออออออออ
+FunPainter II (uncompressed)
+FLI-Designer
+FLI-Draw
+
+As the C64 graphic files has no headers it's quite hard to determine
+file format - VicShow checks only the first two bytes (in C64 used
+as load-address). Noting unexpected doesn't take place if you order
+it to show any not C64 gfx file which it will determine as C64 gfx!
+
+6.How To Get The Newest Version Of VicShow?
+อออออออออออออออออออออออออออออออออออออออออออ
+The newest versions can be founded at ALBION HQ PAGE:
+http://biotop.umcs.lublin.pl/~ptracz (in download zone)
+Color7 Productions On-Line:
+http://biotop.umcs.lublin.pl/~ptracz/color7
+
+Also at these ftp sites:
+ftp.inf.bme.hu/pub/c64
+ftp.scs-trc.net/pub/c64
+replay.com/pub/c64
+ftp.hacktic.nl/pub/c64
+ftp.padua.org/pub/c64
+
+
+7.Special Regards & Greetings
+อออออออออออออออออออออออออออออ
+I would like send friendly waves to following people:
+Kerk,Stilgar,Jetan,Lucky,Dr.Soft,Wacek,Questor,Unlock,Quamus,Cosmo,
+Magic,Olsen,Hawk,Yans,+rest /Albion Crew
+Explorer,Morris,Latifah,Rascal,+rest /Color7 Production
+Cresh,Chris,GRG,Joe Forster,Moog,Gelan,Iopop,Sliver,Grabba,Carrion,
+PVT,Lion,Elban,Skarled,Shango,Joodas,+rest (sorry if I forget anyone!)
+#c-64 maniax (even if irc suck)
+all people I met during my last 5 years at C64 scene...
+and all spirited people around this lame world!
+
+
+8.The Future Of VicShow
+อออออออออออออออออออออออ
+In next versions I would like to include the following features:
+-new file formats supported (AFLI,SHI,SHIFLI,MCI,...)
+-graphic interface using VESA extensions (SEA users should be satisfacted)
+-using compresed FunPaint II files
+- ... who know?!
+
+9.Contacking The Autor
+ออออออออออออออออออออออ
+If you'd like to contact me from any reason then feel free to write
+under below addys. But please notice, I'm too busy to trade stuff for
+C64/PC exept quality tools and other warez (Guess what I mean?!).
+I'm also interested in swapping C64/PC sound modules composed by
+those all legendary and old C64's musicians kinda Vibrants,etc...
+I'm interested in being in touch with people developping commercial
+and profesional software for pc compatible machines, so don't
+hesitate and contact me now!
+
+Please, also send all comments,bug reports concerning VicShow!
+ฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+s-mail:
+Piotr Tracz
+St.PKP 21a
+22-361 Zulin
+Poland
+
+e-mail (prefered!):
+PTRACZ@AJAX.UMCS.LUBLIN.PL
+PTRACZ@BIOTOP.UMCS.LUBLIN.PL
+
+irc (sometime!):
+#C-64, nick: kmeg_ALB
+
+10.The History
+ออออออออออออออ
+VicShow v0.9 (preview!), relased 6-12-97
+- support FunPaint II & Fli-Designer files
+- interlace/mixed color modes are disabled
+- buged colour palette
+- doesn't save bmp files
+
+VicShow v0.91, 8-01-98 (never released!)
+- mixed color mode enabled
+- buged colour palette (Hmm,Carrion - what's up?!)
+- bmp saving option enabled
+- all routines were fixed/improved and can be used with C/C++
+
+VicShow v0.92, released 13-01-98
+- stack error removed (now work on all computers)
+- bmp saving error removed
+- colour palette still might be better (Carrion!)
+
+11.Known Bugs
+อออออออออออออ
+VicShow v0.9
+- not detected (?!)
+
+VicShow v0.91
+- buged bmp saving routine
+- didn't work on any pc computer except mine!
+
+VicShow v0.92
+- not detected (?!)

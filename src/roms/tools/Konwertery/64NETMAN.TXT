@@ -1,0 +1,1946 @@
+
+*** This is the 950105 version of the manual, and refers to v1.80 of 64NET.
+GEOS Additions made by Paul Gardner-Stephen 01-Oct-1995
+Note that this does not mean this manual is uptodate in all areas!
+
+
+
+
+
+
+					64NET Version 1.82.58
+
+
+
+				  by Paul Gardner-Stephen
+				  
+
+			(C) Copyright Paul Gardner-Stephen 1992-1995
+*        (C) Copyright Performance Peripherals Australasia 1995
+
+
+	Note that this manual, like the software it describes, is still
+	evolving, and therefore may not accurately describe the version of
+*        the 64NET software you are using/testing.  The manual author will
+* endeavour at all times to keep as up to date as the software author will
+* let him!  Note that this is not much!  Even having him live in isn't enough,
+* he still changes things faster than I can record, and then "abuses" me for
+* not keeping up!  <sob!>
+
+	Note also that this manual is going to be thoroughly revised and
+	reordered soon...
+
+
+
+	Copyright Notice:
+
+		(C) Copyright Paul Gardner-Stephen 1992-1995
+*         (C) Copyright Performance Peripherals Australasia 1995
+
+	  The 64NET program software, cable, and manual are copyrighted,
+*     and all rights are reserved by Paul Gardner-Stephen and Performance
+*    Peripherals Australasia.  This distribution
+	of 64NET is intended for use on one fileserving IBM compatible computer,
+*    and a maximum of four (4) Commodore 64 compatible
+*    computers at any one time.  The original
+	purchaser may make one backup copy of the software for the IBM compatible,
+	and may copy the 64NET wedge file for the Commodore 64 onto as many of
+	the same original purchasers disks or data-cassettes, with a maximum of
+*    four (4) iterations of the wedge running at any one time.
+*    Lawful users of this product are hereby 
+	licenced only to LOAD and EXECUTE the programs included in the 64NET
+	distribution, and to READ, EDIT, & WRITE the configuration files of the
+*    same, where explicitly mentioned in this manual.  Selling this product
+*    without a distribution licence is a violation of the
+	law, and a breach of copyright, and the software license of this product.
+
+	It is also an offense to duplicate the 64NET key file provided with
+	registered copies.  Further, you may not modify 64NET to bypass the
+	checking for a valid key file, nor may you use key files other than
+*    those provided by Paul Gardner-Stephen, Performance Peripherals 
+*    Australasia, or their authorised nominees.
+
+*    You are permitted to copy the files and documentation provided with
+*    64NET, other than the key file, and in fact are encouraged to do so.
+*    64NET will only thrive if users are happy with it, and in being happy
+*    introduce their friends and other C64 owners to it.
+
+	This manual is also copyrighted, and all rights reserved.  It may not be
+	photocopied, reproduced, translated or reduced to any electronic medium
+	or machine readable form without prior consent, in writing, from Paul
+*    Gardner-Stephen, Performance Peripherals 
+*    Australasia, or their authorised nominees.
+
+	The 64NET for GEOS drivers are (C)Copyright Falk Rehwagen, 1995.     
+	
+	
+	
+	IBM is a registered trademark of International Business Machines Inc.
+	CBM, Commodore 64, 1541, 1571, and 1581 are registered trademarks of
+*    Commodore Business Machines Inc.  We're not sure about C65 & C64DX.
+	JiffyDOS is a registered trademark of Creative Micro Designs.
+*    64NET, 65NET, 128NET, and PetNET are trademarks of Paul Gardner-Stephen
+*    and Performance Peripherals Australasia.
+	AlterNET is a trademark of Performance Perihperals Australasia.
+
+   
+	Warranty:
+
+	  This distribution is provided as is without warranty of any kind,
+	either expressed or implied, including, but limited to, the implied
+	warranties of merchantability and fitness for a particular use, except
+	for the use of occupying disk space on the supplied disks.
+	  You, the buyer, assume all risks for quality and performance of this
+	product, and for any damage, including loss of data, which may occur as
+	a direct or indirect consequence of using this distribution of 64NET.
+*         In no event will Paul Gardner-Stephen, Performance Peripherals 
+*    Australasia, or their authorised nominees
+	be responsible for any damages, including loss of profits or other
+	incidental or consequential damages arising out of the use of, or
+*    inability to use, 64NET, even if Paul Gardner-Stephen, Performance
+*    Peripherals 
+*    Australasia, or an authorised
+	dealer of 64NET has been advised of the possibility of such damages, or
+	for any claim by any other party.
+	  In some regions the exclusion of implied warranties is forbidden by
+	law, in which case the above exclusion may not apply to you.  Should
+	any part of this warranty be shown invalid or unenforceable, then the
+	validity and enforceability of the remainder of this warranty shall not
+	be affected thereby.
+
+	 Table of Contents:
+	
+	 Copyright notice                                            
+
+	 Warranty                                                   
+
+	 Foreward
+
+	 1. Introduction                                                
+
+	 2. Installation of 64NET                                       
+	 - Adding registration details
+
+	 3. Starting 64NET                                              
+
+	 4. Features of 64NET
+
+	 5. 64NET Functions
+
+	    Basic
+
+	    Advanced
+
+*       Server
+
+	 6. 64NET Utilities
+	 
+		C64
+		
+		PC
+
+	 7. User Customisation of 64NET
+
+	 8. 64NET Limitations
+
+	 9. 64NET Trouble-shooting Hints & Tips
+
+	10. Programming with 64NET.
+
+	11. 64NET and GEOS
+		Introduction
+		11.1 Requirements for usiung 64NET and GEOS together
+		11.2 Configuring 64NET to run with GEOS
+		11.3 Using 64NET to provide the correct time and date on startup
+		11.4 Printing on a 64NET printer from GEOS
+
+	Appendices
+
+	 A. Compatibility List
+
+	 B. 64NET Support
+*           - Distributors
+*           - Obtaining latest releases
+	    
+	 C. The Future of 64NET
+
+	 D. Constructing the 64NET cable.
+
+*        E. Differences between the Shareware and Commercial releases
+	    of 64NET.
+
+	 F. 64NET File Format.
+
+	 G. 64NET Error and Status Messages.
+
+	 H. 64NET Reserved Filenames and their Functions.
+
+	 I. Files provided on the 64NET system disk.
+
+	 J. Installing 64NET permanently in your Commodore 64.
+
+	 K. Glossary.
+
+	 L. 64NET Registration Form.
+
+	 M. Recognised PC filetypes.
+
+	 N. Multi-lingual operation.
+	    
+*     O. Creating 64NET.64 if you weren't given it on 1541 disk.
+
+
+	Foreward.
+
+* 64NET began as a concept in my mind in early 1992.  Through 1992, 1993, and
+* 1994 I
+labored over my keyboard attempting to get the system working just how I
+wanted it.  With the advent of beta testers, I soon discovered that there
+were more "features" than I had realised in my code, and that the wants and
+needs of C64 users were more diverse than I ever could have imagined.
+
+Through 1994 my users have continued to ask for "just one more feature",
+whilst I have also attempted to add a few more esoteric options.  The result
+is what you have in your hand, and to my users who were never satisfied, I
+say a big "Thank You!".  Without you, 64NET would not be half the system
+it is.
+
+I would like to take this opportunity to thank a few people and things that
+have made this project a reality, in one way or another.  Firstly, my Mother -
+"Hey Ma look, I made good!".  Secondly, Datel, for making the brilliant
+Action Replay cartridge.  Then in no particular order..
+Chris MCEE - thanks for the support in the early days...Gomez - the manual was
+worth all the hard work, wasn't it?  :) Michael Renz - thanks for all of your
+support and vision of the capabilities of 64NET.
+
+Finally, thanks for considering 64NET, I hope it proves to be all you desire.
+I won't say anything about registering this system other than to state that
+if the system's good enough, you'll want to register!
+
+Enjoy!
+
+Paul Gardner-Stephen,
+November 1994.
+	
+
+	1. Introduction:
+	
+	  The Commodore 64 is, without question, the finest home computer 
+	ever released.  Some of the features which made it the leader include high 
+	quality audio output, ease of use, the ability to be able to be 
+	plugged into a standard television set, and a plethora of arcade 
+	standard games available.  Compared to other computers with 
+	similar capabilities the 64 was (and still is!) also great value for money.
+	
+	  However, the major problem with it, which was often pointed out by 
+	its detractors, was the slow speed of its mass storage 
+	devices such as the datasette and the 1541 disk drive.  In more recent 
+	times such devices as the 1571 and 1581 disk drives from Commodore, and 
+	various high capacity floppy and hard drives from third party suppliers 
+	have improved this situation markedly, although not cheaply.
+	
+	 Commodore 64 owners have long looked at the cheap storage available 
+    to PC owners and bemoaned their inability 
+    to take advantage of this, or their inability to use the storage on 
+    their home PC for access by their 64.
+    
+	 NOT ANY MORE!
+	 
+*        Paul Gardner-Stephen and Performance Peripherals 
+*    Australasia are proud to announce 64NET, the cheap, 
+    complete system which allows Commodore 64 owners to take advantage of 
+    the cheap mass storage available on PCs.  With the price and 
+    availability of low-end PCs, 64NET is the cheapest mass storage for the 
+*   Commodore 64 available today.  64NET even supports 4 Commodore 64s 
+*   from the one PC simultaneously!
+    
+	 64NET requires no special skills from its users, nor any 
+    programming.  In fact, if you purchased 64NET with its interface cable 
+    you can be accessing your PC disks from your 64 immediately after loading
+    and running the 64NET program, ie. a matter of minutes!
+
+	 With 64NET you can access up to 65535 logical drives on your
+    PC server from your Commodore 64 using standard Commodore commands.  There
+    is also no limit to the size of the PC drives accessable to the
+    Commodore 64, subject to DOS limitations,
+    due to the way 64NET interfaces the Commodore 64 to the PC.
+
+	 64NET also supports the command structures of other disk systems
+    popular on the Commodore 64, eg. partition and subdirectory access, and
+    also allows the user to chose the device number which is the 64NET disk
+    drive.
+
+	 Whilst 64NET was developed to allow Commodore 64 owners access to
+    the hard drives of their PCs, it is equally happy accessing floppy
+    disk drives, CD-ROM drives, and network drives.  In fact, 64NET will
+    cheerfully access any device that presents itself as having a DOS file
+    system!
+
+GEOS and Commodore 128 haven't been forgotten either, with the recent or pending
+releases of 64NET support for both of those systems.  Support for the CBM PET
+range of computers is being considered.  More information on all of this can
+be found further on in the manual.
+
+It should be realised that 64NET is a generic term used to describe the suite
+of software which includes 64NET, 65NET, and 128NET, and that the 64NET system
+supports whichever Commodore 8 bit computer you're using in exactly the same,
+transparent way.  Wherever you see 64NET mentioned in this manual,
+you can rest assured that what is being described works perfectly as well on
+your C65 or C128.
+
+The term Commodore 64 where used in this manual is meant to be taken to mean
+Commodore 65 or Commodore 128 wherever it is used.  No slight or bias is
+implied.
+
+
+
+	2. Installation of 64NET:
+
+	  64NET is designed to be as simple as possible to install, and 
+	setup.  Whilst none of our testers had any difficulty performing the 
+	installation, we advise you to read the installation instructions 
+	carefully, and to seek advice where you feel uncertain as to anything
+	contained herein.  As pointed out earlier, we take no
+	responsibility for any damage caused due to a faulty installation, even
+	where such damage is caused by errors or omissions in these instructions.
+	
+	
+2.1     Pre-install Checklist:
+
+	Before attempting to install 64NET, make sure the 64NET distribution
+	kit you received from your supplier contains all of the following
+	items.
+
+	1. Two (2) floppy disks, with the Commodore 64 (65/128) 64NET wedge 
+programs         on one disk,
+	and the IBM PC 64NET server software on the other.  The Commodore
+8 bit disk will be a 1541 compatible 5.25" disk, unless otherwise specified
+with your distributor.  Likewise, the PC disk will be a 5.25" 360k disk unless
+otherwise specified.
+
+	2. This manual, in printed format.
+
+*    3. Either the 64NET cable, if you purchased it as part of your
+	kit, or a detailed cable construction sheet if you did not.  Note that
+	the construction details are also duplicated in appendix D of this manual.
+
+If any of these items are missing, please contact your distributor immediately
+to have the omission rectified.
+
+Note: If you did not purchase the 64NET cable then you will have to construct one
+	before you can use 64NET.
+
+	
+2.2     Hardware Installation:
+
+	1) Turn off both the Commodore 64 and IBM compatible computers.  Failure to do
+	this before plugging in the 64NET cable could result in the damage
+	of your computers due to shorting.  Again we stress that no
+	responsibility will be accepted due to your failure to follow this
+	instruction.
+
+	2) Connect your 64NET cable's DB25 connector to one of the parallel 
+	printer ports of the IBM compatible computer.  It does not matter which
+	parallel port you use if you have more than one, as 64NET will
+	figure out which is being used by the 64NET cable! 
+
+	3) Connect the other end of the same cable to the user port of the 
+	Commodore 64 (or compatible).  Be sure to connect it the correct
+	way up as the user port connector unfortunately is symmetric, 
+	therefore making it possible to insert the plug upside down.  The
+	simplest way of inserting the cable correctly is to make sure that
+	the plug goes in with the cabled pins to the bottom, assuming that this
+	component of the plug is visible.  If the plug is protected by a shell,
+	then insert it with the labelled side up (this should mean that the
+	cable points away from the expansion (cartridge) port, if the shells
+	are the same as those obtained by the 64NET test team).
+
+	4) Repeat steps 2 and 3 for each Commodore 64 computer you are connecting
+	to your 64NET server computer, up to a maximum of 4 C64s.
+
+	5) Turn all computers back on.
+
+	Congratulations!  You have successfully installed the hardware
+	component of 64NET.
+
+
+2.3     Software Installation:
+
+	Before starting the software installation of 64NET, make sure that you
+	have made a backup of your 64NET software disk(s).  Instructions on how
+	to do this are not the province of this manual, however write protecting
+	the disks will provide some level of safety.
+	
+	1) The PC server.
+
+Insert the 64NET server disk into the appropraite disk drive, and enter INSTALL
+on the keyboard, and press the RETURN key.  A screen like that below in figure
+1 will 
+appear.  Chose the drive you wish to install the 64NET server on - note that
+this cannot be the same drive as you are installing from!  Congratulations,
+you have successfully installed the 64NET server software!  See
+	Appendix I for a complete list of files which should now be found in
+	the 64NET directory on the hard disk.
+
+
+.<[insert install screen here]>.
+
+Figure 1: 64NET server installation screen.
+
+	2) The Commodore 64.
+
+a) Disk users
+
+Copy the file named "64NET WEDGE" from the Commodore 64 distribution
+	diskette to your utility disk, or to a blank diskette.  This will
+	become your 64NET work (startup) disk.
+
+If there are programs on the distribution disk with names such as "128NET WEDGE",
+or "65NET WEDGE", and you wish to use 64NET with one of these computers, then 
+copy those files instead, or also.
+
+Note that the wedge programs can be copied to any form of Commodore compatible
+disk drive, or disk drive emulator.  No problems have been experienced in 
+loading the wedge from any of the known drive types tested.
+
+  Repeat the above for each Commodore 64 you will concurrently be using with
+* 64NET.
+
+b) ROM users
+
+The installation of the 64NET replacement kernel ROM is a moderately simple
+task, although it may appear daunting the first time it is attempted.  Put
+simply, 
+
+i) Turn off computer and attached periperals.
+ii) Disconnect all leads from the computer.
+iii) Carefully remove computer's case, being sure not to lose any screws, and
+noting where each screw was extracted from.
+iv) Locate the kernel ROM in your computer, and after carefully earthing
+yourself, remove the ROM chip from the computer carefully, noting its 
+orientation (ie. which end the little notch is at).
+v) Insert the 64NET kernel ROM, making sure it is firmly pressed in.
+vi) After ensuring all internal leads are reconnected correctly, attempt to
+power up the C64.  This will let you know whether you have installed the 
+replacement ROM before you have gone to the trouble of reasembling your
+computer.  You should see a startup screen like that shown below in figure 2.
+vii) Assuming that all is going well, remove all leads again, and reassemble 
+your computer.
+
+Congratulations, you have now successfully installed 64NET kernel in your
+C64!
+
+.<[screen shot here of 64NET ROM startup]>.
+
+Figure 2: 64NET ROM startup screen.
+
+* c) Cartridge users
+
+* [Note that this section is VERY preliminary!!!]
+
+* i) Turn off the C64.
+* ii) Insert the 64NET cartridge in the C64's cartridge slot, with the label
+*  on the cartridge facing upwards.
+* iii) Turn on the C64.  You should see the 64NET sign-on message which
+* indicates that 64NET is installed correctly.
+
+
+	3) Finally.
+
+Place your original distribution diskettes into a nice, safe, cool,
+dry place.  Congratulations!  You have completed the 64NET software 
+installation.  You are now ready to progress to using 64NET!
+
+2.4   Adding registration details.
+
+	 If you have purchased a registered copy of 64NET initially, then you
+	 need not read this section any further, as the normal installation
+	 process will automatically detect this.
+
+	 If, however, you have decided to register 64NET after having used the
+*     shareware version, rest assured.  Upgrading your version is a
+	 simple task, and does not overwrite your current configuration.
+
+	 You will receive a file from your distributor called 64NET.KEY - place
+	 this in your 64NET directory in place of any file of that name which
+	 may be there.
+
+	 That's all there is to it!  You will now be able to use all the features
+of 64NET which were previously unavailable.  You can also feel good about
+the fact that your registration is going to help ensure the future of the 
+Commodore 64, and of course 64NET!
+
+	 Note that this key file is registered to you, and you alone.  Do not
+	 copy or otherwise distribute it.  Each key file is uniquely identifiable
+	 so people using unauthrosied copies will be prosecuted, as will those
+	 providing the key file. 
+
+	3. Starting 64NET:
+
+	1) Move to your 64NET directory on the IBM compatible, eg CD \64NET
+
+	2) Type 64NET and press the ENTER key.
+
+*  It doesn't matter which machine is started first, since 64NET synchronises
+*  with the server on each access by the client.
+
+	You should see a screen similar to that in figure 3, below.
+
+
+		.....Insert screen shot here.....
+
+	Figure 3, Typical 64NET server initial screen.
+
+	Note that the rapidly "flashing" number on the screen is normal, and
+	shows that 64NET is polling each of the possible parallel ports to
+	see if a 64NET command has been received.  This occurs whether or
+	not your system contains multiple parallel ports or not, and whether
+or not C64s are connected to any parallel ports.
+
+	The messages at the bottom of the server screen are explained later,
+ eg. F1, F2.
+	
+*    3) At this point you have 2 choices as to the type of software
+* installation used on your C64, assuming you haven't chosen a hardware
+* installation, ie. ROM or cartridge.
+  The choice you make generally depends on whether or not
+	you wish to use software or hardware found to be incompatible with
+	64NET.  Examples of this are listed in Appendix A.
+
+	Normally it is expected that you will want to use the 64NET kernel
+	replacement software which copies the kernel ROM to the underlying
+	RAM, then patches that RAM with the 64NET access routines.  The
+	method of doing this is described in part A below.  If you
+	have software or hardware which expects to have free access to that
+	RAM for its own purposes, then the 64NET kernel software will be
+	corrupted by this, and undoubtedly fail!  A possible hardware
+	solution to this is described in Appendix J.
+
+	If you chose, or are forced, not to use the 64NET kernel replacement
+	software, then you will need to install the 64NET wedge software, as
+	shown in part B, below.  Note that you have several choices as to the
+	location in memory that the wedge is located, to provide maximum
+	flexibility, and hence compatibility, with other software.
+
+	Common to either choice of C64 64NET installation is the
+	default device number of the 64NET server.  64NET currently installs
+	its server as device 7, by default.  This is done to avoid any possible device
+	number conflicts with hardware already attached to your system.
+	If, for any reason, you wish to alter the device number the 64NET
+	server responds to, then all you need do is alter the value stored
+	in location 167 ($A7) to be the device number you wish.  This means
+	that 64NET will allow your PC server disk drives to be accessed as
+	anything from device 0 right through to device 255!  Of course, not all
+	software wil accept such outlandish numbers, and certain numbers
+	will cause problems to the operating system.  However, that's where 
+64NET's flexibility shines, in allowing you to choose device numbers meaningful
+to you.  Should you chose a number already being used by a device on your
+system (eg. device 8), then that device will be unavailable until you alter
+64NET's repsonse number.
+
+
+	Part A. Installing the 64NET kernel replacement software.
+
+	   LOAD and RUN the "64NET KERNEL" file on each Commodore 64 which
+	   is to have access to the IBM compatible's drives.  This software
+will copy your ROM kernel to RAM, patch the RAM to insert the 64NET driver
+software, then switch out the kernel ROM.
+
+Using this kernel replacement software makes 64NET "reset proof", in that a
+"RUN/STOP-RESTORE" won't stop 64NET from working.  Be warned that any program
+which expects to find usable RAM under the kernel will causde your C64 to
+"hang".
+
+	Part B. Installing the 64NET wedge software.
+
+	   LOAD and RUN the "64NET WEDGE" file on each Commodore 64 which
+	   is to have access to the IBM compatible's drives.  You will be asked
+	   where in memory you would like the wedge located.  If unsure, or
+	   you have no reason to do otherwise, chose the default location
+	   shown by pressing the RETURN key once.
+
+	   If you do not wish to accept the default location, then enter your
+	   preferred location as either a decimal, or hexidecimal (preceded by
+	   a "$") number.  The 64NET wedge cannot be loaded into loactions
+which will place it even partly under ROM, due to the lack of "normal"
+	   RAM which the operating system can easily see.
+
+	   Please be aware that an inappropriate choice of
+	   location will cause 64NET to fail, and quite likely cause a machine
+	   lockup.  The installation component of the wedge will endeavour
+to circumvent this, but cannot second guess all uses.
+
+	   If the location chosen does not cause system conflicts, each
+	   Commodore 64 will attempt to make connection with the PC
+	   server, and then attempt to "auto boot" the "STARTUP n" file from the
+	   server, where n is the parallel port number that the particular 
+	   Commodore 64 is connected to, eg "STARTUP 1" for parallel port 1.
+	   If an individual startup file doesn't exist, then the
+	   "auto boot" will attempt to load and run a file called 
+	   "STARTUP SEQUENCE", if it exists.  The startup files can be any
+	   C64 file which can be loaded and run.  It may contain commands
+	   to set 64NET preferences, load your favourite application, or even
+	   run a game!  Note that this is a perfect spot to alter the
+	   default device number used by 64NET, if that is your desire.
+
+	   Press the C= key when you RUN the 64NET wedge program to override this 
+	   boot feature, if you wish to.
+	
+	   Note that both the filenames mentioned above are illegal PC (8.3)
+filenames.
+	   They are actually the "real" names of possible files stored under
+	   64NET, which allows full 16 character C64 compatible filenames.
+You can see the real and stored filenames by running 64DIR.EXE on the PC.
+Figure 4, below, shows an example listing from the 64NET driectory.
+
+
+.<[insert 64dir listing here]>.
+
+Figure 4: Sample listing from 64DIR.EXE.
+	
+
+    Irrespective of which installation method you used, success will be
+    shown by your C64 displaying a black border, dark blue background, and
+    white text, with the following message:
+
+64net......
+
+blah, blah
+
+.<[insert message here]>.
+
+    If the kernel version was chosen you will also notice that a slightly
+    different cold start message is displayed on the C64's screen.
+
+    You should also notice that the status field on the server PC has
+    altered for one of the displayed ports.  This indicated which parallel
+    port address you are connected to, NOT which actual parallel port you
+    are physically attached to.  The reason that what you see is not what
+    you may have been expecting is that not all PCs map their parallel ports
+    to the "correct" locations.
+
+    64NET checks the following addresses as parallel ports 1 through 4.
+
+	Port    Address
+
+	1       $378
+	2       $3BC
+	3       $278
+	4       $2BC
+
+* Note that these are the default ports checked, but you may alter both the
+* address and order of these ports by editing 64NET.INI on your PC, in the
+* section labelled [Ports].
+
+    Congratulations, you now have 64NET running!  All references to
+    device 7 (or whatever device you have set the 64NET server to) are now
+    redirected to the logged drive and directory
+    on the IBM compatible, and this is also now the default device, just as
+    the datasette is the default device on a standard C64, and device 8 is
+    on an SX64 or C65.  All disk drives on the Commodore 64 are still
+    accessible, unless you have chosen to override them with the 64NET
+    server.
+
+    The RS-232 port is obviously now inaccessable, which is considered a
+    very minor inconvenience compared to the advantages provided by 64NET!  A
+    passthrough version of the 64NET cable and software is being considered to
+    overcome this limitation.
+
+	4. Features of 64NET:
+
+	  Now that you have 64NET physically installed on your system, and have
+	started the driver software, it is time to cover the many details and
+	features of 64NET.
+	
+		As this version (1.80) is a BETA release, some of the facilities may
+*    not always function correctly.  When the commercial release is completed
+	you will be sent your update disk (provided your copy of 64NET is
+	properly registered, ie. you send in your registration form).
+	
+	  64NET attempts to logically emulate the 1541 file system as closely as 
+	possible, thus providing more than just a file transfer facility.  Note
+	that this does NOT mean emulate a 1541 disk drive, eg. access to 1541
+	RAM.  All CBM file types are supported.
+	  Sector read and write functions are not supported as the emulated file
+	system uses common DOS files to store each program or file, to provide
+	maximum flexability.  This method means that there is no partitioning,
+	"virtual disks", or other means to emulate the 1541.  The end result is
+	that subdirectories (8 character names only), and full 16 character file 
+	names are fully supported, and each drive may have well in excess of 664
+	blocks available, often around 160000 blocks for a 40MB drive (this
+	author intends to connect his C64 to a PC on a network just to see the
+	truly awesome site of "7812500 block free" [that's 2 Gigabytes!]) .
+	  On top of the standard 1541 emulation (at KERNAL level), there are
+*    also many other facilities, including fast loading:
+*    10 kb / sec on a C64
+*    20 KB/sec on a Commodore 128, in C64 mode, with burst loading,
+*    and 34 kb/sec on a C65 in C64 mode, with burst loading,
+	off board machine code monitor,
+	PC to C64 file transfers with exceptional ease, networking facilities
+	including passwording and differing access levels, improved loading and
+	saving displays (percentage completed, address ranging or normal).
+	  Further, due to 64NET's disk drive emulation, there is no limit
+	to the number of files that can be stored on a "disk", subject of course
+	to the physical size of the actual disk!
+	  64NET allows you to access any physical disk drive on the PC including
+	floppy drives, hard disks, removable drives, and even CD-ROMs!  Drives
+	A: to Z: are assigned by default to partitions 1 to 26 under 64NET,
+	although this is easily reconfigurable if desired.  In addition
+	to this, any PC subdirectory can also be assigned a logical partition
+	name or number, making it simple to access that directory directly.
+
+	5. 64NET Functions:
+
+	Basic Functions
+
+	  Almost all LOAD and SAVE commands which function on a 1541 will
+	work correctly, unaltered under 64NET.  64NET however increases the scope
+	of these commands, with the inclusion of subdirectory support and DOS
+	file exchange.
+
+	i) General differences from a standard C64.
+
+	  Whereas on a 1541 loading a directory has only a few options, in
+	64NET there is much more flexibility and choice.  All 1541 directory loading
+	options are supported.  The default directory
+	load is a directory output almost identical to a 1541, listing all PRG,
+	SEQ, USR and REL files (ie. all "CBM" files on the emulated drive), but
+	adding the DIR files, which are the subdirectories of the logged drive
+	and directory.  Other filetypes which might be seen include IBM, which
+	are files that are not definately known to be C64 files of some type.
+
+	  DH0 "/64NET         "  64NET
+	  0    "CODE":            DIR
+	  0    "TEMP":            DIR
+	  0    "UTILS":           DIR
+	  0    "GAMES":           DIR
+	  0    "DEMOS":           DIR
+	  0    "EDUCAT":          DIR
+	  0    "DRIVERS":         DIR
+	  0    "BACKUPS":         DIR
+	  0    "PROGRAMS":        DIR
+	  2    "64NET COPIER":    DIR
+	  147  "1!FLIBB":         VOL
+	  7    "MENU":            SEQ
+	  1    "STARTUP 1":       PRG
+	  2    "STARTUP 2":       PRG
+	  50   "TURBO ASSEMBLER": PRG
+	  0    "TACODE":          DIR
+	  1    "TEST.SRC":        SEQ
+	  0    "TEST2.SRC":      *SEQ
+	  67    BLOCKS LISTED.
+	  30107 BLOCKS FREE.
+
+	Figure 2, Example directory listing from a 64NET 'LOAD"$ [RETURN]'
+
+
+	  There are several differences immediately apparent to that of a
+	conventional directory listing derived from a 1541.  Examining the
+	header line you see something like the following, which can easily be
+	interpreted.
+
+	  DH0 "/64NET         "  64NET
+
+	  ^   ^                   ^
+	  |   |                    -- Disk "ID", always 64NET.
+	  |    -- Current logged directory on PC server.
+*   -- Current logged disk drive or partition link on PC server.
+
+	You may notice that there is no disk header, instead the current path
+*     on the server (with unix style "slashes", forward instead of backward, ie 
+*     "/" not "\") is displayed.  Also note the drive unit number, which is
+*     always zero on a 1541 is displayed for maximum information to the user.
+*     The "DH0" in the example corresponds to the item defined as DH0 in the
+*    partition table mount list in the 64NET.INI file.
+	on the PC (0 is reserved for 1541 compatibility).
+**   (NOTE: Some types of mounted volumes will result in a 1541 style disk
+**   header being present, with a drive or partition of "0".)
+
+
+	You might also have noticed that "splat" files (marked with a "*") are
+	also supported under 64NET!
+
+Here are some things to try:
+
+	LOAD"$:/*,*
+* (note you dont need a ,7 or end quote if you dont want to.  If you have a
+*   "standard" C64, ie. no JiffyDOS, this will automatically work.  If you have
+*  JiffyDOS (for example) then POKE 167, PEEK(186) will make 64NET the default
+*  device, but at the temporary loss of whatever device PEEK(186) contained.
+	This will display ALL files of all types (IBM & CBM) in the root 
+    directory of the logged 64NET drive.
+
+    LOAD"$:/*,PC
+    This will display all files in the root directory of the logged 64NET
+    drive which are not known C64 files.
+
+
+    Advanced Functions:
+
+    Disabling and re-enabling the 64NET WEDGE.
+
+    In order to use certain features of your Commodore 64 you may find it
+    necessary to disable 64NET temporarily.
+
+    To disable the 64NET wedge, just press and hold the RUN/STOP key, and
+    smartly
+    tap the RESTORE key.  Your screen should return to the standard power-up
+    message and colours.
+
+    To re-enable the 64NET wedge, type SYS 53242 (if you used the default
+    location to install 64NET), and press RETURN.  64NET will not
+    display any messages to indicate that it is active again at this point.
+    If you believe that 64NET is not behaving correctly at this time, then
+    entering SYS 53245 (again, assuming the default location) will go through
+    the full boot sequence again.
+
+    Built in LOAD commands.
+
+	  These give access to the built-in functions of the 64NET server.
+
+    LOAD"NETWORK STATUS
+
+	Displays the status of 64NET and the C64 you are using.  You
+    should see something similar to figure X below.
+
+    ---------------------------------------
+    64NET V1.80N BETA
+    USER NUMBER: 2
+    USER NAME:ANONYMOUS
+    PRIVILEGE LEVEL:HIGH
+    ---------------------------------------
+
+    Figure X, result of a LOAD NETWORK STATUS.
+
+	LOAD"USER STATUS
+
+	This command requires MASTER level access, otherwise a PRIVILEGE
+    ERROR is returned by the server.  If you have appropriate access then
+    you will see a display like that below in figure Y.
+
+    Figure Y, result of a LOAD USER STATUS.
+
+    LOAD"DOS STATUS
+
+RJA     Does nothing on my system, apart from thrashing the hard disk for
+	a bit.  Then  "09,PRIVELIGE ERROR,03,03" on the server.
+
+
+    LOAD"MON
+
+	   This is an off board disassember, taking up no additional memory on
+	  the Commodore 64!
+
+	   @"command" sends "command" to the default disk drive, eg. @$ will
+	get a directory of the drive.
+	    Note: try @fruit - who said utilities have to be dull?  :)
+	  X or Q will exit from it.
+	  A to assemble,
+	  D to disassemble,
+	  M to view memory in block format,
+	  I to view memory as ascii,
+	  F to fill,
+	  H to search memory (if you're really lucky!!)
+
+    64NET Disk commands:
+
+    "S:filespec"        -    Scratch file(s)
+    "UJ"                -    "Reset drive"
+    "RDdirectory"      -    Remove empty subdirectory
+*   "MDdirectory"      -    Create a subdirectory, below the directory you're
+* currently in.
+    "CDdirectory"       -   Change current subdirectory, on logged drive.
+*   "CPpartition"       -   Change current partition.  Note that this will
+*                           take you into the same directory you were previously
+*                           in on that drive/partition in this session.
+**  "Lfilename"         -   Lock/Unlock file (ie add "<" to dir)
+
+    "I"                 -    "initialize drive" => clear dos message to 00,OK
+    "NET:LOGOFF"        -    Log out of 64NET as a "network client"
+    "NET:DEFUSER:class" -    Set security class of non-logged in users
+				 (one of NONE,VISITOR,LOW,HIGH,MASTER)
+    "NET:FILECLASS:class:filename" - Set security on a file to one of the classes
+				 listed above.
+    "NET:CLASS:portno:class"-Set the security of another user (only MASTER may do
+				 this)
+**  "O[%-][%+][$+][$-][D+][D-][B+][B-][WR]" - Change various preferences
+			%+/%-  - Enable/Disable Percentage display on LOAD & SAVE
+			$+/$-  - Enable/Disable Address display on LOAD & SAVE
+			D+/D-  - Enable/Disable "directory loading"
+			B+/B-  - Enable/Disable Burst Loading
+**                      WR     - write the current options back to 64NET.INI 
+**                               on the PC, for future use.  This sets your 
+**                               future defaults to whatever the current
+**                               settings are.
+
+
+*   Server Functions:
+
+*   Whilst there are not many functions required or available at the server
+*   end of 64NET, there are a few things worth knowing.
+
+*   You will notice that the 64NET server screen is divided into 5 windows
+*   or zones.  Their names and functions are:
+
+*   Status            - 
+*   Registration      - 
+*   Current Operation - 
+*   Current User      - 
+*   DOS Messages*     - 
+
+*   *Note that DOS Messages is the default Server Information window displayed
+*   at startup.  You will see that you are offered the choices of F1-F6 on
+*   screen.  These allow you to
+*   change the Server Information window's display to any of the following:
+
+*   F1 - DOS Messages
+*   F2 - System Performance
+*   F3 - User Status
+*   F4 - User Directories
+*   F5 - Client Types
+*   F6 - Mounted Volumes
+
+*   The other functions you have available at the server are:
+
+*   ESC - pressing the ESCAPE key will end the 64NET server.
+*    !  - pressing the "bang" key will take you into another DOS shell
+*         from which you can then enter any DOS commands you like.  Note that
+*         whilst you are in another shell, your 64NET clients cannot access
+*         the server.
+*    K  - pressing the "K" key will "kick out" the current client, as seen
+*         in the Current User window, meaning they will have to re-synchronise
+*         with the server.
+
+
+	6. 64NET Utilities
+
+    64NET comes with a number of useful utility programs to enhance your use
+    of the system.
+
+    For the C64
+    
+*   64NETCOPY provides a fast, simple means of copying files between your 
+*   CBM drives abd the PC's logged directory, in either direction.
+
+    64NET FILE COPIER (v2.00.1)
+	- T/U tag/untag all.
+	- "space" to toggle all.
+	- "return" to tag file.
+	- C to start copy operation.
+
+	Has progress meter!
+
+    MON is an off board monitor/assembler.  Details can be found (for now)
+    in the Advanced usage section.
+
+    PC Utilities
+
+Ok, now also included in the PC archive are a few other utilities:
+
+	C64DMON a bodgey X-Tree style sort of thing for the virtual file system.
+	64DIR do a directory showing .N64 files a bit better :)
+*   CVTN64 will convert several popular PC C64 emulator file formats and
+*      normal C64 files to the N64 format used by 64NET.
+
+
+	The C64DMON has a basic listing exporter for the really keen types.
+
+
+
+	7. Customisation of 64NET
+
+*  a) Commodore 64
+
+    As mentioned earlier, when the 64NET WEDGE starts it loads a file from
+    the server named STARTUP n, where n is the number of the parallel port
+    that the particular Commodore 64 is connected to.  This STARTUP program
+    loads into the start of BASIC memory ($0801) and is RUN.  It can contain
+    any Commodore 64 BASIC commands, stored as a Commodore BASIC program.
+
+    Some examples of what can be done are:
+
+    Change screen colours, load and access alternate character sets,
+    load and run utility programs, load and run games, or just about
+    anything else you might like to think of!
+
+*  b) PC server
+
+    Permanent customisation can be performed by editing the 64NET.INI file
+**  in the PC's 64NET directory.  This can also be done by issuing a "OWR"
+**  command to the PC via 'open15,7,15,"OWR"', or its equivalent.
+**  ("OWR" is a composite command which combines the save settings ("WR") 
+**  parameter with the set option command ("O")
+
+*   The generic structure of the INI file is as follows:
+
+    [customisation item]
+    customisation details
+    more details
+    [another item]
+    details about that
+
+    etc..
+
+*   To disable out an option detail temporarily, without deleting it from the
+*   .INI file, place a "#" character at the start of the line you wish to
+*   disable.
+
+    The data in the .INI file must strictly follow the order shown below,
+    although no detail fields need be present.  Any detail field not present
+    will cause 64NET to use the default value shown between brackets after
+*   that detail field.  If the brackets appear thus - () - then no default
+*   for that field exists.
+
+    Specifically, the items that can be customised are:
+
+    [Security]
+
+	Details are:
+	    DefaultClass ()
+	    Prompt Logon ()
+	    Allow Visitor Logons ()
+
+    [Preferences]
+
+	    Percentage Display ()
+	    Directory Load ()
+	    Burst Loading ()
+*           D64 TEMP ()
+*       Debug Mode
+*       Transfer Mode
+*       Address Display
+*       Current Directory
+*       Temp Path
+
+*   [Virtual Memory]
+
+*           This section under revision by the author, and will not be
+*           available until revision is completed.
+
+*   [Ports]
+
+*           What appears after this item are the addresses on your PC of
+*           the parallel ports, in the format "&h<address>".  Note that to
+*     stop ports being scanned if they actually have a printer attached to them,
+*     simply remove the entry here which refers to that port.
+
+*   [Printer]
+
+*           You can tell 64NET that a printer is attached to a parallel
+*           port, and will allow 64NET
+*           clients to print via redirection.  This port will not stop that parallel port from being
+* scanned unless that port's address is removed from the [Ports] section (above).
+
+
+**  [Archivers]       - Tells 64NET how to mount various archive types by
+**                      specifying the neccessary decompressor/extractor or
+**                      mounter.
+**      Details:
+**
+**          3-letter-file-extension unpacker <commandline parameters>
+**      Note that the command line parameters *must* include @ and %, which
+**      are the archive name and path "@", and the directory to extract the
+**      archive into "%".
+**
+**      eg. ZIP pkunzip @ %
+
+    [Partition Links] - allows you to assign PC devices and directories to
+			a particular 64NET partition name or number.
+*                       There are no defaults, although the supplied .INI
+*                       file assigns partitions A to Z to drives A: to Z:,
+*                       plus a few other "interesting" assignments.
+
+	Details:
+
+	    partition_name/number,path
+
+	eg. 7,C;\64net\games assigns logical partition 7 to the games
+	    directory under the 64net directory on the C: drive.  Therefore,
+	    a CP7 command will take you straight to that directory, no matter
+	    which drive and directory you previously had logged.
+
+	    Ralphey's Directory,D:\TM\DOWNLOAD\CBM\SECRET is also quite
+	    valid.  Therefore a CPRalphey's Directory command will take you
+*           to the specified directory (d:\tm\download\cbm\secret).
+
+	    Note that a maximum of 255 partitions can be assigned, although
+	    the partition numbers can be from 1 to 65535.  Partition names,
+	    should you wish to use them instead or as well, can be up to 32000
+	    characters long!  The comma "," character may not be used as part
+	    of a partition name.
+
+	8. 64NET Limitations
+
+    In order for something as wonderful as 64NET to work, certain things
+    about the Commodore 64 must be changed, or restricted.  For instance,
+*   64NET must occupy some memory on the Commodore 64 (in the wedge version),
+    and divert operation
+    through itself.  This leads some potential problems.
+
+    Firstly, by occupying memory there will be certain programs which cause
+    problems by wanting to use that same area of memory.
+
+    Secondly, by diverting operation, programs which rely on precise timing
+    may be affected.
+
+    Finally, programs which wish to install fastloaders or otherwise bypass
+    normal kernel disk operations will undoubtedly fail, as 64NET is NOT a
+    1541 disk drive!
+
+    As programs are discovered which are 64NET incompatible, they will be
+    noted.  Attempts will then be made to either improve 64NET to remove the
+    incompatibility, or the offending program's author will be contacted if
+    possible to update the program.
+
+*   Note that the 64NET ROM and 64NET cartridge attempt to alleviate most
+*   memory conflict problems, but these are not infallable, as some programs
+*   may still expect to find certain ROM routines in the locations now
+*   occupied by 64NET.  Further, programs which copy ROM to RAM, and then
+*   modify RAM may not expect to find 64NET occupying the space it wishes
+*   to use.
+
+	9. 64NET Trouble-shooting Hints & Tips
+
+Q.  When I load a file it loads in TWO BYTES UP from where it should.
+A.  When the file was converted to .N64 format, the load addr header was not
+    processed correctly, try the conversion again.
+
+Q.  Some programs "hang" part way through loading, or don't load all parts
+    of a multipart program.
+A.  Your program loads into the area occupied by the 64NET WEDGE (default
+    $C800-$CFFF).  Try loading the wedge into an alternate area.  This may
+	take some trial and error until you find
+    a memory location "safe" from your program.
+
+    Another solution is to purchase 64NET-PRO, the plug-in replacement
+    KERNEL ROM for the Commodore 64, which eliminates most known loading
+    compatibility problems!  Contact your distributor for further details.
+
+Q.  My program loads okay, but hangs when I run it.
+A.  Your program is being confused by the altered vectors that 64NET uses.
+    The solution is that after the load finishes, reset the vectors by
+    pressing and holding the RUN/STOP key, then smartly tap the RESTORE key
+    until you see the standard "blue on blue" power up screen.  Your
+    program should work fine now.  To reactivate 64NET after your program
+    finishes, enter SYS 53242, if loaded into the default location.
+
+	10. Programming with 64NET.
+
+64NET Extended function set
+---------------------------------
+Dated:  25 May 1994
+NOTE: There are various new API calls not documented here! Maybe when the
+   development side of 64NET v1 slows down the documentation will have a 
+   chance to catch up.
+
+Purpose:  To allow FAST usage of the features of 64NET for applications
+	designed with 64NET in mind.
+
+Calling Convention:
+
+	SendChar "X"
+	SendChar "Function Id"
+	{
+	 Parameters
+	}
+	JMP 64NET_Serve_Loop
+
+	Check A for a nonzero value (or ST)
+
+Functions Available:
+
+	"R" - Read a block of memory from a file (at the current position)
+	   Parameters:  low byte-high byte of start address and 
+			low byte-high byte of end address.
+
+	"W" - Write a block of memory to a file (at the current position)
+	   Parameters:  low byte-high byte of start address and 
+			low byte-high byte of end address.
+
+	"P" - Set current position in file
+	  Parameters:  "I" if setting input file
+			  "O" if setting output file
+			  32bit (least significant byte first) value for new
+			  file position.
+
+
+	11.  64NET and GEOS
+
+		It seems that C64 users either feel that GEOS is a God-send or is 
+	from the deepest pits of Hell.  However, this is not the place for a 
+	"holy war" over whether GEOS is good, bad or otherwise, as it is clearly
+	one of the most powerful and useful applications ever devised for the 
+	C64 (whether you like to use it or not).
+		64NET now has relatively extensive capabilities for use 
+	inconjunction with GEOS.  If you follow the relatively simple steps below
+	you too can have the sheer convienience of rapid access to upto 255 1581
+	emulation partitions (thats over 200MB!), without even having to look at
+	a box of disks!
+
+		The 64NET drivers for GEOS were written by Falk Rehwagen, and are
+	his copyright 1995.  They are provided in this package only if you 
+	request them, and pay the additional royalty.
+
+
+	11.1 Requirements for usiung 64NET and GEOS together
+
+		If you are using GEOS on a C64, you will be familiar with the need
+	for some form of RAM expansion if you intend to use more than one disk
+	drive type, eg a 1541 and a 1581.  As 64NET is neither a 1541, 1571 or 
+	1581, it is automatically a "different drive type" to the one you start
+	GEOS from.  This leads to the logical conclusion that to use GEOS and
+	64NET on a C64, you need a RAM expansion.  If you have no RAM expansion,
+	then it is, of course, strongly suggested that you purchase one.
+		Performance Perihperals suggest either a RAMDrive, or a
+	BBG (Battery Backed GeoRAM).  Both of these units should be available 
+	from your 64NET dealer.  The main advantage of these RAM expansions over
+	a standard commodore REU is that they have battery backup, so you can
+	restart GEOS from RAM, even after you have turned the computer off and
+	on again.
+
+		Also, it is suggested that the IBM running 64NET should have a 
+	decent amount of free hard-disk space, and, preferably, running a disk
+	cache.  The disk cache will help 64NET run even faster when fetching 
+	GEOS data which is regularly accessed.  However, having said this, it is
+	still possible to run 64NET and GEOS together on a system which consists
+	of perhaps a 4.77MHz XT with 512KB of RAM, and a single 720KB floppy 
+	drive.  Of course, performance will suffer, but it will work.
+
+	11.2 Configuring 64NET to run with GEOS
+
+	NOTE: This section assumes you have already installed 64NET and have it
+	working correctly under BASIC.  If you do not have 64NET installed, refer
+	to the relevant section in this manual, or contact your 64NET distributor
+	if you are having difficulty.
+
+	Step 1:  Seting 64NET up
+		From your 64NET directory on the IBM, run the programme called
+	64NETCFG.EXE.  This programme provides an easy interface for seting up
+	some of the more fiddly facets of 64NET.  
+		Select the option "Virtual Mount" from the pick list on the left
+	by using the cursor keys.  The right hand side will now display some
+	brief explanatory messages, below which, in bold will be a single line
+	of text.  Press ENTER until this line changes to something similar to:
+
+		64NET will virtualise the Quick Mounts for GEOS
+
+	When you have done this press S to save your changes.  You may now 
+	press the ESC key and return to DOS.
+		64NET is now setup to operate with GEOS.
+
+	Step 2:  Seting GEOS up
+		Start GEOS from your C64 or C128 as you would normally, using a
+	*COPY* of your boot disk.
+		On your 1541 or 1581 diskette which you received with 64NET, you 
+	will find there are several GEOS files.  Copy the files "64NET MGR",
+	"64NET MOVE" and "64NET CONFIG" to your GEOS boot disk.  
+		Run the file "64NET MGR".  This will display the list of 64NET
+	"partitions" (ie disk images) which are available for use by GEOS.  If 
+	there are none, then create a new one.  The create menu is under the 
+	option bar.  Select the appropriate type, and name from the dialogue
+	box prompts.  You may create upto 255 partitions.  Once you have created
+	enough partitions to make you happy, return to your desktop.
+		Run the file "64NET CONFIG".  It will display a list of disk drives, 
+	and their availability, indicated by either a clear (available), hashed
+	(unavailable) or filled (already in use by 64NET) box.  If there are no
+	drives which are available, quit 64NET CONFIG and run your CONFIGURE file 
+	to make atleast one drive available, then run 64NET CONFIG again.  Click
+	on the box of one of the available drives, the box should changed to 
+	filled, to indicate that it is now marked for use by 64NET.  Once you 
+	have a drive marked for use by 64NET, select Save Configuration from the
+	GEOS menu, then quit back to your desktop.  
+	
+		You should now be able to see, and use the 64NET drive(s) as though 
+	it were a normal GEOS drive!  If you start GEOS from this disk (which
+	you have copied the 64NET drivers onto) now, it will automatically 
+	access 64NET if available, or ignore it if it cannot find a 64net server.
+		If you have a RAM expander it is suggested that you use the RBOOT
+	file which is appropriate to that expander, to allow *very* fast loading
+	of GEOS initially. Note that, at this stage, you cannot start GEOS 
+	directly from 64NET.
+
+
+	NOTE: While the 64NET drivers for GEOS emulate the disk drives closely,
+	there are a few minor differences.  The most pronounced being you cannot
+	use the disk menu to format a 64NET partition.  This should however
+	cause no hardship, as you can still delete the files on a disk, and
+	rename it if so desired.
+
+
+	11.3 Using 64NET to provide the correct time and date on startup
+
+		As most IBM compatibles have a realtime clock installed, it is a
+	logical feature to provide a means to access this via 64NET for use with
+	GEOS.  
+		To use this feature, simply copy the autoexecute file "64NET TIME"
+	to your GEOS boot disk.  Then whenever you start GEOS from that disk it
+	will ask the IBM for the correct time and date, automatically, and with
+	out displaying an annoying prompt.   If at anytime after boot you wish 
+	to ensure you are on the correct time, simply run 64NET TIME from your
+	desktop.
+
+
+	11.4 Printing on a 64NET printer from GEOS
+
+		If you have told 64NET that you have a printer installed (using the
+	64NETCFG.EXE programme), you can configure GEOS to print from this
+	printer.  This is useful if you normally have a printer connected by a 
+	GeoCable, and 64NET is now taking that port.
+		Copy the files 64NET PRINT and 64NET SET to your GEOS boot disk.
+	64NET SET is an autoexecute file which patches the GEOS kernel to allow     
+	printing to a 64NET printer.  64NET PRINT is used to patch your present 
+	printer driver to print to the IBM printer.  This programme works with
+	most drivers, and will prompt you for a new name for the patched driver
+	(leaving the original intact and unaltered).
+		Once you have a patched driver, make it your current printer driver,
+	and you are then able to print to the 64NET printer!
+
+
+
+	Appendices
+
+	 A. Compatibility List
+
+	 B. 64NET Support
+*           - Distributors
+*           - Obtaining latest releases
+
+	 C. The Future of 64NET
+
+	 D. Constructing the 64NET cable.
+
+*        E. Differences between the Shareware and Commercial releases
+	    of 64NET.
+
+	 F. 64NET File Format.
+
+	 G. 64NET Error and Status Messages.
+
+	 H. 64NET Reserved Filenames and their Functions.
+
+	 I. Files provided on the 64NET system disk.
+
+	 J. Installing 64NET permanently in your Commodore 64.
+
+	 K. Glossary.
+
+	 L. 64NET Registration Form.
+
+	 M. Recognised PC filetypes.
+
+	 N. Multi-lingual operation.
+	    
+*        O. Creating 64NET.64 if you weren't given it on 1541 disk.
+
+
+	A. Compatibility List
+
+	Does 64NET work with...
+
+	1.  Jiffy DOS
+
+*        Partly.  the "Ctrl-D" function fails to recognise 64NET as a valid drive,
+    but most of the loading
+	procedures work.  Negotiations are underway with CMD to hopefully
+*       enter into joint development, or at least make 64NET more JiffyDOS
+*       friendly.
+
+	2.  Action Replay Cartridge
+
+	    Also partly.  Most of the loading procedures work, but the
+	directory function only accesses the "real" device 8.
+
+	3.  GEOS
+
+*           Yes!  A team of German programmers have recently completed a
+*        patch for GEOS to make it 64NET compatible.
+
+	4.  C-128 & C-65
+
+	    In C64 mode, yes.  In native modes, not yet.  It is being
+	worked on.  Note that the C64 wedge source code is available as part
+	of every 64NET distribution, should you wish to make it compatible
+	with some device or program of your own.
+
+> 1. Where does the C64 end software load, and what does it get in the way of? 
+>    What programs do and don't work.
+
+The wedge programme default loads from $c800-$cfff (approximately).
+We am working on
+making some replacement "64NET" roms for the C64 that will make it
+100% transparent, but with out drive bumping, and with conventional
+serial comms also. (possibly at the expense of rs-232 on the user
+port coz they cant both be used at the same time (ie switch roms like
+an amiga!)
+
+> 3. What about CP/M mode on the 128?
+
+Hmm, different CPU!
+I'd have to re do the code in Z80, but i cant see why it shouldn't
+work, pv i got some info on the file system, and where the wedges
+would have to go etc..
+
+
+
+	B. 64NET Support
+
+
+	The author of 64NET is dedicated to the support of 64NET, and
+    welcomes your feedback, either in the form of suggestions for
+    improvements to 64NET, or reports on problems with its use.  Naturally
+    only registered users can expect any formal response to problem
+    descriptions.
+
+	You should contact the distributor you purchased 64NET from in the
+    first instance with any questions.  If the distributor cannot answer
+    your question they will refer it to the author.
+    
+*       Should you be having trouble with your distributor, which are related
+*   to 64NET, then feel free to contact the author for assistance in resolving
+*   these problems.
+
+
+*   64NET Distributors
+
+*   The only authorised 64NET distributors are Performance Peripherals.  Their
+*   contact people and numbers are listed below against their geographic
+*   regions.
+
+*   Australasia:
+*      Russell Alphey
+**     (Phone +61 3 9427 8558)
+*      email: *under change*
+    
+    Europe:
+*      Michael Renz
+**     (Phone +49 2227 3221)
+
+*   North America:
+*      Peter Fiset
+**     (Phone +1 518 436 0485)
+*      email: p.fiset@genie.com
+
+*  The software author can be contacted directly in a number of ways -
+
+    Voice:         +61 8 277 7479
+    BBS:           +61 8 277 1361 (answer all questions for instant d/l access)
+		The BBS carries the latest support files for 64NET, as well
+		as a "problems" database with solutions.
+*   Internet    gardners@ist.flinders.edu.au
+    AlterNET    64net@fairlight.ppa.org.au
+    Snailnet:  Paul_Gardner-Stephen@1_Hurst_St.Morphettvile.SA_Australia_5043
+		(Australia)
+
+	The manual author can also be contacted several ways -
+
+    Voice:      
+			   +61 3 94278558 (AH)
+    Fax:        
+*   Internet:   
+		Russell.Alphey@p1.f100.n638.z3.fidonet.org
+    Fido:       Russell Alphey at 3:638/100.1
+    Snail:      Russell_Alphey@439_Punt_Rd.Richmond.Vic_Australia_3121
+    
+    
+    
+*   Obtaining latest releases of 64NET.
+
+*   There are several ways of obtaining the latest version of 64NET.
+  
+*   1. 64NET Distributors.
+  
+*   Note that it is not your distributor's responsibility to provide you 
+with updated versions, nor even to inform you of their existance.  They 
+will, however, provide you the latest version of 64NET upon registering.
+
+Nevertheless, all distributors will carry the latest version of 64NET 
+available to them.  They will be happy to provide you with 64NET updates for 
+a nominal copying and mailing charge.
+
+*   2. Internet & AlterNET FTP sites.
+
+We will endeavour to place the latest version of 64NET onto the popular C64 
+FTP sites, such as:
+
+watson.mbb.sfu.ca, ftp.funet.fi, and ccnga.uwaterloo.ca
+
+The official AlterNET site is:
+
+	fairlight.ppa.org.au
+
+We will be more than happy to maintain up to date copies of 64NET on any 
+other site that will have it.
+
+*   3. BBSes, including FREQing .
+
+The latest version of 64NET will always be available from the author's BBS.
+
+Fishbowl BBS:   +61 8 277 1361 (answer all questions for instant d/l access)
+			 The BBS carries the latest support files for 64NET, as well
+			 as a "problems" database with solutions.
+			 
+			 Magic name: 64NET
+			 
+			 Note!  At present the BBS is not being configured as a 
+			 Fidonet compatible system, so some pain may be experienced 
+			 in attempting to access it as a Fido node.
+			 
+A number of other BBSes are known to carry 64NET, which is kept up to date 
+by Phil Heberer (thanks Phil!)  These are:
+
+221B Baker Street:
+			 
+			 Magic name: 64NET
+			 
+
+Cee-64 Alive!:
+			 
+			 Magic name: 64NET
+			 
+
+Again, we would be happy to add to this list!
+
+*   4. Internet mail.
+
+A copy of the latest version of 64NET will be emailed to you, uuencoded, at 
+your request if you send appropraite email to any one of the following 
+people.
+			 
+*   gardners@ist.flinders.edu.au
+
+
+
+	C. The Future of 64NET
+
+customise dir separator?
+64netpro - ROM / serial
+128-cp/m mode
+65mode
+Pet mode
+Amiga version
+
+
+	D. Constructing the 64NET cable.
+
+	The 64NET cable requires no special skills to create, except
+    confidence in your own soldering ability.  A person will rudimentary
+    soldering skills ought to be able to build a complete, working cable in
+    under 10 minutes.
+
+	Parts required:
+
+	1 * CBM User Port female adaptor (mandatory)
+	1 * DB25 connector, of suitable sex for plugging into your parallel
+	    port - usually male (mandatory)
+	1 length of 9 wire (minimum) cable [preferably shielded] (mandatory)
+	    note that about 4 metres of cable is advised for maximum
+	    flexibility, but you would should consider your own computer
+	    layout.
+	solder (mandatory)
+
+	1 * CBM User Port adaptor back shell (optional)
+	1 * DB25 back shell (optional)
+
+	The back shells protect the solder joints, by providing a secure
+	place to grip whilst removing the cable ends from the computers
+	which reduces the strain on the joints.
+
+    The pinout for the cable is:
+
+	Userport        PC Printer port
+    CBM name
+	-------------------------------
+	A (GND)         25 (GND)
+	C (pb0)         10 (an input line)
+	D (pb1)         11 (an input line)
+	E (pb2)         12 (an input line)
+	F (pb3)         5 (data bit 3)
+	H (pb4)         6 (data bit 4)
+	J (pb5)         7 (data bit 5)
+	K (pb6)         8 (data bit 6)
+	L (pb7)         9 (data bit 7)
+
+    It is very simple to make!  Just solder the individual wires to each
+    adaptor, making sure that each wire is connected to the correct pins
+    at each end, and that there are no touching wires.
+
+    This author was able to make a working cable, first time, on only his
+    second attempt at soldering.  However, if you do not feel confident
+    that you will be able to successfully build a 64NET cable, then contact
+    the distributor from whom you purchased 64NET, and they will provide
+    a 64NET cable for a nominal fee.
+
+*    E. Differences between the Shareware and Commercial releases of 64NET.
+
+*   The shareware and commercial releases of 64NET are identical, with two
+*   exceptions.
+
+*   1. You cannot save from the C64 to the PC, in any form.
+*   2. You cannot print to a redirected printer.  This only affects GEOS users
+*      at this stage anyway.
+
+*   Apart from that, you will notice nothing has been left out, or crippled.
+*   There are also no "nag" screens insisting you register 64NET.
+ 
+
+	F. 64NET File Format
+
+*   64NET v1.xx .N64 File format
+    ---------------------------------
+
+$0000-$0002 -  "C64"
+		  Note: Used to identify file as being a valid 64NET archive
+$0003       -  64NET File format version
+		  Note: Current=$01
+
+Current use for version $01 files:
+
+$0004       -  1541 equivalent file type
+
+		  Valid types are:  $x0=DEL
+				 $x1=SEQ
+				 $x2=PRG
+				 $x3=SEQ
+*                                $x4=REL
+				 $x5=DIR
+				 $x6=VOL
+
+		  Note: Assigning a file as a REL, DIR or IBM type could have
+			strange side effects and is not recommended.
+$0005-$0006 -  Load Address (for ,8,1 loads) in standard CBM "low byte, high
+		byte" format.
+$0007-$000A -  32bit file length in bytes (NOT blocks).  This is also stored
+		in low through high byte format.  Therefore the filesize
+		is actually
+		($07) + 256 * ($08) + 65536 * ($09) + 16777216 * ($0A) bytes.
+		It is rather unlikely that any legitimate C64 file will ever
+		have a value other than 0 (zero) in $0A!
+
+$000B       -  64NET Network security level ($00 = none)
+		  Note: if this value is >MASTER then the file is completely
+		  inaccessible, except through the disk monitor.
+$000C-$001E -  Reserved for future enhancement
+$001F-$002E -  16 character file name padded with $00's
+* $002F       -  Blank.
+* $0030-$00FB -  Reserved for future enhancement
+* $00FC       -  Start of actual file body
+		 (including load address/first two bytes of SEQ/USR file)
+
+
+	G. 64NET Error and Status Messages.
+
+	Conventional 1541 responses are given by 64NET, but these are not
+	shown here.  Please see your 1541 disk drive manual for a list of
+	other (standard) status messages which are not listed.
+
+00, OK,00,00                   - OK!
+00, WELCOME,00,00              - User logged on with network access
+00, GOODBYE,00,00              - User logged off from system
+
+* 00,"message",nn,00           - Talk disk command
+
+01, FILES SCRATCHED,nn,00
+02, NO FORMAT,00,00            - You cannot format a PC drive from the C64
+03, NOT 4040,00,00             - The 4040 drive D command (duplicate) is not
+				   supported by 64NET
+04, OPTIONS SET,00,00          - Attempt to alter system option succeeded
+
+05, SUBDIRECTORY EXISTS,00,00  - Attempted to create a dir that already exists
+05, YEAH - RIGHT!,00,00        - Attempted to create a directory with no name. 
+06, SUBDIRECTORY CREATED,01,00 - Attempt to create a dir successful
+07, SUBDIRECTORY REMOVED,01,00 - Attempt to remove a dir successful
+08, DIR NOT FOUND,00,00        - similar to "file not found" for directories
+
+09, PRIVELIGE ERROR,01,00      - Unauthorised access to "system" files
+09, PRIVELIGE ERROR,02,00      - Attempt to save with VISITOR access.
+09, PRIVELIGE ERROR,03,01      - Unauthorised attempt to use "MON"
+09, PRIVELIGE ERROR,03,02      - Unauthorised attempt to use "NETWORK STATUS"
+09, PRIVELIGE ERROR,03,03      - Unauthorised attempt to use "USER STATUS"
+09, PRIVELIGE ERROR,04,00      - Unauthorised access to network
+09, PRIVELIGE ERROR,05,00      - User not allowed access to file
+
+10, SYNTAX ERROR,00,00         - Error in "NET:" disk command
+
+* 73, 64NET V1.80.00N BETA 1586(TM),00,00 - Power-up message.
+
+	H. 64NET Reserved Filenames and their Function.
+
+	All of these facilities are accessed by LOADing the filenames listed
+	below.  Note that if you chose to save files with these names, then
+	your files are inaccessable from 64NET.  This is to ensure that
+	the 64NET facilites are always available.  If you do save files
+	with 64NET reserved names, then you will have to "repair" their names
+	using the 64DMON program's (R)ename function.
+
+	Filename         Function
+	========         ========
+	MON            - Offboard memory monitor
+	DIR            - Loads full path and drive information
+	SYSTEM OPTIONS - Displays (not loads) the current preferences
+	NETWORK STATUS - Display info about yourself (not load)
+	USER STATUS    - Display info about all users (MASTER access required)
+	DOS STATUS     - LOAD the current DOS message (this does not clear
+			 the message however)
+
+	I. Files provided on the 64NET system disk.
+
+	1. C64 files
+
+	    64NET WEDGE
+	    64NET KERNEL
+	    PATCH-ROM
+
+	2. PC files
+
+	    64NET.EXE
+	    DEHEADER.EXE
+	    64DMON.EXE
+	    64DIR.EXE
+
+	J. Installing 64NET permanently in your Commodore 64.
+
+	WARNING!  The process described below will,
+
+	    a) Void any warranty on your C64,
+	    b) Possibly damage your C64 is done incorrectly,
+	    c) Frustrate you if you would like to install 64NET permanently
+		  in your C64, but can't (for one reason or another), and
+	    d) Possibly make you a little more aware of the insides of your
+		  C64!
+
+	At this point in time the author has not been authorised to provide
+    modified copies of CBM's C64 kernel ROM.  To do so without express
+    permission would be in breach of CBM's copyright of that ROM, as what
+    would be distributed is most substantially the work of CBM.
+
+	However, relief is at hand!  If you have access to an EPROM reader
+    and burner, then you can create your own, legal copy of a 64NET compatible
+    kernel ROM.  Here's how...
+
+	Firstly, use the EPROMMER to read your kernel ROM, and save a copy
+    to disk.  Then, run the "PATCH-ROM" program provided on your 64NET
+    distribution disk, following the instructions shown on the screen.
+    Finally, burn a new EPROM with the patched kernel (named KERNEL.64NET).
+
+	That's all there is to it!
+
+	If you don't have access to an EPROMMER, then your 64NET distributor
+    *may* be able to assist you in this regard, but we make no guarantees
+    of this.
+
+	K. Glossary.
+
+logged drive - the PC server disk drive that 64NET is currently accessing.
+logged directory - the (sub)directory of the PC server that 64NET is currently
+		    accessing.
+wedge - a program loaded onto the C64 which is "wedged" into the operating
+		    system in order to alter normal operations.
+kernel replacement - a program or ROM chip which is used instead of the
+		    kernel ROM provided with the C64, eg. JiffyDOS.
+DOS - Disk Operating System.  Also a commonly used abbreviation for the
+		    operating system used on PCs.
+
+	L. 64NET Registration Form.
+
+	Please take the time to fill in this form, and return it to
+    the author.  It will ensure that any updates to 64NET are forwarded
+    to you, and that in the event of a problem with a distributor, you
+    will still receive support for 64NET.  Only registered purchasers will
+    receive update notifications.
+
+    Name:
+
+    Street Address:
+    City / Town:
+    Country:
+    Post/Zip code:
+
+    Your email address, or fidonet node:
+
+    Contact phone number (optional): [..] (...) ...-....
+	[country] (area) local-number
+
+    Your 64NET Distributor:
+
+	Thank you.  If you could also fill out the following survey questions,
+    it will help us make 64NET even better!
+
+    Where did you hear about 64NET?
+
+
+    What did you hear about 64NET?
+
+
+
+
+    What do you like about 64NET?
+
+
+    What do you dislike about 64NET?
+
+
+    Would you recommend 64NET to other C64 owners?
+
+
+    Why/why not?
+
+
+
+
+	Thank you again for taking the trouble to answer the survey.  Please
+    post the completed form to:
+
+    Paul Gardner-Stephen
+    1 Hurst St
+    Morphettvile
+    South Australia 5043
+    Australia
+
+    or you can email it to:
+
+*   gardners@ist.flinders.edu.au
+
+	M. Recognised PC filetypes.
+
+	As at V1.71beta, 64NET recognises the following "standard"
+    filetypes on the PC as containing valid C64 files, as part of its
+    virtual file system (VFS), and can therefore allow you, the user, access
+    to the files contained therein.
+
+*   Note that you can load other filetypes into your 64 via 64NET, but 64NET
+*   has no prior way of knowing that these files are, in fact, 64 compatible.
+*   Eg. machine code files which load at $C000.
+
+	.N64 - 64NET's own, preferred filetype.
+		(64NET will only save as .N64 filetype)
+
+*       .T64 - C64S PC tape files.
+		The .T64s don't have the C64 filename stored in them
+	    correctly in all cases, so the 64NET displayed filename may
+	    not be absolutely descriptive.
+*       .D64 - C64S PC disk files.
+*               These files are 1541 disk images.  64NET extracts the actual
+*           files from the disk, and stores them in a temporary subdirectory.
+	.P00
+*       "zipcode" - ie. the "1!<name>" files which are just a compressed
+*           representation of a 1541, created on a 64.  They are handled in
+*           the same way as .D64 files.  Note that the zipcode source files
+*           on the server must be "raw" files, not .N64 files.  If this is
+*           not the case, then you can use the convert program provided.
+	"raw" - ie. files which are plain CBM $0801 loading files.
+	The author is also working at enabling recognition of other known
+*   filetypes, as these are brought to his attention.
+
+	N. Multi-lingual operation.
+
+*       The file 64NETMSG.nnn (where nnn is the numeric country code)
+*   in the PC directory contains almost every message
+*   that 64NET will ever display, translated to the native language of that
+    country.  These messages can be altered to display
+    anything you wish, including in languages other than that which you
+    originally received it.
+
+	Hopefully your distributor has already provided a copy of this
+    file in your native tongue.  The 64NET team would be pleased to
+    receive copies of 64NETMSG converted to languages other than English,
+    but be warned we will make sure that the messages contain the original
+    meaning, and are not abusive, or offensive!
+
+	Files on your distribution disk named 64NETMSG.xxx contain a copy
+    of the 64NETMSG file already converted to the language indicated by
+*   'xxx'.  Eg., 64NETMSG.001 contains a U. S. version of
+*   64NET.MSG, and 64NETMSG.061 contains an Australian version (which are,
+*   of course, the same!).
+
+	Suffixes adopted by 64NET for the MSG files include the following.
+    Please be aware that they only indicate the language which is contained
+    in the particular MSG file, *IF IT EXISTS ON YOUR DISK*.  It is not an
+    indication of which languages 64NET.MSG has been converted to!
+
+*   001 - U.S.A.
+*   044 - Great Britain
+*   061 - Australia
+
+*       64NET will attempt to determine which country your PC has been 
+*   configured for, and then load the appropriate message file.  Where that
+*   message file doesn't exist, the ".061" file will be loaded by default.
+*   Should you wish to load, for example, a German language message file,
+*   and one exists, but it's not considered your countries native tongue,
+*   then you only need copy the German language file over your country's,
+*   or over the default.
+
+*    O. Creating 64NET.64 if you weren't given it on 1541 disk.
+
+
+*  To use 64NET you must first find a way to transfer the 64NET.64 file if you
+*  are using 64NET with a C64 or C128, or 65NET.64 if you are using a C65/C64DX,
+*  from the IBM compatible disk to the Commodore machine.
+*    Common methods employed include the following:
+
+*       * NULL-MODEM cable in conjunction with terminal software on the C64 and 
+*  IBM compatible & a suitable RS-232 interface for the C64/C65/C128.   
+*       * BIG BLUE or LITTLE RED reader programmes for the C128/C64 to transfer
+*  the file directly using a 1571 or 1581 commodore disk drive or compatible
+*  unit.
+*       * COPY CARD for the IBM compatible computer to allow read and writing
+*  1541 and 1581 diskettes in a PC drive. (These units are difficult to find)
+*       * X1541 PC-1541 interface system to directly connect a 1541 floppy drive 
+*  to an IBM compatible computers printer port.
+
+*                                     or
+
+*       * Type in the 64NTTRAN.BAS file included in this distribution onto your
+*  Commodore 64/65/128, and SAVE to floppy disk.  Also copy the 64NET.64 file to
+*  your 64NET directory if it is not already there.  Then add the following two
+*  lines to the 64NET.INI file:
+
+*  [Preferences]
+*  TRANSFER MODE
+  
+*    Then run the PC software and also run the 64NTTRAN.BAS file which you typed
+*  in (on the C64/C65/C128).  Several messages should be displayed, and the file
+*  will be transferred to your device 8 disk drive.  This may take upto 10minutes
+*  but it will do the trick!
+*    Once the transfer is complete exit 64NET on the PC by pressing ESC - note 
+*  this may take several seconds as 64NET will be operating in "slow" mode 
+*  (which allows connections from BASIC to function correctly).  Remove the two
+*  lines from your 64NET.INI file which you added at the begining of this
+*  procedure.
+*    64NET will now function normally if you LOAD and RUN the 64NET.64 file from
+*  your diskette (NOTE: you must be in C64 mode on a C128 or C65/C64DX). You may
+*  then copy the C128 or C65/C64DX native mode wedges to your diskette for 
+*  starting 64NET from those computers' native modes.
+
+*  *** If you are unable to transfer the file yourself contact your local 64NET
+*  distributor and they will be able to provide you with a 1541 or 1581 diskette
+*  with the file for a nominal fee.
+
+*  NOTE: If you have purchased the 64NET system as a complete package from a
+*  registered 64NET dealer you should have received a 1541 or 1581 diskette with
+*  the appropriate files.
+
+
+
+
+
+
+
+
+*** Junk to add into manual.
+1)
+
+LOAD "VMEM:xxxx:yyyy:zzzz"
+SAVE "VMEM:xxxx:yyyy:zzzz"
+
+xxxx = page number of first mem page to load/save ($0000-$ffff)
+yyyy = first address to load into/save from
+zzzz = last address to load into/save from
+
+This will allow 16MB of Virtual memory!
+A partition will have to be allocated as the "swap drive", and this can still
+be used for nthe normal VFS also.. The VMEM file will get as big as you swap
+into it! and will _NOT_ necessarily be deleted at the end of a session
+(wow! - `battery backed' RAM! :-)
+
+3) Fakey sector operations if i really feel upto it (fake copy protection ?)
+

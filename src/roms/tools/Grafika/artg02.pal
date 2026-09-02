@@ -1,0 +1,20 @@
+16       Number of colors (Always <= 16)
+0 0 0
+0 0 0
+0 0 0
+0 0 0
+0 0 0
+0 0 0
+0 0 0
+0 0 0
+0 0 0
+0 0 0
+0 0 0
+0 0 0
+0 0 0
+0 0 0
+0 0 0
+46 46 46
+
+ This one shows you how to prepare palette file for converting to
+ selected colors only (light gray and black here...).

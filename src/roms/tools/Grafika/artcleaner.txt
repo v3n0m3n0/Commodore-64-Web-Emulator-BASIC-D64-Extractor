@@ -1,0 +1,9 @@
+Advanced ArtStudio Cleaner
+by Nemezis/Impact
+nes@extreme.net.pl
+-----------------------------
+
+Usually there is a lots of unused data in ArtStudio'
+multicolor picture. This tool allows you to remove it,
+what means that the file contains the same art and
+is smaller.

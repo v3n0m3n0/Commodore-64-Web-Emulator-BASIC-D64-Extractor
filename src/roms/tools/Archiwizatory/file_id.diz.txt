@@ -1,0 +1,6 @@
+D642ZIP -- Compiled by
+	Jer
+  (Jari Tuominen)
+  with GCC under
+Linux Slackware 3.4
+   works fine!

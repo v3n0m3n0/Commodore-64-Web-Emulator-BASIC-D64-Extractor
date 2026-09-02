@@ -1,0 +1,18 @@
+;
+; Smart ALIASES for Over5
+;
+alias o5cp over5 COPY
+alias o5wf over5 WRITEFILE
+alias o5rf over5 READFILE
+alias o5sw over5 SIMPLEWRITE
+alias o5sr over5 SIMPLEREAD
+alias o5wm over5 WRITEMEM
+alias o5rm over5 READMEM
+alias o5ls over5 DIR
+alias o5dir over5 DIR
+alias o5st over5 STATUS
+alias o5cm over5 COMMAND
+alias o5bt over5 BOOT
+alias o5sys over5 SYS
+alias o5test over5 TEST
+;

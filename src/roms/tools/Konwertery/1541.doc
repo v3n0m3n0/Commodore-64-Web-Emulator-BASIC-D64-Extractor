@@ -1,0 +1,127 @@
+1541 Disk Reader (and related utilities)
+
+Copyright © 1994 by Dan Babcock. These programs may be freely 
+copied and used for non-commercial purposes, including distribution 
+via FTP (Aminet) and CDROM (Fish, Aminet).
+
+General
+
+	The programs are CLI-based and use standard command-line 
+parsing (e.g. typing  "program ?" will display the argument template). 
+Kickstart 2.04 or above is required (developed under 3.1). You can 
+generally abort execution by pressing Control-C.
+	This document is rather brief and assumes you have a solid 
+understanding of both the Amiga and the 1541. If you need 1541 in
+formation I strongly recommend _Inside Commodore DOS_ by Rich
+ard Immers and Gerald Neufeld. That book was the sole reference 
+used to develop this software.
+	If you want to contact me for some reason (such as reporting 
+a bug), my email address is d6b@ecl.psu.edu.
+	I apologize for the terrible formatting of this text. The ASCII 
+export of this version of FinalWriterII (release 1...I need to upgrade) 
+really sucks!
+
+1541
+
+Command line: 1541 DriveNumber FileName [Retry=RetryNumber] 
+[TOP]
+DriveNumber: drive number (0-3)
+FileName: file name for disk image
+[RetryNumber]: number of times to retry a track before giving up 
+(default 10)
+[TOP]: Read from "other" side of disk. THIS DOES NOT WORK. You 
+must physically flip the disk. But since I don't exactly know _why_ 
+this option doesn't work, I've left it in for experimentation purposes.
+
+Example: 1541 2 ram:dump retry=20
+
+	The "1541" program reads a 1541 disk and produces a disk 
+image. A "disk image" is simply a block-by-block copy of the disk, 
+stores as a file. 1541 disk images are frequently given a ".d64" ex
+tension, and referred to as "d64" files. (The term "disk image" is pre
+ferred, however).
+	"1541", as may already be obvious, reads from an Amiga 
+5.25 inch drive; I use the Commodore A1020, and recommend it to 
+you as well. There is a catch, however. A 5.25 inch drive running at 
+the standard 300RPM speed can only read 1541 tracks 18-35, that 
+is, all but speed zone 1. (I'm not going to explain the 1541 speed 
+zones, so if you don't understand, don't worry about it). Luckily, 
+though, there is an easy fix: simply slow down the drive. At a some
+what slower speed the Amiga is able to read all 4 1541 speed 
+zones.
+	If you don't know how to use a screwdriver, you may want to 
+have an expert technician perform the speed adjustment; otherwise, 
+keep reading. Disassemble the drive casing. Examine (carefully!) the 
+drive, looking for any turn-able adjustment (potentiometer). In the 
+case of my Alps drive, there's a rather large adjustment nicely slot
+ted for a screwdriver on the circuit board surrounding the drive mo
+tor.
+	After you've located the (presumed) speed control, get the 
+drive in a position in which you can adjust the speed while the drive 
+is connected and functional. Run the "speed" program (see below), 
+which continuously prints drive speed information (in RPM) to the 
+console. I've found that 280RPM works satisfactorily, so that's what I 
+recommend you use, at least as a start. If you have problems read
+ing tracks 1-17 at 280RPM you can try reducing the speed slightly 
+(but I wouldn't recommend going lower than 270RPM). After you've 
+read in a few disks as a test, you can reassemble the case and for
+get about it. You should still be able to read IBM and AppleII disks at 
+the reduced speed, but I wouldn't recommend writing to them.
+	Anyway, once you have adjusted the speed of your drive you 
+should be able to read 1541 disks to your heart's content. On my 
+A2000 (68040) it takes about 13 seconds to read a disk. (I could 
+actually reduce the time to under 10 seconds, but I didn't deem it 
+worth the effort). One more thing worth mentioning about "1541" is 
+how it deals with errors. When "1541" finds that it can't read a sec
+tor, it places a special identifying mark on the sector 
+($00,$FF,"LAZARUS" to be precise). That way programs (like Get
+Files, see below) that manipulate the disk image can identify sectors 
+that were unable to be read from the physical disk.
+
+GetFiles
+
+Command line: getfiles DiskImageName [DIR] [EXT]
+DiskImageName: file name of disk image (wildcards accepted)
+[DIR]: get a directory of the disk image (if not specified a directory 
+AND dump is performed)
+[EXT]: add file type extensions (e.g. ".PRG") to the dumped files
+
+Example: getfiles mydisk
+
+	GetFiles is used to extract the files (if any) from a disk image. 
+If you specify the DIR option a directory will be printed but the files 
+will not be dumped. Wildcards are accepted in the file name, so you 
+can easily directory and/or dump many disk images at once. Typi
+cally you can use the universal wildcard (#?) because only files with 
+the exact size of a 1541 disk image will be considered.
+	GetFiles will rename files that contain illegal (for Amiga filena
+mes) characters. For a "/", a "\" is substituted; for ":", ";" is substi
+tuted; and for non-printable characters "-" is substituted. In addition, 
+files containing the special "LAZARUS" signature (see the "1541" 
+description above) will be reported as corrupt.
+	1541 files of type PRG, SEQ, USR, REL, and DEL in the nor
+mal and locked forms are acceptable. Other types are ignored, but 
+an informative message is printed. Normally the files are stored "as 
+is" (except for illegal character substitution), but you can have the file 
+type added as an extension using the EXT option.
+	I should note that there is another freely-available program 
+that performs the same function as GetFiles: UNd64 by Jess Sos
+noski. If you are dissatisfied with GetFiles for some reason, I sug
+gest you try UNd64. The only major advantage to using GetFiles is 
+that it can detect the "LAZARUS" signature.
+
+Speed
+
+Command line: speed DriveNumber
+DriveNumber: drive number (0-3)
+
+	The "speed" program measures the drive speed in RPM 
+(revolutions per minute). Normal drive speed is 300RPM. "Speed" 
+will continuously print the drive speed to the console (as usual, hit 
+Control-C to exit). You must have a disk inserted in the drive or 
+"speed" will not function.
+	In case you're curious, "speed" works by measuring the time 
+between index pulses. A simple index interrupt routine takes a 
+time-stamp of the "E clock" (CIA .7Mhz clock).
+
+

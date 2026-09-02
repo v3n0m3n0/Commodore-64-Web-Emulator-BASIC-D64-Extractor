@@ -1,0 +1,38 @@
+****************************************
+TABLE MAKER v1.2                 / SAMAR
+****************************************
+This utility could be useful for coders,
+who wants to use proportional charset in
+ their productions. It converts normal
+   fonts into proportional ones, then
+ prepares the table with widths of each
+  char and allows you to set width of
+space. Then you can save converted fonts
+into disk and do the same with prepared
+  table. Then you have got everything,
+   what you need to use proportional
+      charset in your productions!
+****************************************
+   For any comments use this address:
+
+              CACTUS/SAMAR
+               Pawel Bol
+         Al. Pilsudskiego 60/14
+            43-609 Jaworzno
+                 Poland
+
+         e-mail: cactus@c64.org
+****************************************
+ Thanks to: Fenek/Arise (for his great
+    ideas for improving this tool!)
+****************************************
+HISTORY:
+Changes since "Table Maker v1.0":
+- converting normal fonts into
+  proportional ones
+Changes since "Table Maker v1.1":
+- directory option
+- setting width of space
+****************************************
+         (c) 2001 CACTUS/SAMAR
+****************************************

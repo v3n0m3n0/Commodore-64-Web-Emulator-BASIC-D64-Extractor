@@ -1,0 +1,114 @@
+'BUG: C64S (2.52) does not accept trailing backslashes in path names;
+'     workaround: the !/ symbol is used which omits the trailing backslash
+'BUG: VICE (1.8) seems to not accept all PETSCII characters, specified with
+'     hexadecimal codes, correctly; no known workaround
+!d64:
+S: C64S
+  c64s -diskdir !:!/ -disk !.! -autotype LOAD$22!^$22,8,1$0DRUN$0D
+C: CCS64
+  ccs64 !:!\!.!,!#
+P: PC64
+  pc64 !:!\!.! -autotype load$22!$22,8,1$0Drun$0D
+V: VICE
+  x64 !:!\!.!:"!"
+!d71;!d81:
+V: VICE
+  x64 !:!\!.!:"!"
+!t64:
+S: C64S
+  c64s -tapedir !:!/ -tape !.! -autotype LOAD$22!^$22,1,1$0DRUN$0D
+C: CCS64
+  ccs64 !:!\!.!,!#
+V: VICE
+  x64 !:!\!.!:"!"
+!p0?;!p1?;!p2?;!p3?;!p4?:
+C: CCS64
+  ccs64 !:!\!.!
+P: PC64
+  pc64 !:!\!.! -autotype load$22!$22,8,1$0Drun$0D
+V: VICE
+  x64 !:!\!.!:"!"
+!ark:
+S: C64S
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+  @starark x !.! -y ~sc~tmp~ > nul
+  c64s -diskdir !:!/ -disk ~sc~tmp~.d64 -autotype LOAD$22!^$22,8,1$0DRUN$0D
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+C: CCS64
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+  @starark x !.! -y ~sc~tmp~ > nul
+  ccs64 !:!\~sc~tmp~.d64,!#
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+P: PC64
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+  @starark x !.! -y ~sc~tmp~ > nul
+  pc64 !:!\~sc~tmp~.d64 -autotype load$22!$22,8,1$0Drun$0D
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+V: VICE
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+  @starark x !.! -y ~sc~tmp~ > nul
+  x64 !:!\~sc~tmp~.d64:"!"
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+!lha;!lzh:
+S: C64S
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+  @starlha x !.! -y ~sc~tmp~ > nul
+  c64s -diskdir !:!/ -disk ~sc~tmp~.d64 -autotype LOAD$22!^$22,8,1$0DRUN$0D
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+C: CCS64
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+  @starlha x !.! -y ~sc~tmp~ > nul
+  ccs64 !:!\~sc~tmp~.d64,!#
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+P: PC64
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+  @starlha x !.! -y ~sc~tmp~ > nul
+  pc64 !:!\~sc~tmp~.d64 -autotype load$22!$22,8,1$0Drun$0D
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+V: VICE
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+  @starlha x !.! -y ~sc~tmp~ > nul
+  x64 !:!\~sc~tmp~.d64:"!"
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+!lnx:
+S: C64S
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+  @starlynx x !.! -y ~sc~tmp~ > nul
+  c64s -diskdir !:!/ -disk ~sc~tmp~.d64 -autotype LOAD$22!^$22,8,1$0DRUN$0D
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+C: CCS64
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+  @starlynx x !.! -y ~sc~tmp~ > nul
+  ccs64 !:!\~sc~tmp~.d64,!#
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+P: PC64
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+  @starlynx x !.! -y ~sc~tmp~ > nul
+  pc64 !:!\~sc~tmp~.d64 -autotype load$22!$22,8,1$0Drun$0D
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+V: VICE
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+  @starlynx x !.! -y ~sc~tmp~ > nul
+  x64 !:!\~sc~tmp~.d64:"!"
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+!?!*.*:
+S: C64S
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+  @starzip x !.! -y ~sc~tmp~ > nul
+  c64s -diskdir !:!/ -disk ~sc~tmp~.d64 -autotype LOAD$22!^$22,8,1$0DRUN$0D
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+C: CCS64
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+  @starzip x !.! -y ~sc~tmp~ > nul
+  ccs64 !:!\~sc~tmp~.d64,!#
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+P: PC64
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+  @starzip x !.! -y ~sc~tmp~ > nul
+  pc64 !:!\~sc~tmp~.d64 -autotype load$22!$22,8,1$0Drun$0D
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+V: VICE
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul
+  @starzip x !.! -y ~sc~tmp~ > nul
+  x64 !:!\~sc~tmp~.d64:"!"
+  @if exist ~sc~tmp~.d64 del ~sc~tmp~.d64 > nul

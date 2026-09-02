@@ -1,0 +1,60 @@
+A bunch of various Shape tools.
+
+Flimatic v3.7           By Olav Morkrid/Panoramic & Glenn Rune Gallefoss
+Graphic Creator I       By DPL
+Graphic Creator II      By DPL
+3x3 Char editor         By Snorre Narum & Glenn Rune Gallefoss
+4x4 Sprite editor       By Rolf Runar Bakke
+8 second formatter      By Glenn Rune Gallefoss
+Fonteditor v2.0         By Cellux/Faces & Glenn Rune Gallefoss
+1x1 Shaper v1.0         By Glenn Rune Gallefoss
+Sprite editor v1.7      By Snorre Narum & Glenn Rune Gallefoss
+
+Overall information:
+All editors, except DPL's tools, are based on the Floating Cursor Control 
+(FCC) concept. That means that there are only keyboard control.
+Olav Morkrid was the first one to use this routine in his Zoomatic editors.
+Later on we have added this concept to most of our editors. And we believe
+it is the most human and userfriendly concept there is.
+In other words: Joystick sucks!
+
+
+*FLIMATIC V3.7:
+Fli/AFli pictures.
+FCC routine.
+Action Replay/TFC load & save routines.
+Press ? for the help page.
+
+*GRAPHIC CREATOR v1.0:
+Sprite images and animations.
+
+*GRAPHIC CREATOR v2.0:
+Different Charset types.
+(Doc file included)
+
+*3X3 CHAR EDITOR:
+Action Replay/TFC load & save routines.
+FCC routine.
+Press ? for the help page.
+
+*4X4 SPRITE EDITOR:
+Sprite images and animations.
+Action Replay/TFC load & save routines.
+FCC routine.
+Press H for the help page.
+
+*FONTEDITOR v2.0:
+Different charset types.
+Action Replay/TFC load & save routines.
+FCC routine.
+Press ? for the help page.
+
+*1X1 SHAPER v1.0:
+Action Replay/TFC load & save routines.
+FCC routine.
+Press ? for the help page.
+
+*SPRITE EDITOR v1.7:
+Action Replay/TFC load & save routines.
+FCC routine.
+Press ? for the help page.

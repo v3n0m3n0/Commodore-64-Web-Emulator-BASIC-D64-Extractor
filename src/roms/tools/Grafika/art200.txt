@@ -1,0 +1,4 @@
+ ARTBMP 2.00 - new version of PC<->c64 gfx handling tool. Capable of reading
+converting and writing 320x200x256 .bmp, c64 hires and multicolor...
+ 
+ 

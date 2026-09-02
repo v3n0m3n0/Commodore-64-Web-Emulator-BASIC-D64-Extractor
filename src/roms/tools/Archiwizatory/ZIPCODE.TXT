@@ -1,0 +1,126 @@
+
+                              The ZipCode format
+
+  Disclaimer: The description below is a mere extrapolation from the files and
+program sources I have encountered.
+
+  The ZipCode algorithm is used to split and compress  disk  images  and  1541
+disks so that the chunks may fit onto a single 1541 disk. This way even people
+connecting to the Net with Commodore machines and 1541  drives  can  download,
+extract and use such disks.
+
+
+
+                         The diskpacked ZipCode format
+
+  The algorithm creates four separate files out of one disk. On  the  PC,  the
+base name of the ZipCode archives comes from the name  of  the  original  disk
+image. The four files are numbered this way:  '1!BASE.EXT', ..., '4!BASE.EXT'.
+An extension of this format is to handle 40 track disk  images,  as  well,  in
+which case an additional archive, '5!BASE.EXT' is created. These files contain
+the following data:
+
+  FILE          POSITION        DESCRIPTION
+  1!BASE.EXT    $0000-$0001     Load address (usually $03FE)
+                $0002-$0003     ID of the original disk (not the  one  in  the
+                                BAM but the one in block  headers);  in  files
+                                created on a PC it may contain the string '64'
+                $0004-          Data of tracks 1-8
+
+  2!BASE.EXT    $0000-$0001     Load address (usually $0400)
+                $0002-          Data of tracks 9-16
+
+  3!BASE.EXT    $0000-$0001     Load address (usually $0400)
+                $0002-          Data of tracks 17-25
+
+  4!BASE.EXT    $0000-$0001     Load address (usually $0400)
+                $0002-          Data of tracks 26-35
+
+  5!BASE.EXT    $0000-$0001     Load address (usually $0400)
+                $0002-          Data of tracks 36-40
+
+
+  Blocks in track data are usually recorded with a soft sector  interleave  of
+10-11 blocks and not sequentially. This way is much  faster  to  compress  and
+decompress on a Commodore machine. Here is the structure of a block:
+
+  POSITION      DESCRIPTION
+  $0000         BITS 6-7: Compression method:
+                  00    Block data is stored unchanged (byte by byte)
+                  01    Block is homogeneous (filled by a single byte)
+                  10    Block data is RLE-compressed
+                  11    Unused
+                BITS 0-5: Track number
+  $0001         Sector number
+  $0002-        Block data
+
+  Unchanged block data:
+
+  $0002-$0101   Data of the original block (256 bytes)
+
+  Homogeneous block data:
+
+  $0002         Fill byte
+
+  RLE-compressed block data:
+
+  $0002         Length of compressed data (LEN)
+  $0003         Mark byte
+  $0004-LEN+3   RLE-compressed data (LEN bytes)
+                A 'mark byte - repeat count - data byte' byte  sequence  tells
+                that there was a 'repeat count' long sequence of  'data bytes'
+                in the original block; sequences shorter than four  bytes  are
+                not compressed
+
+
+
+                         The filepacked ZipCode format
+
+  This format is rarely used and is similar to diskpacked ZipCode archives and
+Lynx archives, as well. Instead of storing all the  sectors  on  the  original
+disk, only the sectors used by the files are stored.
+
+  The file names of the archives are similar to those of the diskpacked  ones,
+but they start with letters like A!*.*, B!*.* and so on:
+
+  FILE          POSITION        DESCRIPTION
+  A!BASE.EXT    $0000-$0001     Load address (usually $03FF)
+                $0002           Number of blocks in the file (max. 166 blocks)
+                $0003-          Continuous block data
+
+  B!BASE.EXT    similarly, if 166 blocks were not enough for the archive
+  ...
+
+  The block data is ZipCoded but there is no track and  sector  number  before
+the data, the compression method is in the track link of the  sector  instead.
+All 256 bytes of the sector are stored, even in the last block of files:
+
+  POSITION      DESCRIPTION
+  $0000         BITS 6-7: Compression method:
+                  00    Block data is stored unchanged (byte by byte)
+                  01    Block is homogeneous (filled by a single byte)
+                  10    Block data is RLE-compressed
+                  11    Unused
+                BITS 0-5: Track number of next sector (0 if last block)
+  $0001         Sector number (or number of used bytes in last block)
+  $0002-        Block data (the same as with diskpacked archives)
+
+  There is a special file with the name X!*.* which contains a little  program
+listing the contents of the archive:
+
+  ADDRESS       DESCRIPTION
+  $0801-$09FD   Listing program
+  $09FE         Number of archive data files (e.g. 1 if only A!*.* exists)
+  $09FF         Number of files contained in the archive
+  $0A00         Directory entries (21 bytes per entry)
+
+  A directory entry has the following structure:
+
+  POSITION      DESCRIPTION
+  $00-$0F       Original name of the file, with trailing Shift-spaces
+  $10           Type of the file (PETSCII uppercase character D, P, S or U)
+  $11-$12       Length of the file in blocks
+  $13-$14       Original track/sector position of first block of the file
+
+  Note that filepacked ZipCode archives are not  designed  to  store  relative
+files.

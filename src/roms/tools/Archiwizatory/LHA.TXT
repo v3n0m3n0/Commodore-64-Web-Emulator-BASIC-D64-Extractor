@@ -1,0 +1,82 @@
+
+                                 The LHA format
+
+  Disclaimer: The description below is a mere extrapolation from the files and
+programs I have encountered.
+
+  LHA is used to compress multiple files into a single archive.  There  is  no
+signature at the beginning of the archives but you can search  for  the  usual
+'-lh?-' compression method signature - the archive starts two bytes before the
+first instance of this string.
+  Normally archives start at the beginning  of  the  file  but  there  can  be
+different extractors prepended to the archive therefore you should not rely on
+the start offset of the archive being constant. However, the standard C64/C128
+LHA Extractor by ((C) by Chris Smeets, 1990) is 3721 (hexadecimal $0E89) bytes
+long and it relocates itself to be able to  work  on  any  Commodore  machine,
+independently of the address it was loaded to in the memory.
+  The archives contain one or more blocks that consist of a  file  header  and
+the compressed data of the file. The original file data  is  compressed  using
+LZW compression bundled with a dynamic Huffman algorithm and is protected with
+a 16-bit CRC checksum.
+
+  The file header has the following structure:
+
+  POSITION      DESCRIPTION
+  $00           Length of the header, without the header checksum (LEN)
+  $01           Header checksum
+  $02-$06       Compression method signature (the ASCII string '-lh?-',  where
+                '?' is a number showing the method)
+  $07-$0A       Size of the packed file data
+  $0B-$0E       Size of the original file data
+  $0F-$12       Original time stamp of the file (MS-DOS format)
+  $13-$14       Original attributes of the file (MS-DOS attributes along  with
+                some extended attributes;  usually  $0020,  only  the  Archive
+                attribute is set)
+  $15-(LEN-1)   Original name of the file
+  LEN-(LEN+1)   CRC checksum of the file
+
+  The header checksum is computed by simply adding the  bytes  in  the  header
+(bytes $02-(LEN+1), from the compression method signature to the CRC checksum)
+without carry.
+
+  The number in compression method signature tells the method used to compress
+that file: '0' means that the file is stored without any compression,  '1'  is
+the normal compression for Commodore LHA archivers and from '2' on compression
+methods are only used in the 2.xx releases of LHA for DOS but not in Commodore
+LHA archivers. The old version 1.xx compression routines of LHA are absolutely
+compatible with Commodore LHA archivers: the compressed file is the  same  or,
+if not, it is still decompressed by the C64/C128 LHA Extractor. The number  is
+related to the size of the string dictionary window of LZW compression and  on
+Commodore machines the window size cannot be as big as on computers with  more
+memory.
+
+  The MS-DOS time stamp format packs the last modification date and time  into
+a long integer:
+
+  POSITION      DESCRIPTION
+  $00-$01       Time of last modification:
+                BITS  0- 4: Seconds divided by 2 (0-58, only even numbers)
+                BITS  5-10: Minutes (0-59)
+                BITS 11-15: Hours (0-23, no AM or PM)
+  $02-$03       Date of last modification:
+                BITS  0- 4: Day (1-31)
+                BITS  5- 9: Month (1-12)
+                BITS 10-15: Year minus 1980
+
+  The file name is a Pascal-style ASCII string, its  length  being  its  first
+character. Commodore LHA archives append a zero byte and the  filetype  (ASCII
+uppercase character D, P, S  or  U)  to  the  file  name  in  the  headers  of
+non-program files and sometimes in those of programs, as well. Note  that  LHA
+archives are not designed to store relative files.
+
+  You can read through an LHA archive with the following algorithm:
+
+  1. Determine the start of the archive, e.g. by searching for  the  signature
+     '-lh?-'.
+  2. Read in one byte from the file. It tells you the length of the  following
+     header (LEN). If it is 0, then you have reached the end of  the  archive,
+     stop.
+  3. Read in the checksum and the header (LEN+1 bytes). Now  you  can  process
+     the header and the file.
+  4. Add the length of the packed file size to the current file  position.  By
+     seeking there, you get to the next header, go to step 2.

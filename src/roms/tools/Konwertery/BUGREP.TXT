@@ -1,0 +1,76 @@
+64NET BUG Report Form
+---------------------
+
+If you discorver any bugs in 64NET, then please tell us so we can fix them!
+If you will out the form below and send it by one of the following means we
+will correct the problem, and release another BETA version with the problem 
+fixed.
+
+How to get it to Paul Gardner-Stephen:
+
+EMAIL:		gardners@ist.flinders.edu.au
+NETMAIL: 	Paul Gardner-Stephen 3:633/272.2
+		(or just post it to the 64NET fido echo if available in your
+		 area - if it isnt ask for it!)
+SNAILMAIL:	Paul Gardner-Stephen
+		1 Hurst St
+		Morphettville, SA 5043
+		Australia
+BBS:		Fishbowl +61 8 277 1361
+		(1200-14k4)
+
+Detach here
+-----------------------------------------------------------------------------
+64NET BUG Report
+
+Date: __/___/____
+Name: __________________________________________________
+64NET S/N:   _______________________
+*EXACT* 64NET Version: v1.__.__ BETA
+
+Priority:
+
+[ ] Low [ ] Annooying [ ] Moderate [ ] Dangerous [ ] Cripling
+[ ] Fix it yesterday!
+
+Description:
+____________________________________________________________________________
+____________________________________________________________________________
+____________________________________________________________________________
+____________________________________________________________________________
+____________________________________________________________________________
+____________________________________________________________________________
+
+Did 64NET 'crash' to DOS? If so what error number, and location did it give?
+
+Error number: ____
+Error location: _______
+
+If you would like to have the fix for this bug emailled directly to you,
+please include your email address below.
+
+____________________________________________________________________________
+
+Would you like to join the mailling list of people who are sent new versions
+of 64NET as they become available?
+
+[ ] Yes!
+[ ] No
+[ ] Yes, but i dont have an email address :(
+    (If you ticked this one, include some other contact details below -
+     including a telephone number if possible - and some arrangement may be
+     able to be reached)
+
+Your contact details:
+
+____________________________________________________________________________
+____________________________________________________________________________
+____________________________________________________________________________
+____________________________________________________________________________
+Phone: +___ ___ __________
+
+
+
+Thank you for your feedback - as you are helping 64NET evolve into a better
+product!
+	Paul Gardner-Stephen
