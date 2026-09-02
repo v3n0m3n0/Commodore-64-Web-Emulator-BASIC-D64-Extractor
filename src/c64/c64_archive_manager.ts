@@ -68,6 +68,33 @@ export class C64ArchiveManager {
     return files.filter((f) => this.isRunnableMedia(f.type));
   }
 
+  // Detect and group multi-cassette tape sets (e.g. Side 1, Side 2)
+  public static findTapeSets(files: ExtractedMediaFile[]): { baseName: string; tapes: ExtractedMediaFile[] }[] {
+    const tapFiles = files.filter((f) => f.type === "TAP");
+    if (tapFiles.length === 0) return [];
+
+    const groups: { [baseName: string]: ExtractedMediaFile[] } = {};
+    for (const f of tapFiles) {
+      const base = f.name
+        .replace(/\.[^.]+$/, "")
+        .replace(/\((Side|Tape|Cassette|Part)[^\)]*\)/gi, "")
+        .replace(/[-_]\s*(Side|Tape|Cassette|Part)\s*[0-9A-Za-z]+/gi, "")
+        .trim();
+      if (!groups[base]) groups[base] = [];
+      groups[base].push(f);
+    }
+
+    const result: { baseName: string; tapes: ExtractedMediaFile[] }[] = [];
+    for (const baseName in groups) {
+      if (groups[baseName].length > 1) {
+        // Sort sides (Side 1 before Side 2, Side A before Side B)
+        groups[baseName].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+        result.push({ baseName, tapes: groups[baseName] });
+      }
+    }
+    return result;
+  }
+
   // Process raw binary buffer and extract archive if packed
   public static async processBinaryData(data: Uint8Array, fileName: string): Promise<ExtractedMediaFile[]> {
     const ext = this.getFileExtension(fileName).toUpperCase();

@@ -983,11 +983,12 @@ export const C64Debugger: React.FC<C64DebuggerProps> = ({ system, telemetry, tar
 
           {/* Hidden File Input for Loading Crash Snapshot JSON */}
           <input
+            id="c64-debugger-snapshot-upload"
             ref={fileInputRef}
             type="file"
             accept=".json,application/json"
             onChange={handleLoadCrashSnapshotFile}
-            className="hidden"
+            className="sr-only"
           />
 
           {/* Save Full System Crash Snapshot Button */}
@@ -1002,15 +1003,22 @@ export const C64Debugger: React.FC<C64DebuggerProps> = ({ system, telemetry, tar
           </button>
 
           {/* Restore Full System Crash Snapshot Button */}
-          <button
+          <label
+            htmlFor="c64-debugger-snapshot-upload"
             id="btn-restore-crash-snapshot"
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all border cursor-pointer bg-[#21262d] hover:bg-[#30363d] text-[#58a6ff] hover:text-white border-[#30363d] shadow-sm active:scale-95"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                fileInputRef.current?.click();
+              }
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all border cursor-pointer bg-[#21262d] hover:bg-[#30363d] text-[#58a6ff] hover:text-white border-[#30363d] shadow-sm active:scale-95 select-none"
             title="Load and restore a reproducible crash snapshot (.json)"
           >
-            <Upload className="w-3.5 h-3.5" />
+            <Upload className="w-3.5 h-3.5 text-[#58a6ff]" />
             <span>LOAD SNAPSHOT</span>
-          </button>
+          </label>
 
           {/* Export Debug Logs (Telemetry Analysis) */}
           <button

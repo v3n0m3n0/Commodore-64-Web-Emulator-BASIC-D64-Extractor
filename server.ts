@@ -39,6 +39,70 @@ app.get("/api/health", (_req, res) => {
 // In-memory ROM cache
 const romCache = new Map<string, { data: Buffer; contentType: string }>();
 
+// Ingested ROM Catalog index
+let romCatalogIndex: Map<string, string> = new Map();
+let romCatalogData: any = null;
+
+function loadRomCatalog() {
+  const catalogPath = path.join(__dirname, "src/data/c64_roms_catalog.json");
+  if (fs.existsSync(catalogPath)) {
+    try {
+      romCatalogData = JSON.parse(fs.readFileSync(catalogPath, "utf-8"));
+      romCatalogIndex.clear();
+      for (const entry of romCatalogData.entries) {
+        const absPath = path.join(__dirname, entry.relPath);
+        romCatalogIndex.set(entry.name.toLowerCase(), absPath);
+        romCatalogIndex.set(entry.relPath.toLowerCase(), absPath);
+        romCatalogIndex.set(entry.id, absPath);
+      }
+      console.log(`[ROM Server] Ingested catalog loaded: ${romCatalogData.totalEntries} media assets indexed.`);
+    } catch (e) {
+      console.warn("[ROM Server] Failed to parse c64_roms_catalog.json:", e);
+    }
+  }
+}
+loadRomCatalog();
+
+// Catalog list & search endpoint
+app.get("/api/roms/catalog", (req, res) => {
+  if (!romCatalogData) {
+    loadRomCatalog();
+  }
+  if (!romCatalogData) {
+    return res.status(404).json({ error: "ROM catalog not yet generated. Run npm run ingest." });
+  }
+
+  const { search, category, format, limit = "50", offset = "0" } = req.query;
+  let results = romCatalogData.entries;
+
+  if (category) {
+    const catStr = String(category).toLowerCase();
+    results = results.filter((r: any) => r.category.toLowerCase() === catStr);
+  }
+  if (format) {
+    const fmtStr = String(format).toUpperCase();
+    results = results.filter((r: any) => r.format.toUpperCase() === fmtStr);
+  }
+  if (search) {
+    const q = String(search).toLowerCase();
+    results = results.filter((r: any) => r.name.toLowerCase().includes(q) || r.title.toLowerCase().includes(q));
+  }
+
+  const total = results.length;
+  const numLimit = Math.min(200, Math.max(1, parseInt(String(limit), 10) || 50));
+  const numOffset = Math.max(0, parseInt(String(offset), 10) || 0);
+  const paged = results.slice(numOffset, numOffset + numLimit);
+
+  res.json({
+    total,
+    offset: numOffset,
+    limit: numLimit,
+    categories: romCatalogData.categories,
+    formats: romCatalogData.formats,
+    items: paged,
+  });
+});
+
 // Multi-mirror ROM proxy endpoint to ensure 100% reliable game downloads
 app.get("/api/roms", async (req, res) => {
   try {
@@ -62,14 +126,19 @@ app.get("/api/roms", async (req, res) => {
     // Extract file name if cleanPath includes a directory
     const fileName = path.basename(cleanPath);
 
-    // 1. Check local disk storage first (fast, offline, authentic)
+    // 1. Check local disk storage first (indexed catalog + fast local disk)
+    const firstLetter = fileName.charAt(0).toUpperCase();
     const localCandidates = [
-      path.join(__dirname, "src/roms/games/polish_classics", fileName),
-      path.join(__dirname, "public/roms", fileName),
+      romCatalogIndex.get(fileName.toLowerCase()),
+      romCatalogIndex.get(cleanPath.toLowerCase()),
       path.join(__dirname, cleanPath),
       path.join(__dirname, "src", cleanPath),
+      path.join(__dirname, "src/roms/games/polish_classics", fileName),
+      path.join(__dirname, "src/roms/games/tap", firstLetter, fileName),
+      path.join(__dirname, "src/roms/games/tap", fileName),
+      path.join(__dirname, "public/roms", fileName),
       path.join(__dirname, "public", cleanPath),
-    ];
+    ].filter(Boolean) as string[];
 
     for (const localPath of localCandidates) {
       if (fs.existsSync(localPath) && fs.statSync(localPath).isFile()) {

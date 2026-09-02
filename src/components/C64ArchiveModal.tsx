@@ -35,7 +35,28 @@ export const C64ArchiveModal: React.FC<C64ArchiveModalProps> = ({
 }) => {
   const [viewingDocFile, setViewingDocFile] = useState<ExtractedMediaFile | null>(null);
 
-  const runnableFiles = useMemo(() => C64ArchiveManager.getRunnableFiles(files), [files]);
+  const runnableFiles = useMemo(() => {
+    const list = C64ArchiveManager.getRunnableFiles(files);
+    return [...list].sort((a, b) => {
+      const aName = a.name.toLowerCase();
+      const bName = b.name.toLowerCase();
+
+      // Prioritize Version 2 / Revised / Remix over Version 1
+      const isAV2 = aName.includes("version 2") || aName.includes("(v2)") || aName.includes("revised");
+      const isBV2 = bName.includes("version 2") || bName.includes("(v2)") || bName.includes("revised");
+      if (isAV2 && !isBV2) return -1;
+      if (!isAV2 && isBV2) return 1;
+
+      // Prioritize Side 1 over Side 2
+      const isASide1 = aName.includes("side 1") || aName.includes("side a") || aName.includes("tape 1");
+      const isBSide1 = bName.includes("side 1") || bName.includes("side a") || bName.includes("tape 1");
+      if (isASide1 && !isBSide1) return -1;
+      if (!isASide1 && isBSide1) return 1;
+
+      return 0;
+    });
+  }, [files]);
+
   const companionFiles = useMemo(
     () => files.filter((f) => !C64ArchiveManager.isRunnableMedia(f.type)),
     [files]
@@ -196,8 +217,28 @@ export const C64ArchiveModal: React.FC<C64ArchiveModalProps> = ({
                         {getIcon(file.type)}
                       </span>
                       <div>
-                        <div className="font-bold text-white text-xs sm:text-sm font-mono">
-                          {file.name}
+                        <div className="font-bold text-white text-xs sm:text-sm font-mono flex items-center gap-2">
+                          <span>{file.name}</span>
+                          {file.name.toLowerCase().includes("version 2") && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#238636]/20 text-[#3fb950] border border-[#238636]/40">
+                              ✨ Recommended / Revised
+                            </span>
+                          )}
+                          {file.name.toLowerCase().includes("version 1") && runnableFiles.some(f => f.name.toLowerCase().includes("version 2")) && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#d29922]/20 text-[#d29922] border border-[#d29922]/40">
+                              ⚠️ Version 1 (Initial Release)
+                            </span>
+                          )}
+                          {file.name.toLowerCase().includes("side 1") && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#1f6feb]/20 text-[#58a6ff] border border-[#1f6feb]/40">
+                              📼 Side 1
+                            </span>
+                          )}
+                          {file.name.toLowerCase().includes("side 2") && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#8957e5]/20 text-[#d2a8ff] border border-[#8957e5]/40">
+                              📼 Side 2
+                            </span>
+                          )}
                         </div>
                         <div className="text-[11px] text-[#8b949e] flex flex-wrap items-center gap-2 mt-0.5">
                           <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${getTypeBadge(file.type)}`}>

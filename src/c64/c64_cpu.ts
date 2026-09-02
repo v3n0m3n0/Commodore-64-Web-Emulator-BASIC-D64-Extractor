@@ -12,8 +12,17 @@ export interface OpcodeDef {
   mode?: string;
 }
 
+export interface IC64MemoryBus {
+  read(addr: number): number;
+  write(addr: number, val: number): void;
+  ram: Uint8Array;
+  vic?: { isIrqActive?: () => boolean };
+  cia1?: { irqAsserted?: boolean };
+  system?: { lineCycles?: number };
+}
+
 export class C64CPU {
-  public mem: any;
+  public mem: IC64MemoryBus;
 
   // Registers
   public a: number = 0;      // Accumulator (8-bit)
@@ -44,7 +53,7 @@ export class C64CPU {
   public onGetin?: () => number;
   public onStop?: () => boolean;
 
-  constructor(memory: any) {
+  constructor(memory: IC64MemoryBus) {
     this.mem = memory;
     this.initOpcodeTable();
   }
@@ -79,7 +88,7 @@ export class C64CPU {
   }
 
   // Set status register from single byte
-  setP(val: number) {
+  setP(val: number): void {
     this.fC = (val & 0x01) ? 1 : 0;
     this.fZ = (val & 0x02) ? 1 : 0;
     this.fI = (val & 0x04) ? 1 : 0;
@@ -90,18 +99,18 @@ export class C64CPU {
   }
 
   // Alias for setP()
-  setStatus(val: number) {
+  setStatus(val: number): void {
     this.setP(val);
   }
 
-  setZN(val) {
+  setZN(val: number): number {
     val &= 0xFF;
     this.fZ = (val === 0) ? 1 : 0;
     this.fN = (val & 0x80) ? 1 : 0;
     return val;
   }
 
-  reset() {
+  reset(): void {
     // Read Reset Vector at $FFFC-$FFFD
     const lo = this.mem.read(0xFFFC);
     const hi = this.mem.read(0xFFFD);
@@ -117,22 +126,22 @@ export class C64CPU {
     this.cycles = 0;
   }
 
-  push(val) {
+  push(val: number): void {
     this.mem.write(0x0100 + this.sp, val & 0xFF);
     this.sp = (this.sp - 1) & 0xFF;
   }
 
-  pop() {
+  pop(): number {
     this.sp = (this.sp + 1) & 0xFF;
     return this.mem.read(0x0100 + this.sp);
   }
 
-  push16(val) {
+  push16(val: number): void {
     this.push((val >> 8) & 0xFF);
     this.push(val & 0xFF);
   }
 
-  pop16() {
+  pop16(): number {
     const lo = this.pop();
     const hi = this.pop();
     return (hi << 8) | lo;
@@ -245,7 +254,7 @@ export class C64CPU {
   }
 
   // ADC helper with BCD decimal mode support
-  adc(val) {
+  adc(val: number): void {
     val &= 0xFF;
     if (this.fD) {
       let lo = (this.a & 0x0F) + (val & 0x0F) + this.fC;
@@ -272,7 +281,7 @@ export class C64CPU {
   }
 
   // SBC helper with BCD decimal mode support
-  sbc(val) {
+  sbc(val: number): void {
     val &= 0xFF;
     if (this.fD) {
       let lo = (this.a & 0x0F) - (val & 0x0F) - (1 - this.fC);
@@ -298,13 +307,13 @@ export class C64CPU {
     }
   }
 
-  cmp(reg, val) {
+  cmp(reg: number, val: number): void {
     const res = reg - (val & 0xFF);
     this.fC = (res >= 0) ? 1 : 0;
     this.setZN(res & 0xFF);
   }
 
-  branch(cond) {
+  branch(cond: boolean | number): number {
     const offset = this.mem.read(this.pc++);
     if (cond) {
       const signedOffset = (offset & 0x80) ? (offset - 256) : offset;
@@ -316,50 +325,50 @@ export class C64CPU {
   }
 
   // Addressing mode helpers
-  imm() {
+  imm(): number {
     return this.pc++;
   }
 
-  zp() {
+  zp(): number {
     return this.mem.read(this.pc++);
   }
 
-  zpX() {
+  zpX(): number {
     return (this.mem.read(this.pc++) + this.x) & 0xFF;
   }
 
-  zpY() {
+  zpY(): number {
     return (this.mem.read(this.pc++) + this.y) & 0xFF;
   }
 
-  abs() {
+  abs(): number {
     const lo = this.mem.read(this.pc++);
     const hi = this.mem.read(this.pc++);
     return (hi << 8) | lo;
   }
 
-  absX(trackPageCross = false) {
+  absX(trackPageCross: boolean = false): number {
     const base = this.abs();
     const eff = (base + this.x) & 0xFFFF;
     this.pageCrossed = trackPageCross && ((base & 0xFF00) !== (eff & 0xFF00));
     return eff;
   }
 
-  absY(trackPageCross = false) {
+  absY(trackPageCross: boolean = false): number {
     const base = this.abs();
     const eff = (base + this.y) & 0xFFFF;
     this.pageCrossed = trackPageCross && ((base & 0xFF00) !== (eff & 0xFF00));
     return eff;
   }
 
-  indX() {
+  indX(): number {
     const zp = (this.mem.read(this.pc++) + this.x) & 0xFF;
     const lo = this.mem.read(zp);
     const hi = this.mem.read((zp + 1) & 0xFF);
     return (hi << 8) | lo;
   }
 
-  indY(trackPageCross = false) {
+  indY(trackPageCross: boolean = false): number {
     const zp = this.mem.read(this.pc++);
     const lo = this.mem.read(zp);
     const hi = this.mem.read((zp + 1) & 0xFF);

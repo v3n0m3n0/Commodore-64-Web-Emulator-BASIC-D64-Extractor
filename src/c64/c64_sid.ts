@@ -87,6 +87,7 @@ export class SIDVoice {
     if (freq <= 0 || this.envelope <= 0) return 0;
 
     const dt = 1.0 / sampleRate;
+    const oldPhase = this.phase;
     this.phase = (this.phase + freq * dt) % 1.0;
     this.stepADSR(dt);
 
@@ -96,21 +97,28 @@ export class SIDVoice {
     const isSaw = (this.control & 0x20) !== 0;
     const isTriangle = (this.control & 0x10) !== 0;
 
-    if (isTriangle) {
-      wave = this.phase < 0.5 ? 4.0 * this.phase - 1.0 : 3.0 - 4.0 * this.phase;
-    } else if (isSaw) {
-      wave = 2.0 * this.phase - 1.0;
-    } else if (isPulse) {
-      const duty = this.getPulseWidth() / 4096.0;
-      wave = this.phase < duty ? 1.0 : -1.0;
-    } else if (isNoise) {
-      // 23-bit LFSR pseudo-random noise generator
-      if (Math.random() < freq * dt * 2) {
+    if (isNoise) {
+      // Authentic MOS 6581 / 8580 Noise Generator:
+      // 23-bit LFSR clocked when phase accumulator bit 19 toggles (approx 16 shifts per cycle)
+      const oldStep = Math.floor(oldPhase * 16);
+      const newStep = Math.floor(this.phase * 16);
+      if (newStep !== oldStep || this.phase < oldPhase) {
         const bit0 = this.noiseShift & 1;
         const bit22 = (this.noiseShift >> 22) & 1;
         this.noiseShift = (this.noiseShift >> 1) | ((bit0 ^ bit22) << 22);
       }
-      wave = (this.noiseShift & 0xff) / 128.0 - 1.0;
+      // Authentic SID DAC bit mapping: {22, 20, 16, 13, 11, 7, 4, 2}
+      const b = (pos: number) => (this.noiseShift >> pos) & 1;
+      const dac = (b(22) << 7) | (b(20) << 6) | (b(16) << 5) | (b(13) << 4) |
+                  (b(11) << 3) | (b(7) << 2) | (b(4) << 1) | b(2);
+      wave = (dac / 128.0) - 1.0;
+    } else if (isPulse) {
+      const duty = this.getPulseWidth() / 4096.0;
+      wave = this.phase < duty ? 1.0 : -1.0;
+    } else if (isSaw) {
+      wave = 2.0 * this.phase - 1.0;
+    } else if (isTriangle) {
+      wave = this.phase < 0.5 ? 4.0 * this.phase - 1.0 : 3.0 - 4.0 * this.phase;
     }
 
     return wave * this.envelope;

@@ -42,6 +42,11 @@ export interface SystemTelemetry {
   cartridge: string | null;
   mountedDisk: string | null;
   mountedTape: string | null;
+  tapeSideName: string | null;
+  tapeDeckCount: number;
+  tapeDeckIndex: number;
+  tapeDeckNames: string[];
+  tapeDetectedLoader?: string;
   tapeCounter: number;
   tapeMotor: boolean;
   tapePlay: boolean;
@@ -573,6 +578,15 @@ export class C64System {
     return true;
   }
 
+  // Eject Cartridge from Expansion Port and perform clean hardware reset
+  public ejectCartridge(): boolean {
+    if (!this.mountedCart && !this.memory.cartridgeAttached) return false;
+    this.mountedCart = null;
+    this.memory.detachCartridge();
+    this.hardReset(false);
+    return true;
+  }
+
   // Mount D64 Disk Image and optionally autorun the first program
   public mountD64(
     data: Uint8Array,
@@ -676,7 +690,7 @@ export class C64System {
     fileName?: string,
     explicitStandard?: VideoStandard
   ): TAPImage | null {
-    const tap = C64TAP.parse(data);
+    const tap = C64TAP.parse(data, fileName);
     if (!tap) return null;
 
     this.mountedTapImage = tap;
@@ -689,13 +703,108 @@ export class C64System {
     this.setStandard(detectedStandard, true);
 
     // 1. Mount into virtual C2N Datasette tape drive
-    this.datasette.mount(tap, autoRun);
+    this.datasette.mount(tap, autoRun, fileName, data);
+
+    // If not autoRun, we are hot-swapping a tape (e.g. Side 2 while game is running)
+    if (!autoRun) {
+      if (this.datasette.motorOn || (this.memory.ram[0x0001] & 0x20) === 0) {
+        this.datasette.play();
+      }
+      return tap;
+    }
 
     // 2. Tier 1: Fast Autostart if standard KERNAL program block was reconstructed
     if (autoRun && tap.files && tap.files.length > 0) {
       const firstFile = tap.files[0];
       if (firstFile && firstFile.prgData && firstFile.prgData.length > 0) {
+        // 1. Populate C64 Cassette Buffer ($033C..$03FB) with authentic header payload (Cyberload / KERNAL buffer)
+        if (firstFile.headerPayload && firstFile.headerPayload.length > 0) {
+          for (let i = 0; i < Math.min(192, firstFile.headerPayload.length); i++) {
+            this.memory.ram[0x033c + i] = firstFile.headerPayload[i];
+          }
+        }
+
         this.loadAndRunPRG(firstFile.prgData, firstFile.name, detectedStandard);
+
+        // Re-apply cassette buffer and PRG payload if hardReset cleared them
+        if (firstFile.headerPayload && firstFile.headerPayload.length > 0) {
+          for (let i = 0; i < Math.min(192, firstFile.headerPayload.length); i++) {
+            this.memory.ram[0x033c + i] = firstFile.headerPayload[i];
+          }
+        }
+        if (firstFile.prgData && firstFile.prgData.length > 2 && firstFile.startAddr < 0x0800) {
+          for (let i = 2; i < firstFile.prgData.length; i++) {
+            this.memory.ram[firstFile.startAddr + (i - 2)] = firstFile.prgData[i];
+          }
+        }
+
+        // If the loaded PRG is a machine code bootstrap loader (e.g. Cyberload/tape loader at $02A0/$02A6, $02BA, $033C..$03FB, or custom runAddr),
+        // execute authentic entry point (runAddr, $02A8, $02AD, or IMAIN $0302) and keep tape motor spinning
+        const imain = this.memory.ram[0x0302] | (this.memory.ram[0x0303] << 8);
+        const isBootstrap =
+          firstFile.isAbsoluteLoader ||
+          firstFile.typeName === "Bootstrap Loader" ||
+          firstFile.startAddr < 0x0800 ||
+          (firstFile.startAddr < 0x0340 && imain !== 0xa483);
+
+        if (isBootstrap) {
+          // Clear keyboard queue so BASIC does not attempt to execute spurious RUN on empty memory
+          this.keyboardQueue = [];
+          this.memory.ram[0x00c6] = 0;
+
+          let entry = firstFile.runAddr;
+          if (!entry || entry === 0x0803 || entry === 0x0801) {
+            entry =
+              firstFile.startAddr === 0x02a0
+                ? 0x02a8
+                : firstFile.startAddr === 0x02a6
+                ? 0x02ad
+                : imain !== 0xa483
+                ? imain
+                : firstFile.startAddr;
+          }
+          if (entry && entry !== 0xa483 && entry !== 0x0000) {
+            this.cpu.pc = entry;
+          }
+
+          // In Cyberload, KERNAL vector ($0314) was set to $02A6
+          if (firstFile.startAddr === 0x02a0 || firstFile.startAddr === 0x02a6) {
+            this.memory.ram[0x0314] = 0xa6;
+            this.memory.ram[0x0315] = 0x02;
+          }
+
+          // In Galadriel / Mastertronic Loaders ($02BA..$032C with JSR $0361 in buffer):
+          // Sets destination buffer ($0801) and sets work area pointers ($0305, $0317, $0313, $030C, $26, $62)
+          // To allow full tape playback without truncation, limit is set to open high-memory boundary ($FFFF)
+          if (firstFile.startAddr === 0x02ba || this.memory.ram[0x02ba] === 0xa0) {
+            this.memory.ram[0x0305] = 0x01; // Start address LO ($0801)
+            this.memory.ram[0x0317] = 0x08; // Start address HI ($0801)
+            this.memory.ram[0x0313] = 0xff; // Unrestricted stage-2 read limit ($FFFF)
+            this.memory.ram[0x030c] = 0xff;
+            this.memory.ram[0x26] = 0x01;
+            this.memory.ram[0x27] = 0x08;
+            this.memory.ram[0x62] = 0xff;
+            this.memory.ram[0x63] = 0xff;
+          }
+
+          // Disable interrupts in CPU and stop CIA 1 Timer A to avoid spurious interrupts during bootstrap
+          this.cpu.fI = 1;
+          this.cia1.cra = 0x00;
+          this.cia1.imr = 0x00;
+          this.cia1.icr = 0x00;
+          this.cia1.irqActive = false;
+          this.cpu.irqPending = false;
+
+          // PLA port $0001: I/O enabled, Motor ON (bit 5 = 0), Tape Sense Active
+          this.memory.ram[0x0001] = 0x17;
+          this.datasette.motorOn = true;
+        }
+
+        // Position datasette right after the initial bootstrap block if tape continues
+        if (firstFile.pulseOffset && firstFile.pulseOffset > 0) {
+          this.datasette.pulseIndex = firstFile.pulseOffset;
+          this.datasette.play();
+        }
         return tap;
       }
     }
@@ -711,6 +820,50 @@ export class C64System {
     }
 
     return tap;
+  }
+
+  // Mount an entire multi-cassette deck (e.g., Side 1 and Side 2 of a multi-tape game)
+  public mountTapeSet(
+    tapes: { name: string; data: Uint8Array; detectedStandard?: VideoStandard }[],
+    autoRun = true
+  ): TAPImage | null {
+    if (!tapes || tapes.length === 0) return null;
+
+    // Mount all tapes into Datasette deck
+    this.datasette.mountDeck(tapes, 0, autoRun);
+    const active = this.datasette.activeEntry;
+    if (!active) return null;
+
+    this.mountedTapImage = active.image;
+
+    if (autoRun) {
+      return this.mountTAP(
+        active.data,
+        true,
+        active.fileName,
+        tapes[0]?.detectedStandard
+      );
+    }
+
+    return active.image;
+  }
+
+  // Switch the active cassette in the tape deck during gameplay (preserves CPU/RAM state)
+  public switchTape(index: number): boolean {
+    const ok = this.datasette.switchTape(index, true);
+    if (ok) {
+      this.mountedTapImage = this.datasette.image;
+    }
+    return ok;
+  }
+
+  // Flip tape side (Side 1 <-> Side 2) during gameplay
+  public flipTapeSide(): boolean {
+    const ok = this.datasette.flipSide(true);
+    if (ok) {
+      this.mountedTapImage = this.datasette.image;
+    }
+    return ok;
   }
 
   // Push a single PETSCII key character into KERNAL keyboard buffer ($0277 / $00C6)
@@ -889,6 +1042,32 @@ export class C64System {
       this.stepScanline();
     }
 
+    // Auto-complete tape read loop if tape stream ended but CPU is waiting in buffer loop ($0370..$03FB)
+    if (
+      this.datasette &&
+      this.datasette.image &&
+      this.datasette.pulseIndex >= this.datasette.image.pulses.length - 2 &&
+      this.cpu.pc >= 0x0370 &&
+      this.cpu.pc <= 0x03fb
+    ) {
+      // Unblank display via VIC register write (authentic KERNAL $FC98: ORA #$10 on $D011)
+      this.vic.write(0x11, 0x1b);
+      this.memory.write(0xd011, 0x1b);
+      // Restart CIA 1 Timer A and IRQ for system jiffy clock
+      this.cia1.cra = 0x01;
+      this.cia1.imr = 0x01;
+      this.cpu.sp = 0xfd;
+      this.cpu.setP(0x20); // interrupts enabled, decimal mode off
+      this.datasette.stop();
+
+      // If program has machine code relocator at $0880 (e.g. Galadriel / Roundabout):
+      if (this.memory.ram[0x0880] === 0xa9 && this.memory.ram[0x08a1] === 0x4c) {
+        this.cpu.pc = 0x0880;
+      } else if (this.memory.ram[0x0801] !== 0) {
+        this.cpu.pc = 0xe1b5; // Authentic KERNAL RUN without keyboard queue pollution
+      }
+    }
+
     this.frameCount++;
   }
 
@@ -896,14 +1075,19 @@ export class C64System {
   public stepScanline(): number {
     const cycPerLine = this.vic.cyclesPerLine;
 
-    // 1. Start of scanline (triggers raster IRQ if matched on current line)
+    // 1. Start of scanline (triggers raster IRQ if matched on current line and computes Bad Line DMA)
     const stolen = this.vic.startLine();
-    // Exact cycle carry: subtract previous scanline's cycle overrun from current line's budget
-    const cpuBudget = cycPerLine - (stolen || 0) - this.lineCycleRemainder;
 
-    // Interrupts (VIC/CIA1 IRQ and CIA2 NMI) are checked cycle-accurately by CPU handleInterrupts() on each instruction.
+    // If DMA occurred (Bad Line: CPU halted by BA line low), peripherals advance with bus clock immediately
+    if (stolen > 0) {
+      this.cia1.step(stolen);
+      this.cia2.step(stolen);
+      this.datasette.step(stolen);
+      this.totalCycles += stolen;
+    }
 
     // 2. Step CPU instructions for available budget
+    const cpuBudget = Math.max(0, cycPerLine - (stolen || 0));
     let cpuDone = 0;
     while (cpuDone < cpuBudget) {
       if (this.breakpoints.size > 0 && this.breakpoints.has(this.cpu.pc)) {
@@ -917,17 +1101,6 @@ export class C64System {
       this.datasette.step(cyc);
       cpuDone += cyc;
       this.totalCycles += cyc;
-    }
-
-    // Save cycle overrun for the next scanline (guarantees cycle-exact frame duration across all lines)
-    this.lineCycleRemainder = Math.max(0, cpuDone - cpuBudget);
-
-    // Step CIA timers by stolen cycles if DMA occurred
-    if (stolen > 0) {
-      this.cia1.step(stolen);
-      this.cia2.step(stolen);
-      this.datasette.step(stolen);
-      this.totalCycles += stolen;
     }
 
     this.lineCycles = (this.lineCycles + cycPerLine) % cycPerLine;
@@ -1083,15 +1256,16 @@ export class C64System {
           framesRun++;
         }
 
-        // Warp Turbo Mode executes 4 additional frames
-        if (this.isWarpMode) {
+        // Warp Turbo Mode or Datasette Auto-Warp executes additional frames while motor is ON
+        const activeWarp = this.isWarpMode || (this.datasette && this.datasette.isWarpActive);
+        if (activeWarp) {
           for (let w = 0; w < 4; w++) {
             this.stepFrame();
           }
         }
 
         // Render frame to canvas whenever emulation stepped
-        if (framesRun > 0 || this.isWarpMode) {
+        if (framesRun > 0 || activeWarp) {
           this.onFrameRender?.();
         }
 
@@ -1151,8 +1325,15 @@ export class C64System {
       mountedTape: this.mountedTape
         ? this.mountedTape.tapeDescription
         : this.mountedTapImage
-        ? "C2N Raw TAP"
+        ? (this.datasette.activeEntry?.name || "C2N Raw TAP")
         : null,
+      tapeSideName: this.datasette ? this.datasette.activeEntry?.sideName || null : null,
+      tapeDeckCount: this.datasette ? this.datasette.totalTapes : 0,
+      tapeDeckIndex: this.datasette ? this.datasette.activeDeckIndex : 0,
+      tapeDeckNames: this.datasette
+        ? this.datasette.tapeDeck.map((t) => `${t.name} (${t.sideName})`)
+        : [],
+      tapeDetectedLoader: this.mountedTapImage?.detectedLoader,
       tapeCounter: this.datasette ? this.datasette.counter : 0,
       tapeMotor: this.datasette ? this.datasette.motorOn : false,
       tapePlay: this.datasette ? this.datasette.playSwitchPressed : false,

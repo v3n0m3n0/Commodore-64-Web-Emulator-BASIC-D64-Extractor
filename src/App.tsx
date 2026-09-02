@@ -186,6 +186,38 @@ export default function App() {
 
   // Mount and run specific extracted file in emulator
   const handleMountExtractedFile = (file: ExtractedMediaFile) => {
+    // If mounting a TAP file, check if there are companion sides in extractedFiles
+    if (file.type === "TAP" && extractedFiles) {
+      const baseName = file.name
+        .replace(/\.[^.]+$/, "")
+        .replace(/\((Side|Tape|Cassette|Part)[^\)]*\)/gi, "")
+        .replace(/[-_]\s*(Side|Tape|Cassette|Part)\s*[0-9A-Za-z]+/gi, "")
+        .trim();
+      const companionTapes = extractedFiles.filter((f) => {
+        if (f.type !== "TAP") return false;
+        const fBase = f.name
+          .replace(/\.[^.]+$/, "")
+          .replace(/\((Side|Tape|Cassette|Part)[^\)]*\)/gi, "")
+          .replace(/[-_]\s*(Side|Tape|Cassette|Part)\s*[0-9A-Za-z]+/gi, "")
+          .trim();
+        return fBase === baseName;
+      });
+
+      if (companionTapes.length > 1) {
+        // Multi-tape set detected! Sort so clicked tape or Side 1 is primary
+        const sorted = [...companionTapes].sort((a, b) => {
+          if (a.name === file.name) return -1;
+          if (b.name === file.name) return 1;
+          return a.name.localeCompare(b.name, undefined, { numeric: true });
+        });
+        setExtractedFiles(null);
+        system.mountTapeSet(sorted, true);
+        setActiveTab("screen");
+        setIsRunning(true);
+        return;
+      }
+    }
+
     setExtractedFiles(null);
 
     if (file.type === "D64") {
@@ -223,6 +255,52 @@ export default function App() {
     }
   };
 
+  const handleFlipTapeSide = () => {
+    system.flipTapeSide();
+    setTelemetry(system.getTelemetry());
+  };
+
+  const handleSwitchTape = (idx: number) => {
+    system.switchTape(idx);
+    setTelemetry(system.getTelemetry());
+  };
+
+  // Dedicated Cartridge (.CRT) Mount & Eject
+  const handleMountCartridge = async (filesOrUrl: FileList | File[] | ExtractedMediaFile[] | string) => {
+    if (!filesOrUrl) return;
+    try {
+      let allExtracted: ExtractedMediaFile[] = [];
+      if (typeof filesOrUrl === "string") {
+        allExtracted = await C64ArchiveManager.loadFromUrl(filesOrUrl);
+      } else if (Array.isArray(filesOrUrl) && filesOrUrl.length > 0 && "type" in filesOrUrl[0]) {
+        allExtracted = filesOrUrl as ExtractedMediaFile[];
+      } else {
+        const fileList = Array.from(filesOrUrl as FileList | File[]);
+        for (let i = 0; i < fileList.length; i++) {
+          const extracted = await C64ArchiveManager.processUploadedFile(fileList[i]);
+          allExtracted.push(...extracted);
+        }
+      }
+
+      const crtFile = allExtracted.find((f) => f.type === "CRT");
+      if (crtFile) {
+        system.loadCartridge(crtFile.data, crtFile.name, crtFile.detectedStandard);
+        setTelemetry(system.getTelemetry());
+        setActiveTab("screen");
+        setIsRunning(true);
+      } else if (allExtracted.length > 0) {
+        handleMountExtractedFile(allExtracted[0]);
+      }
+    } catch (err) {
+      console.error("Error mounting cartridge:", err);
+    }
+  };
+
+  const handleEjectCartridge = () => {
+    system.ejectCartridge();
+    setTelemetry(system.getTelemetry());
+  };
+
   return (
     <div className="min-h-screen bg-[#0d1117] text-[#e6edf3] flex flex-col font-mono selection:bg-[#1f6feb] selection:text-white">
       {/* Master Toolbar & Telemetry Header */}
@@ -242,7 +320,11 @@ export default function App() {
         onToggleSyncMode={handleToggleSyncMode}
         onReset={handleReset}
         onFileUpload={handleFileUpload}
+        onMountCartridge={handleMountCartridge}
+        onEjectCartridge={handleEjectCartridge}
         onSelectTab={setActiveTab}
+        onFlipTapeSide={handleFlipTapeSide}
+        onSwitchTape={handleSwitchTape}
       />
 
       {/* Main Content Area */}

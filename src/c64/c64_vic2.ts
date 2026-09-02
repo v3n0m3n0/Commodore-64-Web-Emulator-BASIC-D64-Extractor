@@ -95,8 +95,10 @@ export class C64VIC2 {
   public isIrqActive(): boolean {
     return (this.regs[0x19] & 0x80) !== 0;
   }
+  private _frameBufferView: Uint8ClampedArray = new Uint8ClampedArray(this.pixels.buffer);
+
   public get frameBuffer(): Uint8ClampedArray {
-    return new Uint8ClampedArray(this.pixels.buffer);
+    return this._frameBufferView;
   }
   public get currentRasterLine(): number {
     return this.currentRaster;

@@ -22,6 +22,7 @@ import {
   Activity,
   Bot,
   Music,
+  Unplug,
 } from "lucide-react";
 import { VideoStandard } from "../c64/c64_vic2";
 import { SystemTelemetry } from "../c64/c64_system";
@@ -45,7 +46,11 @@ interface C64ToolbarProps {
   onToggleSyncMode?: () => void;
   onReset: (hard: boolean) => void;
   onFileUpload: (files: FileList | File[] | ExtractedMediaFile[] | string) => void;
+  onMountCartridge?: (files: FileList | File[] | ExtractedMediaFile[] | string) => void;
+  onEjectCartridge?: () => void;
   onSelectTab: (tab: ActiveTabType) => void;
+  onFlipTapeSide?: () => void;
+  onSwitchTape?: (index: number) => void;
 }
 
 export const C64Toolbar: React.FC<C64ToolbarProps> = ({
@@ -64,9 +69,14 @@ export const C64Toolbar: React.FC<C64ToolbarProps> = ({
   onToggleSyncMode,
   onReset,
   onFileUpload,
+  onMountCartridge,
+  onEjectCartridge,
   onSelectTab,
+  onFlipTapeSide,
+  onSwitchTape,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cartridgeInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <header className="bg-[#161b22] border-b border-[#30363d] px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 select-none">
@@ -242,6 +252,36 @@ export const C64Toolbar: React.FC<C64ToolbarProps> = ({
             : "📺 PAL (50.1 Hz)"}
         </button>
 
+        {/* Quick Tape Deck & Multi-Side Switcher Badge */}
+        {telemetry.mountedTape && (
+          <div className="flex items-center gap-1 bg-[#0d1117] border border-[#d29922]/60 px-2 py-0.5 rounded text-xs">
+            <span
+              className={`w-2 h-2 rounded-full ${
+                telemetry.tapePlay && telemetry.tapeMotor
+                  ? "bg-green-400 animate-ping"
+                  : telemetry.tapePlay
+                  ? "bg-yellow-400"
+                  : "bg-gray-500"
+              }`}
+            />
+            <span className="text-[#d29922] font-mono font-bold text-[11px] hidden sm:inline">
+              📼 {telemetry.tapeSideName || "TAPE"}:
+            </span>
+            <span className="text-[#58a6ff] font-mono font-bold text-[11px]">
+              {String(telemetry.tapeCounter).padStart(3, "0")}
+            </span>
+            {telemetry.tapeDeckCount > 1 && onFlipTapeSide && (
+              <button
+                onClick={onFlipTapeSide}
+                className="ml-1 px-1.5 py-0.5 rounded bg-[#d29922]/20 hover:bg-[#d29922]/40 text-[#d29922] text-[10px] font-bold uppercase transition-colors"
+                title={`Przełącz stronę kasety (${telemetry.tapeDeckIndex + 1}/${telemetry.tapeDeckCount})`}
+              >
+                ⇄ FLIP ({telemetry.tapeDeckIndex + 1}/{telemetry.tapeDeckCount})
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Audio Volume & Mute */}
         <div className="flex items-center gap-1.5 bg-[#0d1117] px-2.5 py-1 rounded border border-[#30363d]">
           <button
@@ -268,13 +308,14 @@ export const C64Toolbar: React.FC<C64ToolbarProps> = ({
           />
         </div>
 
-        {/* Upload File Input Button */}
+        {/* Load Game File Input & Button */}
         <input
+          id="c64-file-upload-input"
           ref={fileInputRef}
           type="file"
-          accept=".d64,.prg,.p00,.crt,.t64,.tap,.bas,.txt,.zip,.gz,.sid,.mus"
+          accept=".d64,.prg,.p00,.t64,.tap,.bas,.txt,.zip,.gz,.sid,.mus"
           multiple
-          className="hidden"
+          className="sr-only"
           onChange={(e) => {
             if (e.target.files && e.target.files.length > 0) {
               onFileUpload(e.target.files);
@@ -282,15 +323,83 @@ export const C64Toolbar: React.FC<C64ToolbarProps> = ({
             }
           }}
         />
-        <button
+        <label
+          htmlFor="c64-file-upload-input"
           id="btn-upload-file"
-          onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#238636] hover:bg-[#2ea043] text-white text-xs font-semibold shadow-sm transition-all"
-          title="Upload D64, PRG, CRT, T64, TAP or ZIP archive"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              fileInputRef.current?.click();
+            }
+          }}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#238636] hover:bg-[#2ea043] active:scale-95 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer select-none"
+          title="Wczytaj grę lub nośnik C64: .D64 (dyskietka 1541), .TAP (kaseta C2N), .T64 (taśma), .PRG / .P00 (program binarny), .ZIP / .GZ (archiwum), .BAS (kod BASIC)"
         >
-          <Upload className="w-3.5 h-3.5" />
-          Load File / ZIP
-        </button>
+          <Gamepad2 className="w-3.5 h-3.5" />
+          Load Game
+        </label>
+
+        {/* Dedicated Cartridge Mount & Eject Controls */}
+        <input
+          id="c64-cartridge-upload-input"
+          ref={cartridgeInputRef}
+          type="file"
+          accept=".crt,.zip,.gz"
+          className="sr-only"
+          onChange={(e) => {
+            if (e.target.files && e.target.files.length > 0) {
+              if (onMountCartridge) {
+                onMountCartridge(e.target.files);
+              } else {
+                onFileUpload(e.target.files);
+              }
+              e.target.value = "";
+            }
+          }}
+        />
+
+        {telemetry.cartridge ? (
+          <div className="flex items-center rounded shadow-sm border border-blue-500/40 overflow-hidden">
+            <label
+              htmlFor="c64-cartridge-upload-input"
+              id="btn-cartridge-active"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#1f6feb]/90 hover:bg-[#1f6feb] text-cyan-100 text-xs font-semibold cursor-pointer transition-all select-none"
+              title={`Podłączony Cartridge: ${telemetry.cartridge} (Obsługiwane formaty: .CRT, .ZIP, .GZ — m.in. Action Replay, Final Cartridge III, Super Snapshot, Simons' BASIC, standard 8KB/16KB, Ultimax, Ocean, Magic Desk, EasyFlash itp.). Kliknij, aby zmienić cartridge.`}
+            >
+              <Cpu className="w-3.5 h-3.5 text-cyan-300 animate-pulse" />
+              <span className="max-w-[110px] truncate">{telemetry.cartridge}</span>
+            </label>
+            {onEjectCartridge && (
+              <button
+                id="btn-eject-cartridge"
+                onClick={onEjectCartridge}
+                className="px-2 py-1.5 bg-[#d9383a] hover:bg-[#f85149] active:scale-95 text-white text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer select-none"
+                title="Wysuń Cartridge (Eject) z portu rozszerzeń C64"
+              >
+                <Unplug className="w-3 h-3" />
+                <span>Eject</span>
+              </button>
+            )}
+          </div>
+        ) : (
+          <label
+            htmlFor="c64-cartridge-upload-input"
+            id="btn-upload-cartridge"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                cartridgeInputRef.current?.click();
+              }
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#1f6feb] hover:bg-[#388bfd] active:scale-95 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer select-none"
+            title="Podmontuj Cartridge C64 (.CRT): Obsługiwane typy kartridży (Standard 8KB/16KB, Ultimax, Action Replay, Final Cartridge III, Super Snapshot, Simons' BASIC, Ocean, Magic Desk, EasyFlash itp.). Cartridge pozostaje w porcie podczas wczytywania gier!"
+          >
+            <Cpu className="w-3.5 h-3.5 text-blue-200" />
+            Insert Cartridge
+          </label>
+        )}
       </div>
     </header>
   );

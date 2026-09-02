@@ -32,6 +32,7 @@ import { C64T64 } from "../c64/c64_t64";
 import { BUNDLED_SAMPLES, BundledSample } from "../c64/c64_bundled_samples";
 import { C64Basic } from "../c64/c64_basic_detokenizer";
 import { C64ArchiveManager } from "../c64/c64_archive_manager";
+import { C64DatasetteStudio } from "./C64DatasetteStudio";
 
 interface C64StorageExplorerProps {
   system: C64System;
@@ -56,7 +57,9 @@ export const C64StorageExplorer: React.FC<C64StorageExplorerProps> = ({
   onOpenDebugger,
   onSwitchToScreen,
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<"directory" | "bam" | "creator" | "bundled">("directory");
+  const [activeSubTab, setActiveSubTab] = useState<
+    "directory" | "datasette" | "bam" | "creator" | "bundled"
+  >(system.mountedTapImage ? "datasette" : "directory");
   const [selectedFile, setSelectedFile] = useState<D64DirectoryEntry | null>(null);
 
   // BAM Visualizer state
@@ -410,6 +413,23 @@ export const C64StorageExplorer: React.FC<C64StorageExplorerProps> = ({
         </button>
 
         <button
+          onClick={() => setActiveSubTab("datasette")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+            activeSubTab === "datasette"
+              ? "bg-[#d29922] text-black shadow-sm"
+              : "text-[#d29922] hover:text-white hover:bg-[#21262d]"
+          }`}
+        >
+          <Radio className="w-4 h-4" />
+          1530 C2N Datasette Studio
+          {system.mountedTapImage && (
+            <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-[#238636] text-white">
+              {system.datasette.activeEntry?.sideName || "TAPE"}
+            </span>
+          )}
+        </button>
+
+        <button
           onClick={() => setActiveSubTab("bam")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
             activeSubTab === "bam"
@@ -445,6 +465,16 @@ export const C64StorageExplorer: React.FC<C64StorageExplorerProps> = ({
           Bundled Demos & Samples
         </button>
       </div>
+
+      {/* SUB-VIEW 0: 1530 C2N DATASETTE STUDIO */}
+      {activeSubTab === "datasette" && (
+        <C64DatasetteStudio
+          system={system}
+          onOpenBasicStudio={onOpenBasicStudio}
+          onOpenDebugger={onOpenDebugger}
+          onSwitchToScreen={onSwitchToScreen}
+        />
+      )}
 
       {/* SUB-VIEW 1: DIRECTORY & FILES */}
       {activeSubTab === "directory" && (
@@ -764,20 +794,28 @@ export const C64StorageExplorer: React.FC<C64StorageExplorerProps> = ({
                 <label className="text-xs font-bold text-[#8b949e] uppercase">
                   Files to Include in Directory Track 18
                 </label>
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="px-2.5 py-1 rounded-lg bg-[#21262d] hover:bg-[#30363d] text-white text-xs font-medium flex items-center gap-1.5"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  Add Local PRG File
-                </button>
                 <input
+                  id="c64-creator-prg-upload"
                   type="file"
                   ref={fileInputRef}
                   multiple
                   onChange={handleCreatorFileUpload}
-                  className="hidden"
+                  className="sr-only"
                 />
+                <label
+                  htmlFor="c64-creator-prg-upload"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      fileInputRef.current?.click();
+                    }
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-[#21262d] hover:bg-[#30363d] text-white text-xs font-medium flex items-center gap-1.5 cursor-pointer select-none"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add Local PRG File
+                </label>
               </div>
 
               <div className="overflow-x-auto">

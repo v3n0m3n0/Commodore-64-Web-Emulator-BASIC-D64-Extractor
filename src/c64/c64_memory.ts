@@ -7,6 +7,10 @@
 
 import { C64ROMs } from "./c64_roms";
 import { CartridgeImage } from "./c64_crt";
+import type { C64VIC2 } from "./c64_vic2";
+import type { C64SID } from "./c64_sid";
+import type { C64CIA } from "./c64_cia";
+import type { C64Datasette } from "./c64_datasette";
 
 export interface MemoryDevice {
   read(addr: number): number;
@@ -32,10 +36,11 @@ export class C64Memory {
   public _charen: boolean = true;
 
   // Peripheral references
-  public vic: any = null;
-  public sid: any = null;
-  public cia1: any = null;
-  public cia2: any = null;
+  public vic: C64VIC2 | null = null;
+  public sid: C64SID | null = null;
+  public cia1: C64CIA | null = null;
+  public cia2: C64CIA | null = null;
+  public datasette: C64Datasette | null = null;
 
   // Cartridge support
   public cartridgeAttached: boolean = false;
@@ -48,7 +53,6 @@ export class C64Memory {
   public gameActive: boolean = false;   // Active low line (true when active / grounded)
   public exromActive: boolean = false;  // Active low line (true when active / grounded)
   public cartImage: CartridgeImage | null = null;
-  public datasette: any = null;
 
   constructor() {
     this.loadSystemRoms();
