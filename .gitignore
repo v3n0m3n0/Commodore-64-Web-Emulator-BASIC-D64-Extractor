@@ -1,3 +1,8 @@
+magazines/
+modules/
+scene/
+tools/
+tunes/
 node_modules/
 build/
 dist/
